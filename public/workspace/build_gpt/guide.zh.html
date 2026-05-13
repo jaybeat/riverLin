@@ -1,0 +1,1432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Build GPT 伴读指南</title>
+<style>
+  :root {
+    --toc-width: 240px;
+    --article-padding: 40px;
+    --article-max-width: 800px;
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    min-height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+    color: #2d3436;
+    background: #f5f6fa;
+  }
+  body {
+    display: grid;
+    grid-template-columns: var(--toc-width) minmax(0, 1fr);
+    min-height: 100vh;
+  }
+
+  /* ---------- 左侧章节导航 ---------- */
+  .toc-pane {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    height: 100vh;
+    background: #fff;
+    border-right: 1px solid #e1e4e8;
+    overflow-y: auto;
+    padding: 24px 0;
+    z-index: 50;
+  }
+  .toc-header {
+    padding: 0 20px 16px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #b2bec3;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .toc-list a {
+    display: block;
+    padding: 6px 20px;
+    color: #636e72;
+    text-decoration: none;
+    font-size: 13px;
+    line-height: 1.5;
+    border-left: 3px solid transparent;
+    transition: all 0.15s;
+  }
+  .toc-list a.h1 { font-weight: 600; color: #2d3436; }
+  .toc-list a.h2 { padding-left: 32px; }
+  .toc-list a.h3 { padding-left: 44px; font-size: 12px; color: #636e72; }
+  .toc-list a:hover { background: #f8f9fa; color: #0984e3; }
+  .toc-list a.active {
+    color: #0984e3;
+    background: #f1f2f6;
+    border-left-color: #0984e3;
+  }
+
+  /* ---------- 文章区域 ---------- */
+  .article-pane {
+    padding: var(--article-padding);
+    min-height: 100vh;
+  }
+  .article-pane > * {
+    max-width: var(--article-max-width);
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .article-pane img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 6px;
+    margin: 16px 0;
+    display: block;
+  }
+
+  /* ---------- 排版 ---------- */
+  h1 {
+    border-bottom: 2px solid #2d3436;
+    padding-bottom: 10px;
+    margin-top: 50px;
+    font-size: 1.8em;
+  }
+  h2 {
+    margin-top: 50px;
+    color: #0984e3;
+    border-left: 4px solid #0984e3;
+    padding-left: 12px;
+    font-size: 1.4em;
+  }
+  h3 { color: #00b894; margin-top: 32px; font-size: 1.2em; }
+  h4 { color: #636e72; margin-top: 24px; font-size: 1.1em; }
+  p { line-height: 1.75; }
+  pre {
+    background: #2d3436;
+    color: #dfe6e9;
+    padding: 16px 20px;
+    border-radius: 6px;
+    overflow-x: auto;
+    line-height: 1.5;
+  }
+  pre code { font-family: "Menlo", "Consolas", monospace; font-size: 14px; }
+  :not(pre) > code {
+    background: #f1f2f6;
+    padding: 2px 6px;
+    border-radius: 3px;
+    color: #d63031;
+    font-family: "Menlo", "Consolas", monospace;
+    font-size: 0.92em;
+  }
+
+  /* ---------- 时间戳 ---------- */
+  sub a.ts-jump {
+    color: #74b9ff;
+    text-decoration: none;
+    font-size: 0.85em;
+    cursor: pointer;
+    padding: 1px 6px;
+    border-radius: 3px;
+    background: #f1f2f6;
+  }
+  sub a.ts-jump:hover {
+    background: #74b9ff;
+    color: white;
+  }
+
+  /* ---------- 浮窗视频播放器 ---------- */
+  .video-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 99;
+    display: none;
+  }
+  .video-overlay.active { display: block; }
+
+  .video-player-container {
+    position: fixed;
+    z-index: 100;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    overflow: hidden;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+  }
+  .video-player-container.hidden {
+    display: none;
+  }
+  .video-player-container.centered {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 800px;
+    max-width: 90vw;
+  }
+  .video-player-container.centered .player-wrap {
+    height: 450px;
+    max-height: 70vh;
+  }
+  .video-player-container.docked {
+    right: 20px;
+    bottom: 20px;
+    width: 320px;
+    transform: none;
+    top: auto;
+    left: auto;
+    cursor: pointer;
+  }
+  .video-player-container.docked .player-wrap {
+    height: 180px;
+  }
+  .video-player-container.docked .video-title {
+    display: none;
+  }
+  .video-player-container.docked .video-controls {
+    gap: 4px;
+  }
+  .video-player-container.docked .video-header {
+    padding: 6px 10px;
+  }
+
+  .video-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: #2d3436;
+    color: #dfe6e9;
+    font-size: 14px;
+    user-select: none;
+  }
+  .video-title {
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .video-controls {
+    display: flex;
+    gap: 8px;
+  }
+  .video-controls button {
+    background: transparent;
+    border: none;
+    color: #b2bec3;
+    font-size: 18px;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0 4px;
+    transition: color 0.15s;
+  }
+  .video-controls button:hover {
+    color: #fff;
+  }
+  .player-wrap {
+    position: relative;
+    background: #000;
+  }
+  .player-wrap iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+  .docked-hint {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.35);
+    color: #fff;
+    font-size: 36px;
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+  }
+  .video-player-container.docked:hover .docked-hint {
+    opacity: 1;
+  }
+  /* docked 状态下让 iframe 不拦截鼠标事件，点击可穿透恢复播放器 */
+  .video-player-container.docked .player-wrap iframe {
+    pointer-events: none;
+  }
+
+  @media (max-width: 768px) {
+    .video-player-container.centered {
+      width: 100vw;
+      max-width: 100vw;
+      border-radius: 0;
+      top: auto;
+      bottom: 0;
+      left: 0;
+      transform: none;
+    }
+    .video-player-container.centered .player-wrap {
+      height: 56.25vw;
+      max-height: 60vh;
+    }
+    .video-player-container.docked {
+      width: 200px;
+    }
+    .video-player-container.docked .player-wrap {
+      height: 112px;
+    }
+  }
+
+  /* ---------- 目录切换按钮（移动端） ---------- */
+  .toc-toggle {
+    display: none;
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 60;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: #fff;
+    border: 1px solid #e1e4e8;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    font-size: 18px;
+    color: #2d3436;
+  }
+  .toc-toggle:hover {
+    background: #f8f9fa;
+    color: #0984e3;
+  }
+  .toc-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 40;
+  }
+
+  /* ---------- 响应式断点 ---------- */
+  @media (min-width: 1280px) {
+    :root {
+      --toc-width: 260px;
+      --article-max-width: 880px;
+    }
+  }
+
+  @media (max-width: 1024px) {
+    :root {
+      --toc-width: 200px;
+      --article-padding: 32px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    body { grid-template-columns: 1fr; }
+    .toc-pane {
+      position: fixed;
+      left: 0; top: 0;
+      width: 260px;
+      height: 100vh;
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+    }
+    .toc-pane.open { transform: translateX(0); }
+    .toc-overlay.active { display: block; }
+    .toc-toggle { display: flex; }
+    .article-pane {
+      padding: 24px;
+    }
+    .article-pane > * {
+      max-width: 100%;
+    }
+  }
+
+  @media (max-width: 480px) {
+    :root {
+      --article-padding: 16px;
+    }
+  }
+</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body, {
+    delimiters: [
+      {left: '$$', right: '$$', display: true},
+      {left: '$', right: '$', display: false}
+    ]
+  });"></script>
+</head>
+<body>
+
+<button class="toc-toggle" id="tocToggle" title="打开目录" aria-label="打开目录">☰</button>
+<div class="toc-overlay" id="tocOverlay"></div>
+
+<nav class="toc-pane" id="tocPane">
+  <div class="toc-header">目录</div>
+  <div class="toc-list" id="tocList"></div>
+</nav>
+
+<main class="article-pane" id="articlePane">
+<h1>Let's build GPT 伴读指南</h1>
+<h1>语言建模基础：分词、数据加载与双词基线模型</h1>
+<h2>语言建模与 Transformer 简介</h2>
+<p>时至今日，ChatGPT 已经家喻户晓。让它写一首关于 AI 的俳句，它会从左到右逐字生成文本：“AI knowledge brings prosperity for all to see / Embrace its power...” 再次运行同样的提示，你可能会得到略有不同的结果。这揭示了一个基本特性：ChatGPT 是一个<strong>概率语言模型</strong>——对于任何提示，它都能产生多种合理的补全，因为其核心任务是建模词（或更一般地，token）序列，并预测下一个词是什么 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="2">[00:00:02]</a></sub>。</p>
+<p><img alt="Transformer architecture diagram from 'Attention Is All You Need' paper." src="https://riverlin.sirv.com/gpt/ch01_fig1.jpg" /></p>
+<p><em>Transformer architecture diagram from 'Attention Is All You Need' paper.</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="136">[00:02:16]</a></sub></p>
+<p><img alt="Tiny Shakespeare dataset text displayed in a browser." src="https://riverlin.sirv.com/gpt/ch01_fig2.jpg" /></p>
+<p><em>Tiny Shakespeare dataset text displayed in a browser.</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="231">[00:03:51]</a></sub></p>
+<p><img alt="NanoGPT GitHub README with training-loss graph and code description." src="https://riverlin.sirv.com/gpt/ch01_fig3.jpg" /></p>
+<p><em>NanoGPT GitHub README with training-loss graph and code description.</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="360">[00:06:00]</a></sub></p>
+<p>人们从 ChatGPT 中激发出的幽默与创造力——“像对一只狗一样给我解释 HTML”、“为 Chess 2 写发布说明”——都源于同一机制。从模型的视角来看，每一次交互都只是一个序列补全问题。你提供一段序列的开头，模型便根据它所学到的语言行为模式来续写这段序列 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="66">[00:01:06]</a></sub>。</p>
+<p>这一切的背后，是一种名为 <strong>Transformer</strong> 的特定神经网络架构。Transformer 在 2017 年的论文 <em>Attention Is All You Need</em> 中被首次提出，最初用于机器翻译。其作者很可能没有预料到，仅需少量修改，这一架构便会在随后五年里被复制粘贴到几乎所有主流 AI 应用中，包括 ChatGPT 的核心 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="127">[00:02:07]</a></sub>。GPT 本身代表 <strong>Generatively Pre-trained Transformer</strong>（生成式预训练 Transformer）。</p>
+<p>在单个教程中完整复现 ChatGPT 是不可能的：它是在海量互联网数据上训练，并经过多轮预训练与微调阶段打磨而成。相反，我们将专注于构建一个规模小得多、但教育意义丰富的系统——一个基于 <em>tiny Shakespeare</em> 数据集训练的<strong>字符级语言模型</strong>。该文件约一兆字节，包含了莎士比亚的全部作品。我们的 Transformer 将学习建模字符之间的接续关系：给定一段前置文本，预测下一个字符 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="220">[00:03:40]</a></sub>。训练完成后，模型可以生成无限的伪莎士比亚文本，一次一个字符地产出诸如 “verily my Lord the sites have left the again the king coming with my curses...” 这样的段落 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="280">[00:04:40]</a></sub>。</p>
+<p>我们将从零开始编写的实现基于 <strong>NanoGPT</strong>，这是一个极简的代码仓库，大约只有两个文件、每个文件 300 行代码——一个定义 GPT 模型，一个处理训练。尽管 NanoGPT 可以扩展以在更大的数据集（如 OpenWebText）上复现 GPT-2（1.24 亿参数）这样的模型，但我们的目标是从一个空文件开始，逐步构建 Transformer，在 tiny Shakespeare 上训练，并生成文本。唯一的先决条件是熟练掌握 Python、具备基础的微积分与统计学知识，以及熟悉基本的神经网络概念 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="343">[00:05:43]</a></sub>。</p>
+<h2>字符级分词与训练/验证集划分</h2>
+<p>在构建 Transformer 之前，我们需要把原始文本转换成神经网络能够处理的东西——整数——并且需要对数据进行划分，以便判断模型是在真正学习还是仅仅在死记硬背。本节将介绍加载 tiny Shakespeare 数据集、构建一个最小化的字符级词表、实现一组简单的编码器/解码器，以及将数据划分为训练集和验证集。</p>
+<p><img alt="代码展示了包含 65 个唯一字符的词表构建。" src="https://riverlin.sirv.com/gpt/ch02_fig1.jpg" /></p>
+<p><em>代码展示了包含 65 个唯一字符的词表构建。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="510">[00:08:30]</a></sub></p>
+<p><img alt="编码器/解码器代码，将字符映射为整数并反向映射。" src="https://riverlin.sirv.com/gpt/ch02_fig2.jpg" /></p>
+<p><em>编码器/解码器代码，将字符映射为整数并反向映射。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="630">[00:10:30]</a></sub></p>
+<p><img alt="编码后的文本张量与训练/验证集划分代码。" src="https://riverlin.sirv.com/gpt/ch02_fig3.jpg" /></p>
+<p><em>编码后的文本张量与训练/验证集划分代码。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="750">[00:12:30]</a></sub></p>
+<h3>加载数据集并构建词表</h3>
+<p>tiny Shakespeare 数据集是一个约 1 MB 的文本文件，从公开 URL 下载。读入后可以发现它包含大约一百万个字符。打印前 1,000 个字符，可以确认其为预期的莎士比亚式散文。</p>
+<p>为了确定模型使用的字母表，我们将完整文本传入 Python 的 <code>set</code> 构造函数以收集每一个唯一字符，再将结果转换为 <code>list</code> 并进行 <code>sort</code>。这样就得到了一个包含 65 个字符的词表：空格、各种标点符号和特殊字符、大写字母以及小写字母。这个排序后列表的大小——65——就是我们的词表大小(vocabulary size)，即我们的序列可以包含或生成的所有可能元素的集合。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="497">[00:08:17]</a></sub></p>
+<pre><code class="language-python">chars = sorted(list(set(text)))
+vocab_size = len(chars)
+print(''.join(chars))
+print(vocab_size)
+</code></pre>
+<h3>字符级分词：编码器与解码器</h3>
+<p>分词(tokenization)是指根据固定的词表将原始文本转换为整数序列。在本讲座中，我们使用最简单的方案：字符级语言模型，其中每个独立字符映射到一个唯一整数。我们同时构建编码器（string → list of integers）和解码器（list of integers → string），使得转换是无损且可逆的。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="561">[00:09:21]</a></sub></p>
+<pre><code class="language-python">stoi = { ch:i for i,ch in enumerate(chars) }
+itos = { i:ch for i,ch in enumerate(chars) }
+encode = lambda s: [stoi[c] for c in s]
+decode = lambda l: ''.join([itos[i] for i in l])
+
+print(encode(&quot;hi there&quot;))
+print(decode(encode(&quot;hi there&quot;)))
+</code></pre>
+<p>这只是众多可能的分词方案之一。在实践中，模型通常使用子词(subword)分词器。例如，Google 的 SentencePiece 在子词级别而非单个字符级别对文本进行编码，而 OpenAI 的 tiktoken 库实现了一个字节对编码(byte-pair encoding, BPE)分词器，其词表大小约为 50,000 个 token。使用如此大的词表，同样的字符串 "hi there" 可能只压缩为三个整数，但这些整数的取值范围要大得多（最高约 50,256）。其中的权衡很明显：更小的词表会产生更长的序列，而更大的词表则会产生更短的序列。我们这里坚持使用字符级分词，因为极小的词表和简单的编解码逻辑能让代码保持清晰透明。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="654">[00:10:54]</a></sub></p>
+<h3>将数据包装为 PyTorch 张量</h3>
+<p>有了编码器后，我们将整段莎士比亚文本转换为整数，并将结果包装成一个 <code>torch.tensor</code>。得到的 data 张量是一个巨大的单一整数序列，它完整地表示了原始文本。检查前 1,000 个元素，可以看到与原始散文相同的结构，只是以数值形式表达。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="748">[00:12:28]</a></sub></p>
+<pre><code class="language-python">import torch
+data = torch.tensor(encode(text), dtype=torch.long)
+print(data[:1000])
+</code></pre>
+<h3>训练/验证集划分</h3>
+<p>最后，我们对数据进行划分以防止过拟合。我们将张量的前 90% 保留为训练集，将最后 10% 留作验证集。验证集在训练期间保持隐藏，以便后续我们可以衡量模型是在生成真正具有莎士比亚风格的文本，还是仅仅在复述训练数据。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="809">[00:13:29]</a></sub></p>
+<pre><code class="language-python">n = int(0.9 * len(data))
+train_data = data[:n]
+val_data = data[n:]
+</code></pre>
+<h2>用于语言建模的批量分块采样</h2>
+<p>Transformers 在整数序列上进行训练，以便学习语言的统计规律。然而，将整个文本语料库一次性输入模型在计算上是不可行的。因此，训练是在小的、随机采样的文本块上进行的。本节解释了为什么我们要使用块、单个块如何已经包含多个训练样本，以及这些块如何被组织成批次以进行高效的 GPU 处理。</p>
+<p><img alt="Code output showing 8 training examples inside one chunk." src="https://riverlin.sirv.com/gpt/ch03_fig1.jpg" /></p>
+<p><em>Code output showing 8 training examples inside one chunk.</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="1080">[00:18:00]</a></sub></p>
+<p><img alt="get_batch function and printed 4x8 input/target tensors." src="https://riverlin.sirv.com/gpt/ch03_fig2.jpg" /></p>
+<p><em>get_batch function and printed 4x8 input/target tensors.</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="1170">[00:19:30]</a></sub></p>
+<p><img alt="Printed 32 examples unpacked from the 4x8 batch." src="https://riverlin.sirv.com/gpt/ch03_fig3.jpg" /></p>
+<p><em>Printed 32 examples unpacked from the 4x8 batch.</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="1260">[00:21:00]</a></sub></p>
+<h3>采样块与 block size</h3>
+<p>在训练期间，我们从数据集中随机采样小块文本，而不是使用完整文本。每个块都有一个最大长度，通常称为 <strong>block size</strong>（也称为上下文长度）。如果我们设置 <code>block_size = 8</code>，并查看训练数据的前九个字符，我们会得到如下序列：</p>
+<pre><code class="language-python"># First block_size + 1 characters from the training set
+# e.g., [18, 47, 56, 57, 58, 1, 15, 47, 58]
+</code></pre>
+<p>一个包含九个字符的块实际上内部打包了八个独立的训练样本，因为每个字符都跟随在它之前的字符后面。模型在每个位置同时被训练来预测下一个 token。例如，给定上下文 <code>18</code>，目标是 <code>47</code>；给定上下文 <code>18, 47</code>，目标是 <code>56</code>；依此类推，一直到八个 token 的上下文预测第九个。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="901">[00:15:01]</a></sub></p>
+<p>以下是代码中提取这八个样本的方式：</p>
+<pre><code class="language-python">x = train_data[:block_size]    # first block_size tokens
+y = train_data[1:block_size+1] # offset by one
+
+for t in range(block_size):
+    context = x[:t+1]
+    target = y[t]
+    print(f&quot;when input is {context.tolist()} the target: {target}&quot;)
+</code></pre>
+<p>运行这段代码会打印出隐藏在这个单独九字符块中的八个独立样本。</p>
+<h3>为什么要在所有上下文长度上训练</h3>
+<p>我们刻意在长度从 1 一直到完整 block size 的上下文上进行训练。这不仅仅是为了效率——它是一个刻意的设计选择。通过让 Transformer 接触到 block 内每一种可能的上下文长度，我们确保它学会在给定一个 token 的历史或最大允许长度时都能做出预测。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="1028">[00:17:08]</a></sub> 这在推理阶段变得至关重要：生成可以仅从单个字符的上下文开始，而模型已经知道如何继续。一旦运行中的上下文超过 <code>block_size</code>，旧的 token 就会被截断，因为模型在预测下一个字符时永远不会接收超过 <code>block_size</code> 个输入。</p>
+<h3>添加 batch 维度</h3>
+<p>最后一个要素是 <strong>batch 维度</strong>。虽然时间维度（<code>block_size</code>）定义了模型在序列中看到多少个 token，但 batch 维度将多个独立的块堆叠到一个张量(tensor)中。这样做纯粹是为了计算效率：GPU 擅长并行处理，因此同时处理多个块能让它们保持忙碌。这些块是完全独立的，彼此之间没有交互。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="1091">[00:18:11]</a></sub></p>
+<p>以下函数构建了一个批量的数据加载器。它首先设置一个随机种子以保证可复现性，然后在数据集中采样 <code>batch_size</code> 个随机偏移量。从每个偏移量处，它抓取 <code>block_size</code> 个 token 作为输入 <code>x</code>，以及接下来的 <code>block_size</code> 个 token（偏移一位）作为目标 <code>y</code>，并将它们堆叠成一个 <code>(batch_size, block_size)</code> 的张量(tensor)：</p>
+<pre><code class="language-python">torch.manual_seed(1337)
+batch_size = 4
+block_size = 8
+
+def get_batch(split):
+    data = train_data if split == 'train' else val_data
+    ix = torch.randint(len(data) - block_size, (batch_size,))
+    x = torch.stack([data[i:i+block_size] for i in ix])
+    y = torch.stack([data[i+1:i+1+block_size] for i in ix])
+    return x, y
+
+xb, yb = get_batch('train')
+print('inputs:')
+print(xb.shape)  # torch.Size([4, 8])
+print(xb)
+print('targets:')
+print(yb.shape)  # torch.Size([4, 8])
+print(yb)
+</code></pre>
+<p>得到的 <code>xb</code> 是一个 <code>4 × 8</code> 的张量(tensor)：四行独立的行，每一行都是训练集的一个块。对应的 <code>yb</code> 保存了 <code>xb</code> 中每个位置的目标。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="1184">[00:19:44]</a></sub></p>
+<p>总的来说，这一个批次包含了 <code>4 × 8 = 32</code> 个独立的样本。例如，当输入包含 <code>24</code> 时，目标是 <code>43</code>；当输入是 <code>24, 43</code> 时，目标是 <code>58</code>；当输入是 <code>24, 43, 58</code> 时，目标是 <code>5</code>，依此类推，遍及所有行。这 32 个样本被打包到一个批次中，以便 Transformer 可以并行处理它们，尽管就模型而言它们仍然是完全独立的。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="1248">[00:20:48]</a></sub></p>
+<h2>实现 bigram 语言模型</h2>
+<p>准备好一批 token 序列后，下一步就是引入最简单的神经语言模型：<strong>bigram 模型</strong>。在这种架构中，仅使用单个 token 的身份来预测其后跟随的内容。模型不考虑相邻 token 的上下文；每个 token 只查看自身，以估计序列中的下一个字符。</p>
+<p>实现是一个极简的 PyTorch 模块。在构造函数内部，使用 <code>torch.nn.Embedding</code> 创建一个形状为 <code>(vocab_size, vocab_size)</code> 的 token 嵌入表(embedding table)。该表充当一个查找矩阵：每个整数 token 索引映射到一行 logits，代表对整个词汇表的分数。</p>
+<pre><code class="language-python">import torch
+import torch.nn as nn
+from torch.nn import functional as F
+
+torch.manual_seed(1337)
+
+class BigramLanguageModel(nn.Module):
+    def __init__(self, vocab_size):
+        super().__init__()
+        self.token_embedding_table = nn.Embedding(vocab_size, vocab_size)
+
+    def forward(self, idx, targets=None):
+        logits = self.token_embedding_table(idx)  # (B, T, C)
+        return logits
+
+m = BigramLanguageModel(vocab_size)
+logits = m(xb, yb)
+print(logits.shape)
+</code></pre>
+<p>当输入 <code>idx</code> 的形状为 <code>(B, T)</code> —— batch size 为 4，time steps 为 8 —— 经过嵌入表(embedding table)时，PyTorch 为每个 token 收集对应的行，并将结果排列成一个形状为 <code>(B, T, C)</code> 的张量(tensor)，其中 <code>C</code> 是 <code>vocab_size</code>（本例中为 65）。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="1373">[00:22:53]</a></sub> 输出中的每个位置都被解释为下一个 token 的 logits，即分数。由于模型无法利用周围的上下文，它唯一的信号就是训练数据中字符彼此跟随的频率。</p>
+<p><img alt="Bigram model class definition in notebook" src="https://riverlin.sirv.com/gpt/ch04_fig1.jpg" /></p>
+<p><em>Bigram model class definition in notebook</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="1350">[00:22:30]</a></sub></p>
+<p><img alt="Cross-entropy loss documentation page" src="https://riverlin.sirv.com/gpt/ch04_fig2.jpg" /></p>
+<p><em>Cross-entropy loss documentation page</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="1680">[00:28:00]</a></sub></p>
+<p><img alt="Reshaping logits and targets for cross_entropy" src="https://riverlin.sirv.com/gpt/ch04_fig3.jpg" /></p>
+<p><em>Reshaping logits and targets for cross_entropy</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="1710">[00:28:30]</a></sub></p>
+<h3>评估损失</h3>
+<p>为了衡量预测质量，负对数似然损失 —— 在 PyTorch 中以 <code>F.cross_entropy</code> 提供 —— 是自然的选择。直观地说，对应正确下一个 token 的 logit 应该很大，而所有其他的应该很小。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="1500">[00:25:00]</a></sub></p>
+<p>PyTorch 期望的输入布局带来了一个复杂情况：对于多维输入，<code>cross_entropy</code> 要求 channel 维度排在第二位，即形状为 <code>(B, C, T)</code> 而不是 <code>(B, T, C)</code>。与其置换维度，不如将 <code>logits</code> 和 <code>targets</code> 分别重塑为二维和一维张量(tensor)来得简单：</p>
+<pre><code class="language-python">B, T, C = logits.shape
+logits = logits.view(B * T, C)
+targets = targets.view(B * T)
+loss = F.cross_entropy(logits, targets)
+print(loss)
+</code></pre>
+<p>将 batch 和 time 维度拉伸成一个单一的序列维度后，形状就符合 <code>F.cross_entropy</code> 的要求了。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="1627">[00:27:07]</a></sub> 运行代码得到的初始损失约为 <code>4.74</code>。</p>
+<h3>解读初始损失</h3>
+<p>对于一个包含 65 个字符的词汇表，一个完全均匀的随机模型会给每个 token 分配概率 $1/65$。在这种情况下，期望的交叉熵损失为</p>
+<p>$$-\log \frac{1}{65} \approx 4.17.$$</p>
+<p>观察到的损失 <code>4.74</code> 略高于这个理论下限。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="1690">[00:28:10]</a></sub> 这表明随机初始化的嵌入表(embedding table)尚未学到数据中存在的任何 bigram 统计信息，也尚未进行优化。初始损失与随机猜测基线之间的差距证实了模型一旦开始训练就有改进的空间。</p>
+<h2>生成、训练循环与评估</h2>
+<p>在通过损失(loss)衡量质量之后，下一步是让模型生成文本并不断改进。本章添加一个 <code>generate</code> 方法，设置优化器(optimizer)，并运行训练循环以观察损失下降和样本改善。</p>
+<p><img alt="generate method implementation in notebook" src="https://riverlin.sirv.com/gpt/ch05_fig1.jpg" /></p>
+<p><em>generate method implementation in notebook</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="1740">[00:29:00]</a></sub></p>
+<p><img alt="forward with optional targets for generation" src="https://riverlin.sirv.com/gpt/ch05_fig2.jpg" /></p>
+<p><em>forward with optional targets for generation</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="1890">[00:31:30]</a></sub></p>
+<p><img alt="Initial random generation output from untrained model" src="https://riverlin.sirv.com/gpt/ch05_fig3.jpg" /></p>
+<p><em>Initial random generation output from untrained model</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="1980">[00:33:00]</a></sub></p>
+<p><img alt="AdamW optimizer setup with lr=1e-3" src="https://riverlin.sirv.com/gpt/ch05_fig4.jpg" /></p>
+<p><em>AdamW optimizer setup with lr=1e-3</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="2100">[00:35:00]</a></sub></p>
+<p><img alt="Training loop with batch size 32" src="https://riverlin.sirv.com/gpt/ch05_fig5.jpg" /></p>
+<p><em>Training loop with batch size 32</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="2130">[00:35:30]</a></sub></p>
+<p><img alt="Trained model generation output" src="https://riverlin.sirv.com/gpt/ch05_fig6.jpg" /></p>
+<p><em>Trained model generation output</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="2250">[00:37:30]</a></sub></p>
+<h3>从模型生成</h3>
+<p><code>generate</code> 方法接收一批形状为 <code>(B, T)</code> 的上下文索引(context indices)，并将每个序列沿时间维度扩展到 <code>max_new_tokens</code>。</p>
+<pre><code class="language-python">def generate(self, idx, max_new_tokens):
+    for _ in range(max_new_tokens):
+        logits, loss = self(idx)
+        logits = logits[:, -1, :]          # (B, C) — last time step only
+        probs = F.softmax(logits, dim=-1)  # (B, C)
+        idx_next = torch.multinomial(probs, num_samples=1)  # (B, 1)
+        idx = torch.cat((idx, idx_next), dim=1)             # (B, T+1)
+    return idx
+</code></pre>
+<p>在循环内部，模型返回每个时间步(time step)的 logits，但只有最后一步用于预测。这些最后一步的 logits 通过 softmax 转换为概率(probabilities)，然后 <code>torch.multinomial</code> 为每个批次元素采样一个 token。采样得到的索引被拼接到正在运行的上下文(context)上，并在下一次迭代中重新输入模型。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="1783">[00:29:43]</a></sub></p>
+<p>由于 <code>generate</code> 调用 <code>forward</code> 时不传入目标(targets)，<code>forward</code> 的签名必须将 <code>targets</code> 设为可选。当 <code>targets</code> 为 <code>None</code> 时，不计算损失(loss)，函数仅返回 logits。</p>
+<p>为了启动生成，将一个保存整数 <code>0</code>（换行符 token）的 <code>(1, 1)</code> 张量(tensor)传入 <code>generate</code>。在生成 100 个新 token 后，去掉单一批次维度，将结果转换为 Python 列表，再由 <code>decode</code> 将索引映射回字符。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="1946">[00:32:26]</a></sub></p>
+<p>由于模型尚未训练，输出最初是随机的乱码。值得注意的是，实现中每一步都将整个不断增长的上下文输入模型，即使 bigram 模型只需要前一个 token。这种设计是有意的前瞻性考虑：一旦模型开始使用更长的上下文，同样的 <code>generate</code> 流程可以原样工作，无需改动。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="2045">[00:34:05]</a></sub></p>
+<h3>设置优化器</h3>
+<p>训练使用 <code>AdamW</code>，这是一种现代且广泛使用的优化器(optimizer)。较大网络的典型学习率(learning rate)约为 <code>1e-4</code>，但像这个 bigram 模型这样的极小网络可以承受高得多的学习率。这里使用 <code>lr=1e-3</code>。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="2106">[00:35:06]</a></sub></p>
+<pre><code class="language-python">optimizer = torch.optim.AdamW(model.parameters(), lr=1e-3)
+</code></pre>
+<h3>训练循环</h3>
+<p>循环遵循标准模式：采样一个批次(batch)，评估损失(loss)，清零梯度(gradients)，反向传播(backpropagate)，并执行优化器步进(step)。批次大小(batch size)从 4 增加到 32。</p>
+<pre><code class="language-python">batch_size = 32
+for steps in range(10000):
+    xb, yb = get_batch('train')
+    logits, loss = model(xb, yb)
+    optimizer.zero_grad(set_to_none=True)
+    loss.backward()
+    optimizer.step()
+</code></pre>
+<p>运行 100 次迭代可以看到损失从约 4.7 下降到 4.5 左右，确认优化正在发生。扩展到 10,000 步可将损失降至约 2.5。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="2167">[00:36:07]</a></sub></p>
+<h3>评估训练后的模型</h3>
+<p>训练后，<code>generate</code> 产生的输出不再是随机噪声。文本仍远非连贯的莎士比亚风格，但模型显然已经学到了一些关于字符级结构的知识。这种改进正是损失下降所预测的。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="2239">[00:37:19]</a></sub></p>
+<p>局限性在于架构：因为这是一个纯 bigram 模型，每次预测仅以前一个字符为条件。在此之前生成的所有内容的上下文(context)都被忽略。下一步是让 token 在更长的跨度上相互交流。</p>
+<h1>自注意力核心机制：从平均到数据相关加权聚合</h1>
+<h2>自注意力(self-attention)的启动脚本与环境搭建</h2>
+<p>在 bigram 模型就位后，下一步是让 token 能够在整个上下文窗口中相互通信，从而做出更好的预测。在引入自注意力(self-attention)之前，笔记本中的代码被整理成一个干净的独立训练脚本，增加了 GPU 支持、更稳定的损失估计器，以及正确的评估与训练模式处理。</p>
+<p><img alt="训练脚本顶部的超参数块" src="https://riverlin.sirv.com/gpt/ch06_fig1.jpg" /></p>
+<p><em>训练脚本顶部的超参数块</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="2280">[00:38:00]</a></sub></p>
+<p><img alt="模型与优化器被移至 GPU 设备" src="https://riverlin.sirv.com/gpt/ch06_fig2.jpg" /></p>
+<p><em>模型与优化器被移至 GPU 设备</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="2340">[00:39:00]</a></sub></p>
+<p><img alt="带 torch.no_grad 与 eval 模式的 estimate_loss 函数" src="https://riverlin.sirv.com/gpt/ch06_fig3.jpg" /></p>
+<p><em>带 torch.no_grad 与 eval 模式的 estimate_loss 函数</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="2400">[00:40:00]</a></sub></p>
+<h3>从笔记本到脚本</h3>
+<p>所有超参数都被集中在文件顶部，方便调参。脚本随后加载数据集，构建字符级编码器(encoder)和解码器(decoder)，划分训练/验证集，并实例化之前使用的同一个 <code>BigramLanguageModel</code>。接着创建优化器(optimizer)，训练循环运行 <code>max_iters</code> 步。</p>
+<pre><code class="language-python"># Hyperparameters
+batch_size = 32
+block_size = 8
+max_iters = 3000
+eval_interval = 300
+learning_rate = 1e-2
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+eval_iters = 200
+</code></pre>
+<p>脚本的主体——数据加载、模型定义、前向传播(forward pass)、损失计算与生成——与笔记本版本保持一致。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="2303">[00:38:23]</a></sub></p>
+<h3>在 GPU 上运行</h3>
+<p>如果检测到 CUDA 设备，脚本会自动选用；否则回退到 CPU。每个张量(tensor)以及模型本身都必须显式移动到所选设备：</p>
+<pre><code class="language-python">device = 'cuda' if torch.cuda.is_available() else 'cpu'
+
+# Inside the training loop
+xb, yb = get_batch('train')
+xb, yb = xb.to(device), yb.to(device)
+
+m = BigramLanguageModel(vocab_size).to(device)
+</code></pre>
+<p>这确保了嵌入(embedding)查找表以及后续所有计算都在 GPU 上进行，从而获得显著加速。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="2333">[00:38:53]</a></sub></p>
+<h3>在多个批次(batch)上平均损失</h3>
+<p>在训练循环内直接打印 <code>loss.item()</code> 会产生非常嘈杂的信号，因为某些批次比其他批次更"幸运"。一个专门的 <code>estimate_loss</code> 函数对 <code>eval_iters</code> 个批次的损失取平均，分别对训练集和验证集进行估计，从而得到稳定得多的结果：</p>
+<pre><code class="language-python">@torch.no_grad()
+def estimate_loss():
+    out = {}
+    model.eval()
+    for split in ['train', 'val']:
+        losses = torch.zeros(eval_iters)
+        for k in range(eval_iters):
+            X, Y = get_batch(split)
+            logits, loss = model(X, Y)
+            losses[k] = loss.item()
+        out[split] = losses.mean()
+    model.train()
+    return out
+</code></pre>
+<p>该函数首先将模型设为评估模式，为每个划分(训练/验证)累积损失，然后在返回前恢复训练模式。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="2394">[00:39:54]</a></sub></p>
+<h3>评估模式与 <code>torch.no_grad</code></h3>
+<p>目前 bigram 模型仅包含一个 <code>nn.Embedding</code> 层，因此它在训练模式和评估模式下的行为完全相同。尽管如此，脚本仍在估计损失前显式调用 <code>model.eval()</code>，并在之后调用 <code>model.train()</code>。这是一种良好实践，因为诸如 dropout 和 batch normalization 之类的层在推理(inference)期间的行为不同。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="2426">[00:40:26]</a></sub></p>
+<p><code>@torch.no_grad()</code> 装饰器告诉 PyTorch 不要在 <code>estimate_loss</code> 内部构建计算图。由于这里永远不会调用反向传播(backpropagation)，PyTorch 可以跳过存储中间激活值，从而更高效地使用内存。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="2457">[00:40:57]</a></sub></p>
+<p>运行脚本后，终端会定期输出稳定的训练损失和验证损失值，确认环境已准备好，接下来可以添加自注意力(self-attention)机制。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="2489">[00:41:29]</a></sub></p>
+<h3>用 for 循环实现因果平均</h3>
+<p>在实现完整的自注意力(self-attention)块之前，先理解一个贯穿每个高效 Transformer 核心的数学技巧会很有帮助：<strong>因果平均(causal averaging)</strong>。目标是让序列中的每个 token 都能汇总它之前（包括自身）的所有 token，同时严格阻止来自未来位置的信息。本章用最简单的实现方式——一对嵌套的 for 循环——来建立这种直觉，这样后面看到向量化版本时，它会感觉像一种自然的升级，而非魔法。</p>
+<p><img alt="Toy example: B,T,C = 4,8,2 setup" src="https://riverlin.sirv.com/gpt/ch07_fig1.jpg" /></p>
+<p><em>Toy example: B,T,C = 4,8,2 setup</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="2580">[00:43:00]</a></sub></p>
+<p><img alt="For-loop causal averaging code" src="https://riverlin.sirv.com/gpt/ch07_fig2.jpg" /></p>
+<p><em>For-loop causal averaging code</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="2760">[00:46:00]</a></sub></p>
+<p><img alt="Output tensors x[0] and xbow[0]" src="https://riverlin.sirv.com/gpt/ch07_fig3.jpg" /></p>
+<p><em>Output tensors x[0] and xbow[0]</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="2790">[00:46:30]</a></sub></p>
+<h4>通信问题</h4>
+<p>考虑一个形状为 <code>[B, T, C]</code> 的序列批次，其中 <code>B</code> 是 batch size，<code>T</code> 是时间维度（在这个 toy example 中最多八个 token），<code>C</code> 是通道数（这里只有两个）。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="2581">[00:43:01]</a></sub> 每个 token 目前都是独立存在的；一个序列中的八个 token 互不交流。我们希望把它们耦合起来，但要遵守一条严格的规则：位置五的 token 只能从位置一到五接收信息。它必须对位置六、七、八保持“盲目”，因为那些是未来 token，而模型正要预测接下来会出现什么。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="2611">[00:43:31]</a></sub></p>
+<h4>最简单的方案：滑动平均</h4>
+<p>让 token 与其过去通信的最简单方法，就是对每个前面时间步的通道向量（包括它自己）取平均。如果你是第五个 token，你就收集步骤一到五的二维通道向量并求均值。这会得到一个新的特征向量，把你放在你的历史上下文中进行概括。</p>
+<p>这是一种极其有损的交互形式——空间排列和个体身份都被抹去了——但它足以说明因果约束，而且我们后面会找回那些丢失的信息。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="2643">[00:44:03]</a></sub></p>
+<h4>Toy setup</h4>
+<pre><code class="language-python">B, T, C = 4, 8, 2
+x = torch.randn(B, T, C)
+</code></pre>
+<p>这里 <code>x</code> 保存了四个独立序列的随机数据，每个序列八个 token 长，每个 token 有两个通道。</p>
+<h4>朴素的 for 循环实现</h4>
+<p>因为我们把清晰性放在速度之上，所以分配一个相同形状的输出张量(tensor)，并用嵌套循环填充它：</p>
+<pre><code class="language-python">x_bow = torch.zeros((B, T, C))
+for b in range(B):
+    for t in range(T):
+        x_prev = x[b, :t+1]          # (t+1, C)  -- 从开头到当前 token 的所有 token
+        x_bow[b, t] = torch.mean(x_prev, 0)
+</code></pre>
+<p>内部切片 <code>x[b, :t+1]</code> 抓取从序列开头到当前 token 的所有 token。在第零维（时间维）上求平均，将这 <code>t+1</code> 个向量压缩成一个 <code>C</code> 维向量，然后存回 <code>x_bow[b, t]</code>。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="2736">[00:45:36]</a></sub></p>
+<h4>检查结果</h4>
+<p>观察第一个 batch 元素，<code>x[0]</code> 和 <code>x_bow[0]</code>，第一行完全不变，因为一个向量的平均就是它本身。第二行是 <code>x</code> 前两行的均值，第三行是前三行的均值，依此类推，直到最后一行，它垂直平均了全部八个向量。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="2800">[00:46:40]</a></sub> 这确认了因果掩码(causal mask)正在工作：每个位置只能看到自己的过去。</p>
+<p>这个操作有时被称为“词袋(bag of words)”平均，因为它把前面的 token 当作一个无序集合并直接取平均。它是正确的，但效率低下；下一章会用单个矩阵表达式替换这些循环。</p>
+<h3>下三角矩阵乘法技巧</h3>
+<p>逐个计算每个 token 上下文向量的嵌套 Python 循环很容易理解，但对于实际训练来说太慢了。诀窍是用单次批处理矩阵乘法来替代这个循环。同样的累积平均可以用一个下三角全1矩阵乘以 token 矩阵，然后归一化使得每一行和为1来表达。</p>
+<p><img alt="Jupyter 中的矩阵乘法。" src="https://riverlin.sirv.com/gpt/ch08_fig1.jpg" /></p>
+<p><em>Jupyter 中的矩阵乘法。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="2850">[00:47:30]</a></sub></p>
+<p><img alt="下三角矩阵乘法结果。" src="https://riverlin.sirv.com/gpt/ch08_fig2.jpg" /></p>
+<p><em>下三角矩阵乘法结果。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="2940">[00:49:00]</a></sub></p>
+<p><img alt="归一化后的下三角权重与平均值。" src="https://riverlin.sirv.com/gpt/ch08_fig3.jpg" /></p>
+<p><em>归一化后的下三角权重与平均值。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="3060">[00:51:00]</a></sub></p>
+<p><img alt="打印出的 8x8 下三角权重矩阵。" src="https://riverlin.sirv.com/gpt/ch08_fig4.jpg" /></p>
+<p><em>打印出的 8x8 下三角权重矩阵。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="3120">[00:52:00]</a></sub></p>
+<p><img alt="带形状标注的批处理矩阵乘法。" src="https://riverlin.sirv.com/gpt/ch08_fig5.jpg" /></p>
+<p><em>带形状标注的批处理矩阵乘法。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="3180">[00:53:00]</a></sub></p>
+<p>要理解为什么这样做有效，先从一个普通的全1矩阵和一个随机数据矩阵开始。</p>
+<pre><code class="language-python">import torch
+
+a = torch.ones(3, 3)
+b = torch.randint(0, 10, (3, 2)).float()
+c = a @ b
+</code></pre>
+<p>因为 <code>a</code> 的每一行都是全1，<code>c</code> 的每个元素就只是 <code>b</code> 某一列的和。左上角元素是 <code>2 + 6 + 6 = 14</code>，旁边的是 <code>7 + 4 + 5 = 16</code>，依此类推。<code>c</code> 的每一行都重复相同的和，因为 <code>a</code> 的每一行都相同。</p>
+<p>现在用 <code>torch.tril</code> 把 <code>a</code> 变成下三角矩阵。</p>
+<pre><code class="language-python">a = torch.tril(torch.ones(3, 3))
+c = a @ b
+</code></pre>
+<p><code>a</code> 的第一行是 <code>[1, 0, 0]</code>，所以 <code>c</code> 的第一行就是 <code>b</code> 的第一行。<code>a</code> 的第二行是 <code>[1, 1, 0]</code>，所以 <code>c</code> 的第二行变成 <code>b</code> 前两行的和：<code>2 + 6 = 8</code> 和 <code>7 + 4 = 11</code>。<code>a</code> 的第三行是 <code>[1, 1, 1]</code>，所以 <code>c</code> 的第三行是 <code>b</code> 三行的总和。通过控制1出现的位置，每一输出行累积了可变数量的输入行。</p>
+<p>到目前为止，这个操作产生的是和，而不是平均值。要把和变成平均值，把 <code>a</code> 的每一行归一化，使其元素和为1。</p>
+<pre><code class="language-python">a = torch.tril(torch.ones(3, 3))
+a = a / torch.sum(a, dim=1, keepdim=True)
+c = a @ b
+</code></pre>
+<p>归一化后，第一行是 <code>[1]</code>，第二行是 <code>[0.5, 0.5, 0]</code>，第三行是 <code>[1/3, 1/3, 1/3]</code>。相乘后得到：第一行是 <code>b</code> 的第一行不变，第二输出行是前两行的平均，第三输出行是三行的平均。循环所做的那种增量式因果平均，现在被表达为单个矩阵乘积。</p>
+<p>把这个方法应用到实际的 token 批次上，权重变成一个 <code>T × T</code> 的下三角矩阵，其每一行和为1，数据矩阵是 token 嵌入(embedding) <code>x</code>，形状为 <code>(B, T, C)</code>。PyTorch 自动广播批次维度，并执行批处理矩阵乘法。</p>
+<pre><code class="language-python">wei = torch.tril(torch.ones(T, T))
+wei = wei / wei.sum(dim=1, keepdim=True)
+xbow2 = wei @ x   # (B, T, T) @ (B, T, C) -&gt; (B, T, C)
+</code></pre>
+<p>因为形状不同，PyTorch 会为 <code>wei</code> 插入一个批次维度，在所有批次元素上独立应用乘法，并输出形状为 <code>(B, T, C)</code> 的结果。结果与慢速循环版本完全相同，但对每个批次元素和每个 token 位置都并行计算。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="2830">[00:47:10]</a></sub> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="2928">[00:48:48]</a></sub> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="3023">[00:50:23]</a></sub> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="3119">[00:51:59]</a></sub> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="3212">[00:53:32]</a></sub></p>
+<h2>从固定权重到数据相关的亲和度（softmax 预览）</h2>
+<p>到目前为止，我们通过暴力构造一个下三角矩阵并逐行除法来建立因果掩码。同样的结果可以用 <code>masked_fill</code> 和 <code>softmax</code> 更简洁地得到——这种改写现在看起来只是形式上的变化，但一旦权重不再是常数、而是开始依赖于数据，它就变得至关重要。</p>
+<p><img alt="在零初始化的权重上用 masked_fill 填充 -inf。" src="https://riverlin.sirv.com/gpt/ch09_fig1.jpg" /></p>
+<p><em>在零初始化的权重上用 masked_fill 填充 -inf。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="3300">[00:55:00]</a></sub></p>
+<p><img alt="Softmax 输出产生三角权重矩阵。" src="https://riverlin.sirv.com/gpt/ch09_fig2.jpg" /></p>
+<p><em>Softmax 输出产生三角权重矩阵。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="3360">[00:56:00]</a></sub></p>
+<p><img alt="一个单元格中完整的 softmax 版本代码。" src="https://riverlin.sirv.com/gpt/ch09_fig3.jpg" /></p>
+<p><em>一个单元格中完整的 softmax 版本代码。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="3450">[00:57:30]</a></sub></p>
+<h3>Softmax 形式化表述</h3>
+<p>首先，将权重矩阵全部初始化为零：</p>
+<pre><code class="language-python">wei = torch.zeros((T, T))          # T = block_size
+</code></pre>
+<p>然后，我们用负无穷大掩掉上三角（未来部分）：</p>
+<pre><code class="language-python">wei = wei.masked_fill(tril == 0, float('-inf'))
+</code></pre>
+<p>这里的 <code>tril</code> 是值为 1 的下三角掩码。<code>tril</code> 为零的每一个位置——也就是每一个来自未来的 token——都变成 <code>-inf</code>。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="3305">[00:55:05]</a></sub></p>
+<p>最后，我们在最后一个维度上应用 <code>softmax</code>：</p>
+<pre><code class="language-python">wei = F.softmax(wei, dim=-1)
+</code></pre>
+<p>因为 $\exp(-\infty)=0$，被掩码的位置在指数化后不再贡献任何值。剩下的位置原本都是 $0$，所以 $\exp(0)=1$。逐行归一化后，就得到了与之前完全相同的三角权重模式：第一行是 $[1, 0, 0, \dots]$，第二行是 $[0.5, 0.5, 0, \dots]$，依此类推。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="3366">[00:56:06]</a></sub></p>
+<h3>为什么这种表述方式很重要</h3>
+<p>从这个角度看，<code>wei</code> 中的每一项都是<strong>亲和度(affinity)</strong>——交互强度，表示每个 token 希望从其他每个 token 聚合多少信息。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="3397">[00:56:37]</a></sub> <code>masked_fill</code> 步骤强制执行因果约束：未来 token 被钳制到 $-\infty$，因此它们的亲和度被强制为零，无法与过去通信。Softmax 对剩余部分进行归一化，将原始亲和度转化为对过去位置的合法概率分布，随后的矩阵乘法则执行加权聚合。</p>
+<h3>预览：数据相关的亲和度</h3>
+<p>在当前版本中，每一个非对角线的亲和度都只是零——一个由我们选定的常数。关键的预告是，在自注意力(self-attention)中，这些零将变成<strong>数据相关</strong>的。Token 会互相审视，并基于它们自身的值来决定彼此之间的感兴趣程度。某些配对会获得高亲和度，另一些则较低，而这一决定将从数据中学习，而非硬编码。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="3429">[00:57:09]</a></sub></p>
+<p>一旦这些亲和度被设定，同样的流程仍然适用：掩码未来、用 softmax 归一化、聚合。唯一的变化是权重不再是均匀且固定的；它们由模型自身动态分配。</p>
+<h1>构建单头自注意力并理解其特性</h1>
+<h3>预备：token 嵌入 + 位置嵌入与语言建模头</h3>
+<p>在构建自注意力(self-attention)模块之前，我们需要重新调整模型结构，将 token 表示与最终预测层分离开。目前嵌入表直接从词表索引映射到 logits。我们将引入一个中间嵌入维度，并添加位置信息，使得 token 同时携带身份和位置信息。</p>
+<p><img alt="代码：从构造参数中移除 vocab_size，并引入 n_embed = 32 与 token_embedding_table。" src="https://riverlin.sirv.com/gpt/ch10_fig1.jpg" /></p>
+<p><em>代码：从构造参数中移除 vocab_size，并引入 n_embed = 32 与 token_embedding_table。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="3510">[00:58:30]</a></sub></p>
+<p><img alt="代码：添加 lm_head = nn.Linear(n_embed, vocab_size) 以及更新后的 forward，先产生 (B,T,n_embed) 再产生 logits。" src="https://riverlin.sirv.com/gpt/ch10_fig2.jpg" /></p>
+<p><em>代码：添加 lm_head = nn.Linear(n_embed, vocab_size) 以及更新后的 forward，先产生 (B,T,n_embed) 再产生 logits。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="3630">[01:00:30]</a></sub></p>
+<p><img alt="代码：添加 position_embedding_table = nn.Embedding(block_size, n_embed)，与 token 嵌入和 LM head 并存。" src="https://riverlin.sirv.com/gpt/ch10_fig3.jpg" /></p>
+<p><em>代码：添加 position_embedding_table = nn.Embedding(block_size, n_embed)，与 token 嵌入和 LM head 并存。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="3690">[01:01:30]</a></sub></p>
+<p>首先，我们从构造参数中移除 <code>vocab_size</code>，因为它已经定义为全局变量，没有必要到处传递。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="3492">[00:58:12]</a></sub></p>
+<p>接下来，我们引入 <code>n_embed</code>，即嵌入(embedding)维度的数量。这里将其设为 32。嵌入表现在输出 32 维向量，而不是 logits：</p>
+<pre><code class="language-python">n_embed = 32
+self.token_embedding_table = nn.Embedding(vocab_size, n_embed)
+</code></pre>
+<p>为了获得 logits，我们添加一个单独的线性层，称为语言建模头(language modeling head)。它将 <code>n_embed</code> 投影到 <code>vocab_size</code>：</p>
+<pre><code class="language-python">self.lm_head = nn.Linear(n_embed, vocab_size)
+</code></pre>
+<p>在 <code>forward</code> 内部，token 索引首先变成形状为 <code>(B, T, n_embed)</code> 的 token 嵌入，然后 LM head 将其映射为形状为 <code>(B, T, vocab_size)</code> 的 logits。如果 <code>n_embed</code> 等于旧的通道大小 <code>C</code>，这只是在嵌入和输出之间插入了一个线性交互。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="3524">[00:58:44]</a></sub> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="3556">[00:59:16]</a></sub></p>
+<p>有了这层间接结构后，我们添加第二个信息来源：位置。除了知道每个时间步出现哪个 token 之外，我们还想知道它出现在哪里。我们创建一个位置嵌入表，为每个不超过 <code>block_size</code> 的位置配备一个向量：</p>
+<pre><code class="language-python">self.position_embedding_table = nn.Embedding(block_size, n_embed)
+</code></pre>
+<p>在 <code>forward</code> 内部，获得 token 嵌入后，我们生成位置索引 <code>torch.arange(T)</code> 并将其嵌入。这会得到一个形状为 <code>(T, n_embed)</code> 的张量(tensor)，我们将其加到 token 嵌入上：</p>
+<pre><code class="language-python">B, T = idx.shape
+tok_emb = self.token_embedding_table(idx)       # (B, T, n_embed)
+pos_emb = self.position_embedding_table(torch.arange(T))  # (T, n_embed)
+x = tok_emb + pos_emb                             # (B, T, n_embed)
+</code></pre>
+<p>广播机制之所以有效，是因为 <code>(B, T, C) + (T, C)</code> 会将维度右对齐，插入一个大小为 1 的 batch 维度，然后在 batch 上广播。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="3619">[01:00:19]</a></sub> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="3650">[01:00:50]</a></sub></p>
+<p>在这个阶段，位置信息暂时还没有帮助，因为下游的二元模型是平移不变的：它对每个位置一视同仁。然而，一旦我们将其替换为自注意力(self-attention)，模型就能够利用 token 出现在第五个位置而非第二个位置这一事实。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="3680">[01:01:20]</a></sub></p>
+<h3>从均匀平均到数据相关的亲和性</h3>
+<p>我们现在来到了自注意力(self-attention)的核心：实现单个自注意力头(self-attention head)。设定是一个包含四个序列的批次(batch)，每个序列有八个词元(token)，每个词元都是 32 维的向量。到目前为止，代码仅通过简单地对所有过去和当前词元进行均匀平均来混合信息。这是通过构造一个下三角掩码(lower-triangular mask)，将被掩码的位置填充为负无穷，然后应用 softmax 来实现的。当亲和矩阵(affinity matrix)初始化为零时，所得权重的每一行都会变得均匀，这意味着每个词元从每个先前的词元及其自身收集的信息量是相同的。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="3744">[01:02:24]</a></sub></p>
+<p><img alt="初始均匀平均自注意力设置：一个包含四个序列的批次（每个序列八个词元，32 维向量），使用下三角掩码和零初始化的亲和矩阵。" src="https://riverlin.sirv.com/gpt/ch11_fig1.jpg" /></p>
+<p><em>初始均匀平均自注意力设置：一个包含四个序列的批次（每个序列八个词元，32 维向量），使用下三角掩码和零初始化的亲和矩阵。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="3720">[01:02:00]</a></sub></p>
+<p>均匀平均是不够的，因为不同的词元需要以不同的程度发现其他词元更相关或更不重要。这种交互应该是数据相关的(data-dependent)：例如，一个元音词元可能需要特别关注前面的辅音，并让它们的信息流入自身。自注意力(self-attention)正是解决了这个问题。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="3807">[01:03:27]</a></sub></p>
+<p>其机制如下。每个位置上的每个词元都会发出两个学习得到的向量：一个<strong>query（查询）</strong>和一个<strong>key（键）</strong>。query 代表“我在寻找什么？”，key 代表“我包含什么？”。为了决定一个词元应该对另一个词元给予多少关注，我们计算当前词元的 query 与所有其他词元的 key 之间的点积(dot product)。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="3838">[01:03:58]</a></sub></p>
+<pre><code class="language-python"># x: (B, T, C)
+# query and key projections
+q = x @ W_q  # (B, T, head_size)
+k = x @ W_k  # (B, T, head_size)
+
+# affinities: dot product of queries with keys
+wei = q @ k.transpose(-2, -1)  # (B, T, T)
+</code></pre>
+<p>如果一个 query 和一个 key 对齐得很好，它们的点积会很大且为正，从而产生一个高亲和权重(affinity weight)。该权重随后控制从对应词元收集多少信息。相反，不匹配的 query 和 key 会产生较小或负的点积，在经过掩码和 softmax 后变成接近零的权重，从而抑制不相关的词元。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="3869">[01:04:29]</a></sub></p>
+<p>这用学习得到的、内容相关的加权取代了均匀平均：每个词元现在根据数据本身选择要关注哪些过去的词元。</p>
+<h3>实现单个自注意力头（query、key、value）</h3>
+<p>一个自注意力头将每个 token 转换为三个不同的向量：<strong>query</strong>、<strong>key</strong> 和 <strong>value</strong>。query 表达一个 token 在寻找什么，key 宣告一个 token 包含什么，而 value 则是当匹配成功时实际传递的信息。本节将带你完整走过单个头的正向传播过程，从投影到最终的加权聚合。</p>
+<p><img alt="为单个自注意力头定义 key、query 和 value 的线性投影，并计算初始的 query-key 点积。" src="https://riverlin.sirv.com/gpt/ch12_fig1.jpg" /></p>
+<p><em>为单个自注意力头定义 key、query 和 value 的线性投影，并计算初始的 query-key 点积。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="3960">[01:06:00]</a></sub></p>
+<p><img alt="在掩码前检查原始亲和度矩阵 wei[0]，展示所有 token 对之间数据相关的正负点积值。" src="https://riverlin.sirv.com/gpt/ch12_fig2.jpg" /></p>
+<p><em>在掩码前检查原始亲和度矩阵 wei[0]，展示所有 token 对之间数据相关的正负点积值。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="4080">[01:08:00]</a></sub></p>
+<p><img alt="经过 softmax 归一化后：掩码亲和度矩阵的每一行之和为 1，得到一个干净的注意力分布。" src="https://riverlin.sirv.com/gpt/ch12_fig3.jpg" /></p>
+<p><em>经过 softmax 归一化后：掩码亲和度矩阵的每一行之和为 1，得到一个干净的注意力分布。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="4200">[01:10:00]</a></sub></p>
+<p><img alt="加入 value 投影并计算最终输出：v = value(x)，然后 out = wei @ v，产生形状 (B, T, 16)。" src="https://riverlin.sirv.com/gpt/ch12_fig4.jpg" /></p>
+<p><em>加入 value 投影并计算最终输出：v = value(x)，然后 out = wei @ v，产生形状 (B, T, 16)。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="4260">[01:11:00]</a></sub></p>
+<p><img alt="注意力作为有向图的总结示意图：节点通过以数据相关权重聚合前面节点的信息来进行通信。" src="https://riverlin.sirv.com/gpt/ch12_fig5.jpg" /></p>
+<p><em>注意力作为有向图的总结示意图：节点通过以数据相关权重聚合前面节点的信息来进行通信。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="4290">[01:11:30]</a></sub></p>
+<p>我们首先定义一个 head size（这里为 16）和三个不带偏置的线性投影。每个投影对输入 <code>X</code> 应用一个可学习的矩阵乘法。</p>
+<pre><code class="language-python">head_size = 16
+key = nn.Linear(C, head_size, bias=False)
+query = nn.Linear(C, head_size, bias=False)
+value = nn.Linear(C, head_size, bias=False)
+
+k = key(X)    # (B, T, 16)
+q = query(X)  # (B, T, 16)
+</code></pre>
+<p>由于线性层在 batch 和 time 维度上独立操作，每个序列中的每个 token 都会并行生成自己的 key 和 query。此时还没有发生信息交换；那将在下一步进行。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="3903">[01:05:03]</a></sub></p>
+<h4>计算 token 到 token 的亲和度</h4>
+<p>为了衡量每个 token 应该关注其他 token 的程度，我们计算每个 query 与每个 key 之间的点积。张量(tensor)的形状为 <code>(B, T, head_size)</code>，因此我们在相乘前将 <code>k</code> 的最后两个维度转置：</p>
+<pre><code class="language-python">wei = q @ k.transpose(-2, -1)   # (B, T, 16) @ (B, 16, T) -&gt; (B, T, T)
+</code></pre>
+<p>结果是一个形状为 <code>(B, T, T)</code> 的方阵亲和度矩阵，对应 batch 中的每个序列。条目 <code>wei[b, t, s]</code> 衡量 token <code>t</code> 基于其 query 和 key 向量的相似性"关心" token <code>s</code> 的程度。与之前使用的均匀常数权重不同，这些亲和度是数据相关的：不同的 batch 元素、不同的 token 以及不同的位置都会产生不同的模式。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="3967">[01:06:07]</a></sub></p>
+<p>检查单个样本（batch 元素 0），最后一行对应第八个 token。该 token 既知道自身内容也知道自身位置；它发出一个 query，例如"我是一个位于位置 E 的元音，正在寻找前四个位置中的辅音"。与此同时，前面的 token 发出 key。如果某个 key 匹配该描述，query 与 key 之间的点积就会变大，从而产生高亲和度。通过随后的 softmax，这种高亲和度使得第八个 token 拉取匹配 token 信息的大部分份额。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="4092">[01:08:12]</a></sub></p>
+<h4>因果掩码与 softmax 归一化</h4>
+<p>在掩码之前，原始点积呈现出一系列正值和负值。这些代表了所有 token 对之间未经筛选的亲和度：</p>
+<pre><code class="language-python"># 原始亲和度（无掩码，无 softmax）
+wei = q @ k.transpose(-2, -1)
+</code></pre>
+<p>然而，位于位置 <code>t</code> 的 token 绝不能聚合来自位置 <code>t+1</code> 及之后的信息。我们通过一个上三角掩码来强制这一点，将未来位置设为负无穷，使它们在 softmax 后获得零权重。我们还对 logits 进行缩放，以保持梯度良好。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="4154">[01:09:14]</a></sub></p>
+<pre><code class="language-python">wei = q @ k.transpose(-2, -1) * head_size**-0.5
+wei = wei.masked_fill(tril == 0, float('-inf'))
+wei = F.softmax(wei, dim=-1)
+</code></pre>
+<p>经过掩码和指数化后，每一行之和为 1，得到一个干净的分布，以数据相关的方式精确告诉我们应该融入多少每个过去 token 的信息。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="4185">[01:09:45]</a></sub></p>
+<h4>聚合 value，而非原始 token</h4>
+<p>最后一个要素是 <strong>value</strong> 向量。每个 token 不是聚合原始输入 <code>X</code>，而是生成一个 value 投影，代表它愿意传达的内容：</p>
+<pre><code class="language-python">v = value(X)   # (B, T, 16)
+out = wei @ v  # (B, T, T) @ (B, T, 16) -&gt; (B, T, 16)
+</code></pre>
+<p>你可以将 <code>X</code> 视为每个 token 持有的私有信息，而 <code>v</code> 是它广播的公开消息。如果另一个 token 觉得这个 token 很有趣（高 query-key 亲和度），它会收到 <code>v</code> 的加权副本，而不是 <code>X</code> 的。由于 <code>v</code> 存在于 16 维的头空间中，单个头的输出也是 16 维的。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="4217">[01:10:17]</a></sub></p>
+<p>这完成了单头自注意力机制：投影到 key、query 和 value；计算缩放点积亲和度；掩码掉未来位置；用 softmax 归一化；并根据所得权重聚合 value。</p>
+<h2>概念深入：注意力作为通信机制，编码器 vs 解码器，自注意力 vs 交叉注意力</h2>
+<p>Attention 最好被理解为一种在有向图上的通信机制。想象一组节点，它们之间有边相连。每个节点持有一个信息向量，并通过加权求和的方式聚合所有指向它的节点中的数据。这些权重是数据依赖的：它们会根据任意时刻向量的实际内容动态变化。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="4310">[01:11:50]</a></sub></p>
+<p>在我们自回归语言模型的设定中，图具有特定的三角结构。当块大小(block size)为八时，我们有八个 token，其连接遵循严格的规则：第一个节点只接收来自自身的边；第二个节点接收来自第一个节点和自身的边；依此类推，直到第八个节点，它接收来自所有前面节点以及自身的边。这种因果掩码(causal masking)确保每个位置只能关注前面的位置和自身。然而，attention 并不局限于这种布局。原则上，它可以应用于任意有向图，使其成为一种灵活的节点间通信原语。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="4340">[01:12:20]</a></sub></p>
+<p><img alt="Attention as a directed graph communication mechanism: nodes 0-5 with edges showing data-dependent aggregation." src="https://riverlin.sirv.com/gpt/ch13_fig1.jpg" /></p>
+<p><em>Attention as a directed graph communication mechanism: nodes 0-5 with edges showing data-dependent aggregation.</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="4350">[01:12:30]</a></sub></p>
+<p><img alt="Notebook notes summarizing key attention concepts: communication mechanism, no notion of space, batch independence, encoder vs decoder blocks, and self vs cross-attention." src="https://riverlin.sirv.com/gpt/ch13_fig2.jpg" /></p>
+<p><em>Notebook notes summarizing key attention concepts: communication mechanism, no notion of space, batch independence, encoder vs decoder blocks, and self vs cross-attention.</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="4410">[01:13:30]</a></sub></p>
+<p><img alt="The original 'Attention Is All You Need' paper showing the Scaled Dot-Product Attention and Multi-Head Attention figure and formulas." src="https://riverlin.sirv.com/gpt/ch13_fig3.jpg" /></p>
+<p><em>The original 'Attention Is All You Need' paper showing the Scaled Dot-Product Attention and Multi-Head Attention figure and formulas.</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="4616">[01:16:56]</a></sub></p>
+<h3>为什么位置编码(positional encodings)是必要的</h3>
+<p>Attention 的一个关键特性是，它作用于一个无序的向量集合。默认情况下，节点没有关于它们在序列中位于何处的概念。与卷积(convolution)不同——卷积的滤波器在固定的空间布局上操作，并通过其局部感受野隐式编码位置——attention 将其输入视为漂浮在空间中的一袋向量(bag of vectors)。如果你希望模型知道 token 3 在 token 5 之前，就必须显式注入位置信息，这正是我们向输入嵌入(embedding)添加位置编码(positional encodings)的原因。没有它们，模型将是置换不变的(permutation-invariant)，并且对词序一无所知。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="4371">[01:12:51]</a></sub></p>
+<h3>Batch 独立性</h3>
+<p>Batch 维度上的元素从不交互。尽管我们同时处理四个样本以提高效率，但批量化矩阵乘法(batch matrix multiplication)独立地对每个样本应用相同的操作。在有向图的类比中，batch size 为四意味着我们有四个独立的池，每个池包含八个节点。一个池内的八个节点可以自由通信，但没有任何边跨越池之间的边界。总共 32 个节点被并行处理，但它们仍然严格划分为四个独立的图。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="4434">[01:13:54]</a></sub></p>
+<h3>编码器块(encoder blocks) vs 解码器块(decoder blocks)</h3>
+<p>我们使用的三角掩码(triangular masking)是自回归语言建模特有的。它阻止未来的 token 向过去的 token 通信，否则会在训练期间泄露答案。但这个约束在一般情况下并非必需。对于情感分析等任务——其目标是从整个句子预测单个标签——让每个 token 关注所有其他 token 是完全合理且可取的。在这种情况下，你会使用 encoder block 的自注意力(self-attention)，它直接省略因果掩码：</p>
+<pre><code class="language-python"># Encoder-style self-attention: all nodes talk to all nodes
+wei = q @ k.T / sqrt(head_dim)
+wei = F.softmax(wei, dim=-1)
+out = wei @ v
+</code></pre>
+<p>我们一直在实现的是 <strong>decoder block</strong>。它通过应用三角掩码(triangular mask)来维持自回归结构，使得未来的节点永远不会与过去通信：</p>
+<pre><code class="language-python"># Decoder-style self-attention: triangular mask preserves causality
+wei = q @ k.T / sqrt(head_dim)
+wei = wei.masked_fill(tril == 0, float('-inf'))
+wei = F.softmax(wei, dim=-1)
+out = wei @ v
+</code></pre>
+<p>两种设计都是有效的，底层的 attention 机制并不关心连接模式。它支持节点之间边的任意排列。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="4464">[01:14:24]</a></sub></p>
+<h3>自注意力(self-attention) vs 交叉注意力(cross-attention)</h3>
+<p>我们构建的操作具体来说是 <strong>self-attention</strong>，因为 keys、queries 和 values 都源自同一个源矩阵 <code>x</code>：</p>
+<pre><code class="language-python"># Self-attention: Q, K, V all come from the same input x
+q = x @ W_q
+k = x @ W_k
+v = x @ W_v
+</code></pre>
+<p>Attention 比这更通用。在 <strong>cross-attention</strong> 中，queries 仍然由当前输入产生，但 keys 和 values 来自一个独立的外部源。这种模式出现在编码器-解码器(encoder-decoder) Transformer 中，其中编码器处理输入序列（例如翻译中的源句子），解码器生成输出序列。解码器产生 queries，而 keys 和 values 取自编码器的最终表示。因此，解码器从旁边“读取”信息，而不是从自身读取：</p>
+<pre><code class="language-python"># Cross-attention: queries from x, keys and values from an external context
+q = x @ W_q
+k = context @ W_k
+v = context @ W_v
+</code></pre>
+<p>Self-attention 是外部源恰好与查询源相同的特例。Cross-attention 是从一组不同节点拉取信息的通用情况。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="4557">[01:15:57]</a></sub></p>
+<h2>按 sqrt(head_size) 缩放并将自注意力(self-attention)接入模型</h2>
+<p>自注意力(self-attention)机制已接近完成：query、key 和 value 已完成投影，分数(score)已计算，softmax 生成了聚合权重。按照 "Attention Is All You Need" 的表述，最后缺失的一块是缩放因子 $1 / \sqrt{d_k}$，其中 $d_k$ 即 head size。这种归一化并非仅仅为了美观；它控制了初始化时分数的统计行为，并防止 softmax 坍缩为 one-hot 分布。</p>
+<p><img alt="Attention Is All You Need 论文摘录，展示了缩放点积注意力公式：Attention(Q,K,V)=softmax(QK^T/sqrt(d_k))V" src="https://riverlin.sirv.com/gpt/ch14_fig1.jpg" /></p>
+<p><em>Attention Is All You Need 论文摘录，展示了缩放点积注意力公式：Attention(Q,K,V)=softmax(QK^T/sqrt(d_k))V</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="4680">[01:18:00]</a></sub></p>
+<p><img alt="Jupyter notebook 演示缩放前后的方差，以及小输入与大输入下的 softmax 锐化示例" src="https://riverlin.sirv.com/gpt/ch14_fig2.jpg" /></p>
+<p><em>Jupyter notebook 演示缩放前后的方差，以及小输入与大输入下的 softmax 锐化示例</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="4756">[01:19:16]</a></sub></p>
+<p><img alt="VS Code 编辑器展示完整的 Head 模块实现，包括 key/query/value 投影、tril 缓冲区、缩放注意力、掩码、softmax 和加权聚合" src="https://riverlin.sirv.com/gpt/ch14_fig3.jpg" /></p>
+<p><em>VS Code 编辑器展示完整的 Head 模块实现，包括 key/query/value 投影、tril 缓冲区、缩放注意力、掩码、softmax 和加权聚合</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="4830">[01:20:30]</a></sub></p>
+<p><img alt="VS Code 编辑器展示 BigramLanguageModel 类，其中 sa_head 被插入到 embeddings 与 lm_head 之间，以及前向传播的接线" src="https://riverlin.sirv.com/gpt/ch14_fig4.jpg" /></p>
+<p><em>VS Code 编辑器展示 BigramLanguageModel 类，其中 sa_head 被插入到 embeddings 与 lm_head 之间，以及前向传播的接线</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="4890">[01:21:30]</a></sub></p>
+<h3>为什么要按 $1 / \sqrt{\text{head_size}}$ 缩放？</h3>
+<p>假设输入到 key 和 query 投影的数据大致服从标准正态分布（零均值，单位方差）。因为每个注意力分数(score)都是一个点积 $q \cdot k$，该乘积的方差会随着向量维度的增加而增长。如果 head size 为 $d_k$，则原始分数的方差数量级约为 $d_k$ 本身。当 head size 为 16 时，分数的方差就是 16。乘以 $1 / \sqrt{d_k}$ 可以将方差重新缩放回 1，从而在初始化时保持预期的分布。</p>
+<p>这一点很重要，因为分数会直接进入 softmax。当 softmax 的输入较小且集中在零附近时，输出是弥散的——每个位置获得适度的注意力份额。但如果输入的数值很大，softmax 就会急剧锐化到最大值，产生接近 one-hot 的向量。在这种情况下，每个节点只会从另一个节点聚合信息，从而丧失了注意力的意义。缩放使得初始化时的分数保持适中，确保模型在训练开始时拥有宽泛且有用的注意力模式，而不是尖锐、随意的模式。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="4649">[01:17:29]</a></sub></p>
+<h3>实现 Head 模块</h3>
+<p>有了缩放的理论依据，<code>Head</code> 模块就可以实现为单个自注意力头(self-attention head)。它接受一个 <code>head_size</code>，并创建三个不带偏置的线性投影——key、query 和 value——这是标准做法。防止未来位置与过去位置通信的下三角掩码(lower-triangular mask)被注册为 PyTorch 缓冲区(buffer)而非参数(parameter)，因为它是固定的。</p>
+<pre><code class="language-python">class Head(nn.Module):
+    def __init__(self, head_size):
+        super().__init__()
+        self.key = nn.Linear(n_embd, head_size, bias=False)
+        self.query = nn.Linear(n_embd, head_size, bias=False)
+        self.value = nn.Linear(n_embd, head_size, bias=False)
+        self.register_buffer('tril', torch.tril(torch.ones(block_size, block_size)))
+
+    def forward(self, x):
+        B, T, C = x.shape
+        k = self.key(x)
+        q = self.query(x)
+        # Compute attention scores (&quot;affinities&quot;)
+        wei = q @ k.transpose(-2, -1) * C**-0.5  # scaled attention
+        wei = wei.masked_fill(self.tril[:T, :T] == 0, float('-inf'))
+        wei = F.softmax(wei, dim=-1)
+        v = self.value(x)
+        out = wei @ v
+        return out
+</code></pre>
+<p>前向传播看起来应该很熟悉：投影到 key、query 和 value；计算缩放后的分数；应用因果掩码(causal mask)；softmax；然后聚合 value。关键的新增部分是乘以 <code>C**-0.5</code>，即 $1 / \sqrt{\text{head_size}}$，它实现了缩放点积注意力(scaled dot-product attention)。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="4743">[01:19:03]</a></sub></p>
+<h3>将自注意力(self-attention)集成到语言模型中</h3>
+<p>要将注意力头(head)接入网络，只需在语言模型构造函数中实例化它，为简单起见，让 head size 等于嵌入维度(embedding dimension)。在 token 嵌入(token embedding)与位置嵌入(positional embedding)相加后，将结果送入自注意力头(self-attention head)，然后将输出传递给语言建模头(language modeling head)以生成 logits。</p>
+<pre><code class="language-python">class BigramLanguageModel(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.token_embedding_table = nn.Embedding(vocab_size, n_embd)
+        self.position_embedding_table = nn.Embedding(block_size, n_embd)
+        self.sa_head = Head(n_embd)
+        self.lm_head = nn.Linear(n_embd, vocab_size)
+
+    def forward(self, idx, targets=None):
+        B, T = idx.shape
+        tok_emb = self.token_embedding_table(idx)
+        pos_emb = self.position_embedding_table(torch.arange(T, device=device))
+        x = tok_emb + pos_emb
+        x = self.sa_head(x)
+        logits = self.lm_head(x)
+        ...
+</code></pre>
+<p>这是最简单的集成方式：一个单独的自注意力(self-attention)组件位于输入嵌入(input embeddings)和输出投影(output projection)之间。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="4803">[01:20:03]</a></sub></p>
+<h3>在生成过程中遵守 <code>block_size</code></h3>
+<p><code>generate</code> 方法还需要一处额外修改。由于模型现在使用了位置嵌入(positional embeddings)，输入序列 <code>idx</code> 的长度绝不能超过 <code>block_size</code>。否则，位置嵌入表(position embedding table)会越界，因为它只存储了位置 $0$ 到 $\text{block_size}-1$ 的嵌入。为了防止这种情况，在将上下文输入模型之前，将其裁剪为最后 <code>block_size</code> 个 token。</p>
+<pre><code class="language-python">def generate(self, idx, max_new_tokens):
+    for _ in range(max_new_tokens):
+        idx_cond = idx[:, -block_size:]  # crop to block_size
+        logits, loss = self(idx_cond)
+        logits = logits[:, -1, :]
+        probs = F.softmax(logits, dim=-1)
+        idx_next = torch.multinomial(probs, num_samples=1)
+        idx = torch.cat((idx, idx_next), dim=1)
+    return idx
+</code></pre>
+<p>有了这些组件——缩放后的注意力分数、完整的 <code>Head</code> 模块、将其插入语言模型，以及在生成时裁剪上下文——网络就准备好使用自注意力(self-attention)进行训练了。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="4867">[01:21:07]</a></sub></p>
+<h1>组装 Transformer 块：多头注意力、前馈网络、残差连接与层归一化</h1>
+<h3>Multi-Headed Self-Attention（多头自注意力）</h3>
+<p>A single self-attention head gives tokens one communication channel, but language is rich enough that different tokens need to discover many different relationships simultaneously. Multi-head attention（多头注意力）solves this by running several self-attention operations in parallel and concatenating their outputs, analogous to group convolutions in computer vision.</p>
+<p><img alt="The original 'Attention Is All You Need' paper, showing the Scaled Dot-Product Attention formula and the definition of multi-head attention as multiple attention layers running in parallel." src="https://riverlin.sirv.com/gpt/ch15_fig1.jpg" /></p>
+<p><em>The original 'Attention Is All You Need' paper, showing the Scaled Dot-Product Attention formula and the definition of multi-head attention as multiple attention layers running in parallel.</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="4920">[01:22:00]</a></sub></p>
+<p><img alt="Diagram from the paper contrasting the Scaled Dot-Product Attention block (left) with the Multi-Head Attention block (right), which replicates the attention layer in parallel with linear projections." src="https://riverlin.sirv.com/gpt/ch15_fig2.jpg" /></p>
+<p><em>Diagram from the paper contrasting the Scaled Dot-Product Attention block (left) with the Multi-Head Attention block (right), which replicates the attention layer in parallel with linear projections.</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="4940">[01:22:20]</a></sub></p>
+<p><img alt="Code implementing MultiHeadAttention in PyTorch: a module that stores multiple Head instances in a ModuleList and concatenates their outputs along the channel dimension." src="https://riverlin.sirv.com/gpt/ch15_fig3.jpg" /></p>
+<p><em>Code implementing MultiHeadAttention in PyTorch: a module that stores multiple Head instances in a ModuleList and concatenates their outputs along the channel dimension.</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5010">[01:23:30]</a></sub></p>
+<p><img alt="BigramLanguageModel updated to use self.sa_heads = MultiHeadAttention(4, n_embed//4), replacing the single attention head with four parallel heads of size 8." src="https://riverlin.sirv.com/gpt/ch15_fig4.jpg" /></p>
+<p><em>BigramLanguageModel updated to use self.sa_heads = MultiHeadAttention(4, n_embed//4), replacing the single attention head with four parallel heads of size 8.</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5065">[01:24:25]</a></sub></p>
+<h4>From One Channel to Many（从单通道到多通道）</h4>
+<p>Instead of one attention head that projects the $n_{\text{embed}}$-dimensional space into query, key, and value vectors, multi-head attention creates $h$ independent heads. Each head performs scaled dot-product attention on a lower-dimensional subspace. If $n_{\text{embed}} = 32$ and we use $h = 4$ heads, each head operates with a head size of $8$:</p>
+<pre><code class="language-python">class MultiHeadAttention(nn.Module):
+    def __init__(self, num_heads, head_size, n_embed):
+        super().__init__()
+        self.heads = nn.ModuleList([
+            Head(head_size, n_embed) for _ in range(num_heads)
+        ])
+
+    def forward(self, x):
+        # Run all heads in parallel and concatenate over the channel dimension
+        out = torch.cat([h(x) for h in self.heads], dim=-1)
+        return out
+</code></pre>
+<p>Each <code>Head</code> is the masked scaled dot-product attention from the previous section. The concatenation happens along the final (channel) dimension: four heads each output an 8-dimensional vector per token, which concatenates back to the original 32 dimensions. <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="4929">[01:22:09]</a></sub></p>
+<h4>Why Multiple Heads Help（多头为何有效）</h4>
+<p>A single 32-dimensional attention must simultaneously learn to track consonants, vowels, positional patterns, and syntactic roles through one set of projections. By splitting into four 8-dimensional heads, the network creates independent pathways. One head might specialize in local vowel agreement, another in consonant clusters, a third in long-range positional dependencies. <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5021">[01:23:41]</a></sub></p>
+<p>This is structurally similar to group convolutions: rather than one large filter bank operating on the full feature depth, grouped convolution partitions channels into independent groups that learn distinct filters. Multi-head attention applies the same principle to the communication pathway between tokens. <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="4990">[01:23:10]</a></sub></p>
+<h4>Impact on Validation Loss（对验证损失的影响）</h4>
+<p>Replacing the single attention head with four heads of size 8 reduced validation loss from roughly 2.4 to 2.28. While generated text remained imperfect, the quantitative improvement confirms that multiple parallel communication channels extract richer structure from the training data. The model now gathers diverse types of information---phonetic, positional, and contextual---before decoding the next token. <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5021">[01:23:41]</a></sub></p>
+<p>With multi-head attention implemented, the core components of the Transformer decoder block are nearly complete. The architecture now includes token embeddings, positional encodings, and masked multi-headed self-attention---elements that appear in the original "Attention Is All You Need" diagram. <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5053">[01:24:13]</a></sub></p>
+<h3>前馈 MLP 与 Transformer Block</h3>
+<p>到目前为止，网络具备了通信能力，但还缺少计算。在 token 通过多头自注意力(multi-head self-attention)交换信息之后，它们需要时间来"思考"所收集到的内容。原始的 Transformer 图示中包含了一个前馈阶段，在本章中我们将加入这一计算，然后把两部分打包成一个可复用的 block。</p>
+<p><img alt="原始 Transformer 论文将 Position-wise Feed-Forward Networks 与 attention 并列为关键子层。" src="https://riverlin.sirv.com/gpt/ch16_fig1.jpg" /></p>
+<p><em>原始 Transformer 论文将 Position-wise Feed-Forward Networks 与 attention 并列为关键子层。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5102">[01:25:02]</a></sub></p>
+<p><img alt="FeedForward 类的代码实现：一个简单的 nn.Sequential，包含 nn.Linear 和 nn.ReLU。" src="https://riverlin.sirv.com/gpt/ch16_fig2.jpg" /></p>
+<p><em>FeedForward 类的代码实现：一个简单的 nn.Sequential，包含 nn.Linear 和 nn.ReLU。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5112">[01:25:12]</a></sub></p>
+<p><img alt="Block 类的定义，将 MultiHeadAttention 和 FeedForward 打包成一个可复用的 Transformer block。" src="https://riverlin.sirv.com/gpt/ch16_fig3.jpg" /></p>
+<p><em>Block 类的定义，将 MultiHeadAttention 和 FeedForward 打包成一个可复用的 Transformer block。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5208">[01:26:48]</a></sub></p>
+<p><img alt="原始论文中的经典 Transformer 架构图，展示了 Multi-Head Attention 与 Feed Forward 堆叠而成的 block。" src="https://riverlin.sirv.com/gpt/ch16_fig4.jpg" /></p>
+<p><em>原始论文中的经典 Transformer 架构图，展示了 Multi-Head Attention 与 Feed Forward 堆叠而成的 block。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5298">[01:28:18]</a></sub></p>
+<h4>Position-Wise 前馈计算</h4>
+<p>前馈子层是一个微小的单隐藏层 MLP，独立地作用于每一个 token。在代码中，它只是一个线性投影后接 ReLU 非线性激活：</p>
+<pre><code class="language-python">class FeedFoward(nn.Module):
+    &quot;&quot;&quot;a simple linear layer followed by a non-linearity&quot;&quot;&quot;
+
+    def __init__(self, n_embd):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(n_embd, n_embd),
+            nn.ReLU(),
+        )
+
+    def forward(self, x):
+        return self.net(x)
+</code></pre>
+<p>由于 <code>nn.Linear</code> 作用于最后一个维度，而 batch/time 维度保持不变，因此每个 token 位置都独立地运行这个 MLP。自注意力(self-attention)层是通信阶段：token 彼此查看并聚合上下文。前馈层是计算阶段：每个 token 独自反思刚刚收集到的信息。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5116">[01:25:16]</a></sub></p>
+<p>我们在前向传播中把它直接插在 attention 之后：</p>
+<pre><code class="language-python">x = self.sa_heads(x)  # communication
+x = self.ffwd(x)      # computation
+</code></pre>
+<p>加入这一层后，训练得到的验证损失从 2.28 降到 2.24。生成的文本仍然粗糙，但趋势证实，增加逐 token 计算有助于模型利用经过 attention 后的上下文。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5178">[01:26:18]</a></sub></p>
+<h4>打包成 Transformer Block</h4>
+<p>下一步是将通信层和计算层组合成一个单一的可复用单元。一个 <code>Block</code> 接受嵌入(embedding)维度和所需的 head 数量，然后自动推导出 head 大小，使得 <code>n_embd = n_head * head_size</code>。对于我们的 32 维嵌入，使用 4 个大小为 8 的 head。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5241">[01:27:21]</a></sub></p>
+<pre><code class="language-python">class Block(nn.Module):
+    &quot;&quot;&quot;Transformer block: communication followed by computation&quot;&quot;&quot;
+
+    def __init__(self, n_embd, n_head):
+        super().__init__()
+        head_size = n_embd // n_head
+        self.sa = MultiHeadAttention(n_head, head_size)
+        self.ffwd = FeedFoward(n_embd)
+
+    def forward(self, x):
+        x = self.sa(x)
+        x = self.ffwd(x)
+        return x
+</code></pre>
+<p>定义好 block 后，主模型就变成了这些 block 的顺序堆叠，最后接上解码器：</p>
+<pre><code class="language-python">self.blocks = nn.Sequential(
+    Block(n_embd, n_head=4),
+    Block(n_embd, n_head=4),
+    Block(n_embd, n_head=4),
+    nn.Linear(n_embd, vocab_size),
+)
+</code></pre>
+<p>这与 Transformer 架构一致：通信（多头自注意力）和计算（position-wise 前馈）交替重复。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5209">[01:26:49]</a></sub></p>
+<p>然而，简单地堆叠很多 block 并不能立刻带来好结果。随着网络加深，它开始遇到优化困难。解决这些问题还需要原始 Transformer 论文中的另一个思路，我们将在下一章介绍。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5303">[01:28:23]</a></sub></p>
+<h3>残差（跳跃）连接</h3>
+<p>随着层数不断堆叠，深层网络变得越来越难以优化。梯度必须反向传播穿过每一次矩阵乘法、非线性和归一化，而在每一步都可能消失或爆炸。两项架构创新让深层 transformer 保持可训练性；第一项是残差（或跳跃）连接，出自 2015 年的论文 "Deep Residual Learning for Image Recognition"。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5303">[01:28:23]</a></sub></p>
+<p><img alt="来自 Medium 文章的残差块示意图，展示了经典的跳跃连接结构：输入 x 流经权重层和 ReLU（F(x)），同时一条恒等分支将 x 直接前传；两条路径通过相加合并，得到 F(x)+x。" src="https://riverlin.sirv.com/gpt/ch17_fig1.jpg" /></p>
+<p><em>来自 Medium 文章的残差块示意图，展示了经典的跳跃连接结构：输入 x 流经权重层和 ReLU（F(x)），同时一条恒等分支将 x 直接前传；两条路径通过相加合并，得到 F(x)+x。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5340">[01:29:00]</a></sub></p>
+<p><img alt="VS Code 编辑器展示添加残差连接前的初始 Block 类实现。forward 方法只是依次调用 self-attention 和 feed-forward，没有任何跳跃连接。" src="https://riverlin.sirv.com/gpt/ch17_fig2.jpg" /></p>
+<p><em>VS Code 编辑器展示添加残差连接前的初始 Block 类实现。forward 方法只是依次调用 self-attention 和 feed-forward，没有任何跳跃连接。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5490">[01:31:30]</a></sub></p>
+<p><img alt="VS Code 编辑器展示修正后的 Block 类 forward 方法，现在包含两处残差连接：围绕 attention 的 x = x + self.sa(x) 和围绕 feed-forward 层的 x = x + self.ffwd(x)。" src="https://riverlin.sirv.com/gpt/ch17_fig3.jpg" /></p>
+<p><em>VS Code 编辑器展示修正后的 Block 类 forward 方法，现在包含两处残差连接：围绕 attention 的 x = x + self.sa(x) 和围绕 feed-forward 层的 x = x + self.ffwd(x)。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5520">[01:32:00]</a></sub></p>
+<h4>残差路径</h4>
+<p>不要把网络想象成垂直堆叠的层，而是一条从输入直通输出的主干道。在任意位置，你都可以分叉出去执行一些变换，然后通过相加合并回主干道。原始输入几乎原封不动地一路传到最终预测，仅由一连串加法操作承载，而各个学习到的模块沿途贡献微小的修正。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5333">[01:28:53]</a></sub></p>
+<p>这种设计之所以强大，是因为加法在反向传播中的行为。在我们之前构建的 micro-grad 实现中，加法节点会将传入的梯度均等地分发给两个输入。因此，来自损失的梯度可以跳过每一个加法节点，直接流向最早的层，不会被侧分支上的权重矩阵阻碍。侧分支仍然能收到梯度，但它们不会阻塞主通道。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5365">[01:29:25]</a></sub></p>
+<p>在初始化时，侧分支通常被配置为对残差路径贡献极小——有时几乎为零。网络在诞生之初几乎是一个恒等映射，只有在优化过程中，残差块才会"上线"并开始贡献有意义的变换。由于梯度从第一天起就能到达最早的层，即使网络深达数十层甚至数百层，仍然保持可优化性。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5398">[01:29:58]</a></sub></p>
+<h4>实现残差连接</h4>
+<p>在 transformer 块内部，我们将子层的输出加回到它们的输入上。对于多头注意力(multi-head attention)和前馈网络(feed-forward network)，模式相同：从残差路径分叉，计算，然后通过相加投影回去。</p>
+<pre><code class="language-python">class Block(nn.Module):
+    &quot;&quot;&quot;One transformer block with residual connections around attention and feed-forward.&quot;&quot;&quot;
+
+    def __init__(self, n_embd, n_head):
+        super().__init__()
+        head_size = n_embd // n_head
+        self.sa = MultiHeadAttention(n_head, head_size)
+        # projection back into the residual pathway after attention
+        self.proj = nn.Linear(n_embd, n_embd)
+        self.ffwd = nn.Sequential(
+            nn.Linear(n_embd, 4 * n_embd),
+            nn.ReLU(),
+            # projection back into the residual pathway after feed-forward
+            nn.Linear(4 * n_embd, n_embd),
+        )
+
+    def forward(self, x):
+        # residual connection around attention
+        x = x + self.proj(self.sa(x))
+        # residual connection around feed-forward
+        x = x + self.ffwd(x)
+        return x
+</code></pre>
+<p>注意力头(attention heads)产生大小为 <code>n_embd</code> 的拼接输出，我们先通过线性投影 <code>self.proj</code>，再将其加回残差流(residual stream)。前馈层(feed-forward layer)将维度扩展四倍，应用 ReLU，然后再投影回 <code>n_embd</code>，以保证相加时的形状兼容。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5429">[01:30:29]</a></sub></p>
+<p>这种四倍扩展与原始 transformer 论文一致，其中输入和输出维度为 512，内部前馈层为 2048。在残差分支内部增大中间表示可以增加计算量，同时不干扰主梯度 highway。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5492">[01:31:32]</a></sub></p>
+<p>有了这些模块，网络成功训练，验证损失下降到 2.08。由于模型现在足够大，训练损失开始超过验证损失——这是容量不再是瓶颈、正则化(regularization)即将变得重要的早期信号。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5522">[01:32:02]</a></sub></p>
+<h2>Layer Normalization（层归一化）</h2>
+<p>训练极深网络的第二个关键创新是层归一化(layer normalization)。残差连接(residual connections)为梯度提供了一条高速公路，而层归一化则稳定了激活值本身，使其尺度在整个网络中保持受控。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5553">[01:32:33]</a></sub></p>
+<p><img alt="BatchNorm1d implementation in code showing how batch normalization normalizes columns across the batch dimension, with running mean/variance buffers and train/test distinction." src="https://riverlin.sirv.com/gpt/ch18_fig1.jpg" /></p>
+<p><em>BatchNorm1d implementation in code showing how batch normalization normalizes columns across the batch dimension, with running mean/variance buffers and train/test distinction.</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5730">[01:35:30]</a></sub></p>
+<p><img alt="LayerNorm code implementation in a Jupyter notebook, demonstrating the shift from batch norm (column normalization) to layer norm (row normalization) by changing only the dimension argument." src="https://riverlin.sirv.com/gpt/ch18_fig2.jpg" /></p>
+<p><em>LayerNorm code implementation in a Jupyter notebook, demonstrating the shift from batch norm (column normalization) to layer norm (row normalization) by changing only the dimension argument.</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5751">[01:35:51]</a></sub></p>
+<p><img alt="The Block class code in VS Code showing pre-norm architecture: LayerNorm applied before self-attention and before the feedforward network, with residual connections." src="https://riverlin.sirv.com/gpt/ch18_fig3.jpg" /></p>
+<p><em>The Block class code in VS Code showing pre-norm architecture: LayerNorm applied before self-attention and before the feedforward network, with residual connections.</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5817">[01:36:57]</a></sub></p>
+<h3>From Batch Norm to Layer Norm（从批归一化到层归一化）</h3>
+<p>层归一化(layer normalization)与批归一化(batch normalization)密切相关，后者我们在 <em>makemore</em> 系列中已经实现过。批归一化确保在批(batch)维度上，每一个单独的神经元都具有单位高斯分布：均值为零、标准差为一。换句话说，它对激活矩阵的<strong>列(columns)</strong>进行归一化。</p>
+<p>回顾 <em>makemore</em> 中的 <code>BatchNorm1d</code> 模块。给定一个包含 32 个样本的批(batch)，每个样本是一个 100 维向量，批归一化保证第 0 列（以及所有其他列）是零均值、单位方差的：</p>
+<pre><code class="language-python"># BatchNorm normalizes COLUMNS of x (across the batch dimension)
+class BatchNorm1d:
+    def __init__(self, dim):
+        self.gamma = torch.ones(dim)
+        self.beta = torch.zeros(dim)
+        # ... running buffers for train/test distinction ...
+
+    def __call__(self, x):
+        # x is (Batch, Time, Channels) or (Batch, Channels)
+        xmean = x.mean(0, keepdim=True)  # average over batch
+        xvar = x.var(0, keepdim=True)
+        xhat = (x - xmean) / torch.sqrt(xvar + 1e-5)
+        self.out = self.gamma * xhat + self.beta
+        return self.out
+</code></pre>
+<p>默认情况下，行(rows)不会被归一化，因为均值和方差是沿批(batch)维度（维度 0）计算的。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5584">[01:33:04]</a></sub></p>
+<h3>Implementing Layer Norm（实现层归一化）</h3>
+<p>层归一化(layer normalization)将这一点翻转过来：不再归一化列(columns)，而是归一化<strong>行(rows)</strong>。对于每一个单独的样本，其特征向量被归一化为零均值、单位方差。实现方式几乎完全相同——只有归一化的维度发生了变化：</p>
+<pre><code class="language-python">class LayerNorm1d:
+    def __init__(self, dim):
+        self.gamma = torch.ones(dim)
+        self.beta = torch.zeros(dim)
+
+    def __call__(self, x):
+        # x is (Batch, Time, Channels) or (Batch, Channels)
+        xmean = x.mean(1, keepdim=True)  # average over features (rows)
+        xvar = x.var(1, keepdim=True)
+        xhat = (x - xmean) / torch.sqrt(xvar + 1e-5)
+        self.out = self.gamma * xhat + self.beta
+        return self.out
+</code></pre>
+<p>由于计算不再跨样本进行，我们可以删除所有运行缓冲区(running buffers)。训练时和测试时没有区别，没有动量(momentum)，也不需要跟踪运行统计量(running statistics)。只剩下可学习的 <code>gamma</code> 和 <code>beta</code> 参数。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5646">[01:34:06]</a></sub></p>
+<h3>Pre-Norm vs. Post-Norm（预归一化与后归一化）</h3>
+<p>原始的 Transformer 论文将 "Add &amp; Norm" 放在子层变换<strong>之后</strong>（post-norm）。然而，现代实践已经转向<strong>预归一化(pre-norm)</strong>形式，即层归一化(layer normalization)在变换<strong>之前</strong>应用。这种重新排序已成为标准，也是我们这里实现的方式。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5708">[01:35:08]</a></sub></p>
+<p>在 <code>Block</code> 中，我们添加两个 <code>LayerNorm</code> 模块，并在自注意力(self-attention)之前和前馈网络(feedforward network)之前将它们应用于 <code>x</code>：</p>
+<pre><code class="language-python">class Block(nn.Module):
+    def __init__(self, n_embd, n_head):
+        super().__init__()
+        head_size = n_embd // n_head
+        self.sa = MultiHeadAttention(n_head, head_size)
+        self.ffwd = FeedForward(n_embd)
+        self.ln1 = nn.LayerNorm(n_embd)
+        self.ln2 = nn.LayerNorm(n_embd)
+
+    def forward(self, x):
+        x = x + self.sa(self.ln1(x))   # pre-norm before attention
+        x = x + self.ffwd(self.ln2(x)) # pre-norm before feedforward
+        return x
+</code></pre>
+<p>层归一化(layer norm)的大小是 <code>n_embd</code>（例如 32）。均值和方差在这 32 个特征值上计算，因此批(batch)维度和时间(time)维度都充当批维度。这是一种逐 token 的变换，将特征归一化并在初始化时使它们成为单位高斯分布。层归一化内部可学习的 <code>gamma</code> 和 <code>beta</code> 允许优化器在训练期间按需缩放和平移归一化后的值。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5773">[01:36:13]</a></sub></p>
+<h3>Final Decoder Layer Norm（最终的解码器层归一化）</h3>
+<p>通常还在 Transformer 的最末端、最终线性层之前再放置一个层归一化(layer norm)，该线性层将结果解码为词表 logits：</p>
+<pre><code class="language-python">self.blocks = nn.Sequential(*[Block(n_embd, n_head) for _ in range(n_layer)])
+self.ln_f = nn.LayerNorm(n_embd)  # final layer norm
+self.lm_head = nn.Linear(n_embd, vocab_size)
+</code></pre>
+<p>加上这一层，decoder-only Transformer 的主要组件就全部就位了。使用层归一化(layer normalization)训练后，验证损失(validation loss)达到 2.06，比之前的 2.08 略有提升。在更大、更深的网络中，收益会更加明显。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5837">[01:37:17]</a></sub></p>
+<h1>模型规模化、大规模训练与连接真实世界 GPT 系统</h1>
+<h2>用 Dropout 正则化扩展仅解码器(decoder-only) Transformer</h2>
+<p>为了将模型扩展到目前所用 toy example 之外，架构首先进行了一些结构性清理。Transformer block 的数量由 <code>n_layer</code> 参数化，注意力头(attention head)的数量暴露为 <code>n_head</code>。层归一化(Layer normalization)被提取到独立的模块中，并在每个残差连接(residual connection)之前引入 dropout。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5867">[01:37:47]</a></sub></p>
+<p><img alt="代码展示在 FeedForward 模块内部添加 dropout（ReLU 激活后接 nn.Dropout 层）。" src="https://riverlin.sirv.com/gpt/ch19_fig1.jpg" /></p>
+<p><em>代码展示在 FeedForward 模块内部添加 dropout（ReLU 激活后接 nn.Dropout 层）。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5880">[01:38:00]</a></sub></p>
+<p><img alt="PDF 阅读器中显示的 Srivastava 等人 2014 年原始 dropout 论文。" src="https://riverlin.sirv.com/gpt/ch19_fig2.jpg" /></p>
+<p><em>PDF 阅读器中显示的 Srivastava 等人 2014 年原始 dropout 论文。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5910">[01:38:30]</a></sub></p>
+<p><img alt="经典的《Attention Is All You Need》Transformer 架构图，展示了带有多头注意力(Multi-Head Attention)、前馈网络(Feed Forward)和 Add &amp; Norm 层的编码器-解码器(encoder-decoder) block。" src="https://riverlin.sirv.com/gpt/ch19_fig3.jpg" /></p>
+<p><em>经典的《Attention Is All You Need》Transformer 架构图，展示了带有多头注意力(Multi-Head Attention)、前馈网络(Feed Forward)和 Add &amp; Norm 层的编码器-解码器(encoder-decoder) block。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5923">[01:38:43]</a></sub></p>
+<p><img alt="论文中的 dropout 神经网络示意图：左侧为标准网络，右侧为丢弃了部分单元的精简网络。" src="https://riverlin.sirv.com/gpt/ch19_fig4.jpg" /></p>
+<p><em>论文中的 dropout 神经网络示意图：左侧为标准网络，右侧为丢弃了部分单元的精简网络。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5940">[01:39:00]</a></sub></p>
+<p><img alt="代码展示在 Head 模块中对 softmax 注意力权重(self.dropout(wei))后应用 dropout。" src="https://riverlin.sirv.com/gpt/ch19_fig5.jpg" /></p>
+<p><em>代码展示在 Head 模块中对 softmax 注意力权重(self.dropout(wei))后应用 dropout。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5967">[01:39:27]</a></sub></p>
+<p><img alt="代码中的超参数块：batch_size=64, block_size=256, n_embd=384, n_head=6, n_layer=6, dropout=0.2，以及下方终端中的训练损失输出。" src="https://riverlin.sirv.com/gpt/ch19_fig6.jpg" /></p>
+<p><em>代码中的超参数块：batch_size=64, block_size=256, n_embd=384, n_head=6, n_layer=6, dropout=0.2，以及下方终端中的训练损失输出。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="6030">[01:40:30]</a></sub></p>
+<p><img alt="代码编辑器中生成的莎士比亚风格剧本文本，展示了结构化的对话行和舞台指示。" src="https://riverlin.sirv.com/gpt/ch19_fig7.jpg" /></p>
+<p><em>代码编辑器中生成的莎士比亚风格剧本文本，展示了结构化的对话行和舞台指示。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="6090">[01:41:30]</a></sub></p>
+<h3>Dropout 作为正则化(regularization)技术</h3>
+<p>Dropout 在每个 block 内部的三个位置应用：在从 feed-forward 分支返回的残差加法(residual addition)之前、在多头注意力(multi-head attention)计算结束时，以及在产生注意力亲和度(attention affinities)的 softmax 之后立即应用。通过随机将部分 post-softmax 权重置零，网络临时阻止某些节点相互通信。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5897">[01:38:17]</a></sub></p>
+<p>该机制在 2014 年的一篇论文中提出，工作原理如下：在每次前向-后向传播(forward-backward pass)中，随机掩码(random mask)通过将固定比例的神经元置零来禁用它们。由于掩码在每次传递时都会变化，训练过程实际上优化了许多较小子网络的集成(ensemble)。在推理(inference)时使用完整网络，这相当于将该集成合并为单个模型。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5929">[01:38:49]</a></sub> 对于当前目的，将 dropout 视为一种正则化器(regularizer)就足够了，它在模型增长到足以过拟合(overfit)时变得重要。</p>
+<h3>新的超参数</h3>
+<p>各项关键数值全面提升：</p>
+<pre><code class="language-python">batch_size = 64      # 原为 32
+block_size = 256     # 原为 8
+learning_rate = 3e-4 # 对更大模型略微降低
+n_embd = 384
+n_head = 6           # 384 / 6 = 64 维每头
+n_layer = 6
+dropout = 0.2        # 20% 的中间激活被置零
+</code></pre>
+<p>Block size 从 8 个字符的上下文跳变到 256，因此模型现在基于更长的历史来预测第 257 个字符。嵌入维度(embedding dimension)提升到 384，分摊到 6 个 64 维的头(head)上——与许多 Transformer 实现中看到的标准配置相匹配。六个这样的 block 被堆叠，dropout 设置为 0.2。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5960">[01:39:20]</a></sub></p>
+<h3>训练结果</h3>
+<p>在 A100 GPU 上训练此配置约 15 分钟，验证损失(validation loss)达到 <strong>1.48</strong>，低于之前的 <strong>2.07</strong>。这一改进完全来自于使用相同代码库扩展架构规模。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="6021">[01:40:21]</a></sub></p>
+<p>将 10,000 个生成字符的样本写入文件。输出现在明显更具结构性：它采用了训练语料库的剧本格式，行看起来像对话，尽管语义内容仍然是无意义的。例如，模型生成诸如 "every crimp tap be a house, oh those prepation we give heed." 的段落。风格可识别为莎士比亚风格，这表明在 100 万个字符上训练的字符级(character-level) Transformer 即使在全球一致性(global coherence)仍无法达到的情况下，也能捕捉局部语法和格式模式。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="6084">[01:41:24]</a></sub></p>
+<h3>将我们的 decoder-only 模型映射到完整的 encoder-decoder "Attention Is All You Need" 架构</h3>
+<p>如果你回顾原始的 "Attention Is All You Need" 图示，会注意到一些在我们的实现中从未出现的额外部分：左侧的 "encoder" 堆栈以及每个 decoder 块内部的 "cross-attention" 子层。这些部分确实存在，但我们的模型有意设计得更简单。我们构建的是一个 <strong>decoder-only Transformer</strong>——与 GPT 属于同一家族——而原始论文展示的是一个为机器翻译设计的 <strong>encoder-decoder Transformer</strong>。</p>
+<p><img alt="The full encoder-decoder Transformer architecture from 'Attention Is All You Need', annotated with a French-to-English translation example showing how the encoder processes the source sentence and the decoder generates the target sentence." src="https://riverlin.sirv.com/gpt/ch20_fig1.jpg" /></p>
+<p><em>The full encoder-decoder Transformer architecture from 'Attention Is All You Need', annotated with a French-to-English translation example showing how the encoder processes the source sentence and the decoder generates the target sentence.</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="6180">[01:43:00]</a></sub></p>
+<h4>为什么我们的 block 看起来不同</h4>
+<p>我们的 <code>Block</code> 只包含两个子层：self-attention 和 feed-forward network。原始的 decoder block 包含第三个子层 cross-attention，夹在它们之间。我们省略了它，因为我们的任务是无条件文本生成：我们输入一串 token 序列，让模型预测下一个 token，没有需要关注的外部信息源。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="6152">[01:42:32]</a></sub></p>
+<p>使一个堆栈成为 <em>decoder</em> 的是 <strong>三角（因果）掩码</strong>。在 self-attention 中，我们屏蔽掉所有未来位置，使得位置 $i$ 只能关注位置 $\leq i$。这种自回归特性让我们可以从模型中逐个 token 采样：</p>
+<pre><code class="language-python"># causal mask used in our decoder-only model
+# tril creates a lower-triangular matrix of ones
+wei = wei.masked_fill(tril == 0, float('-inf'))  # [T, T]
+wei = F.softmax(wei, dim=-1)
+</code></pre>
+<p>因为每个 token 只关注自身和之前的 token，模型可以通过简单的 next-token prediction 进行训练，并通过从最终的 softmax 采样来生成文本。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="6183">[01:43:03]</a></sub></p>
+<h4>为什么原始论文有一个 encoder</h4>
+<p>原始的 Transformer 是为 <strong>机器翻译</strong> 构建的。在这种设定下，模型必须将源语言句子（例如法语）翻译成目标语言句子（例如英语）。源语言句子不是生成的；它在开始时就完整给出。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="6214">[01:43:34]</a></sub></p>
+<p>一个典型的训练示例如下：</p>
+<ul>
+<li><strong>Encoder input</strong>：一串法语 token，包括标记句子开头和结尾的特殊 token。</li>
+<li><strong>Decoder input</strong>：一个特殊的 <code>&lt;start&gt;</code> token，后面跟着到目前为止生成的英语 token。</li>
+<li><strong>Target output</strong>：英语句子，以一个特殊的 <code>&lt;end&gt;</code> token 结尾。</li>
+</ul>
+<p>Decoder 生成 "Neural networks are awesome" 的方式与我们的模型生成文本的方式完全相同，但有一个关键区别：生成过程 <strong>以</strong> 法语源句 <strong>为条件</strong>。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="6245">[01:44:05]</a></sub></p>
+<h4>Encoder 和 cross-attention 如何工作</h4>
+<p>Encoder 读取整个法语句子，对其进行 tokenize，并将其通过它自己的 Transformer 堆栈。<strong>Encoder 中没有三角掩码</strong>，因此每个源 token 都可以关注其他每个源 token。Encoder 的工作仅仅是构建源语义丰富、双向的表示。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="6276">[01:44:36]</a></sub></p>
+<p>一旦 encoder 完成，它的最终输出向量会被传递给 decoder。在每个 decoder block 内部，cross-attention 层计算 attention，其中：</p>
+<ul>
+<li><strong>Queries</strong> 来自 decoder 自身的隐藏状态（部分生成的英语句子）。</li>
+<li><strong>Keys 和 Values</strong> 来自 encoder 的输出向量（编码后的法语句子）。</li>
+</ul>
+<p>从数学上讲，如果 $X$ 是 decoder 状态，$E$ 是 encoder 输出：</p>
+<p>$$\text{CrossAttention}(X, E) = \text{softmax}\left(\frac{X W_q \,(E W_k)^T}{\sqrt{d_k}}\right) E V_v$$</p>
+<p>来自 encoder 的 keys 和 values 被送入 <strong>每一个</strong> decoder block，因此整个解码过程始终锚定在源句子上。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="6307">[01:45:07]</a></sub></p>
+<h4>架构分工总结</h4>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Our model (GPT-style)</th>
+<th>Original paper (translation)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Encoder</td>
+<td>None</td>
+<td>Full bidirectional Transformer over source sentence</td>
+</tr>
+<tr>
+<td>Decoder mask</td>
+<td>Triangular (causal)</td>
+<td>Triangular (causal)</td>
+</tr>
+<tr>
+<td>Cross-attention</td>
+<td>None</td>
+<td>Queries from decoder; Keys/Values from encoder</td>
+</tr>
+<tr>
+<td>Task</td>
+<td>Unconditional language modeling</td>
+<td>Conditional sequence-to-sequence</td>
+</tr>
+</tbody>
+</table>
+<p>我们没有实现 encoder 或 cross-attention，因为我们的目标是纯自回归语言建模，而不是翻译。Decoder-only 设计更简单，在大型无标注文本语料库上训练效率高，并且是 GPT 等现代系统的基础。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="6340">[01:45:40]</a></sub></p>
+<h2>将训练流水线连接到真实世界系统：从 nanoGPT 到 GPT-3 和 ChatGPT</h2>
+<p>前面章节中构建的 Shakespeare 模型在架构上与 GPT 中使用的仅解码器(decoder-only) Transformer 完全相同，但与生产系统相比它非常微小。本章将本地训练循环映射到生成 GPT-3 和 ChatGPT 这类模型的工业级流水线，重点强调规模以及预训练(pre-training)后接对齐(alignment)的两阶段生命周期。</p>
+<p><img alt="nanoGPT GitHub 仓库 README，展示项目概览、训练损失曲线以及与其他 GPT 实现的对比。" src="https://riverlin.sirv.com/gpt/ch21_fig1.jpg" /></p>
+<p><em>nanoGPT GitHub 仓库 README，展示项目概览、训练损失曲线以及与其他 GPT 实现的对比。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="6396">[01:46:36]</a></sub></p>
+<p><img alt="GPT-3 论文表 2.1，列出从 1.25 亿到 1750 亿参数的模型尺寸、架构和超参数。" src="https://riverlin.sirv.com/gpt/ch21_fig2.jpg" /></p>
+<p><em>GPT-3 论文表 2.1，列出从 1.25 亿到 1750 亿参数的模型尺寸、架构和超参数。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="6562">[01:49:22]</a></sub></p>
+<p><img alt="OpenAI ChatGPT 博客页面：&quot;ChatGPT：优化语言模型以进行对话&quot;，描述了模型的对话能力。" src="https://riverlin.sirv.com/gpt/ch21_fig3.jpg" /></p>
+<p><em>OpenAI ChatGPT 博客页面："ChatGPT：优化语言模型以进行对话"，描述了模型的对话能力。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="6615">[01:50:15]</a></sub></p>
+<p><img alt="OpenAI &quot;训练语言模型遵循指令&quot; 博客文章，展示三步对齐流水线：收集演示数据、收集对比数据并训练奖励模型、使用 PPO 针对奖励模型优化策略。" src="https://riverlin.sirv.com/gpt/ch21_fig4.jpg" /></p>
+<p><em>OpenAI "训练语言模型遵循指令" 博客文章，展示三步对齐流水线：收集演示数据、收集对比数据并训练奖励模型、使用 PPO 针对奖励模型优化策略。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="6616">[01:50:16]</a></sub></p>
+<p><img alt="论文中原始的 &quot;Attention Is All You Need&quot; Transformer 架构图，展示带有多头注意力(Multi-Head Attention)和前馈层(Feed Forward)的编码器(Encoder)和解码器(Decoder)堆栈。" src="https://riverlin.sirv.com/gpt/ch21_fig5.jpg" /></p>
+<p><em>论文中原始的 "Attention Is All You Need" Transformer 架构图，展示带有多头注意力(Multi-Head Attention)和前馈层(Feed Forward)的编码器(Encoder)和解码器(Decoder)堆栈。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="6872">[01:54:32]</a></sub></p>
+<h3>从 1000 万参数模型到 GPT-3 的 1750 亿参数</h3>
+<p>Shakespeare Transformer 包含大约 1000 万参数，并在约 100 万字符上训练。由于 OpenAI 使用了一个包含约 50,000 个词元(token)的子词(sub-word)分词器(tokenizer)，同样的 Shakespeare 语料库会被压缩到约 300,000 个词元(token)。相比之下，GPT-3 的最大变体拥有 1750 亿参数，并在 3000 亿词元(token)上训练——数据量增加了约一百万倍，模型尺寸增加了 17,500 倍。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="6557">[01:49:17]</a></sub></p>
+<p>GPT-3 论文中的超参数应该看起来很熟悉。最大的模型使用 96 层、12,288 维的嵌入(embedding)维度、96 个注意力(attention)头以及 128 的头维度。学习率与 Shakespeare 模型使用的处于同一范围，架构与这里构建的实现几乎相同。差异主要是一个基础设施挑战：在这种规模下训练需要数千个 GPU 在分布式环境中通信。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="6620">[01:50:20]</a></sub></p>
+<h3>预训练(pre-training)：在互联网规模数据上进行文档补全</h3>
+<p>创建 ChatGPT 这类系统的第一阶段是预训练(pre-training)。在此阶段，一个仅解码器(decoder-only)的 Transformer 在互联网的大规模数据切片上训练，以预测序列中的下一个词元(token)。结果是一个<em>文档补全器(document completer)</em>：它生成类似于训练分布的文本，但并未针对任何特定任务进行对齐。如果你向它输入一个问题，它可能会用另一个问题回应、继续一篇新闻文章，或生成任何在互联网上看起来合理的其他续写。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="6682">[01:51:22]</a></sub></p>
+<p>这是 nanoGPT 所关注的阶段。训练循环、检查点(checkpointing)、学习率衰减、模型编译以及跨多个节点和 GPU 的分布式训练都位于 <code>train.py</code> 中，而 <code>model.py</code> 包含与这里实现的相同的因果自注意力(causal self-attention)、MLP 和 Transformer 块。主要区别在于，nanoGPT 将所有注意力(attention)头批处理为一个额外的张量(tensor)维度，而不是循环遍历单个头，这在数学上是等价的但效率更高。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="6402">[01:46:42]</a></sub></p>
+<h3>微调(fine-tuning)与对齐(alignment)：将基础模型转变为助手</h3>
+<p>预训练(pre-training)之后，必须对模型进行对齐(alignment)，使其表现得像一个有用的助手，而不是不受约束的文档补全器(document completer)。OpenAI 将这个对齐(alignment)阶段描述为三个宽泛的步骤。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="6745">[01:52:25]</a></sub></p>
+<p><strong>监督微调(Supervised fine-tuning, SFT)。</strong> 第一步收集问答格式的演示数据。人类合同工编写提示(prompt)和期望的回复，创建一个比预训练(pre-training)语料库小得多的数据集——规模在数千到数万个示例的量级。然后在这个数据上对预训练(pre-trained)模型进行微调(fine-tuned)，使其学会在上下文(context)顶部期待一个问题，并在其下方生成答案。大型模型在这个阶段表现出惊人的样本效率。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="6778">[01:52:58]</a></sub></p>
+<p><strong>奖励模型训练(Reward model training)。</strong> 第二步收集对比数据。对于给定的提示(prompt)，模型生成几个候选回复，人类评分员按质量对它们进行排序。这些排序被用来训练一个单独的<em>奖励模型(reward model)</em>，该模型对任何候选回复可能有多理想进行打分。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="6809">[01:53:29]</a></sub></p>
+<p><strong>基于人类反馈的强化学习(Reinforcement learning from human feedback, RLHF)。</strong> 第三步使用奖励模型(reward model)通过 PPO（Proximal Policy Optimization，近端策略优化）对策略(policy)进行微调(fine-tune)，PPO 是一种策略梯度(policy-gradient)强化学习算法。采样策略(sampling policy)被更新，使得生成的答案预期能获得高奖励分数。这将模型从仅仅生成可能性高的文本推向人类评分员更偏好的文本。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="6809">[01:53:29]</a></sub></p>
+<p>这些对齐(alignment)阶段中使用的许多数据是 OpenAI 内部的，不公开可用，这使得微调(fine-tuning)阶段比预训练(pre-training)阶段更难复现。尽管如此，概念上的流水线是相同的：从一个文档补全器(document completer)开始，然后通过监督微调(supervised fine-tuning)、奖励模型(reward modeling)和强化学习(reinforcement learning)将其对齐(align)到特定行为。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="6842">[01:54:02]</a></sub></p>
+<p>任何超越纯语言建模的任务——情感分类、任务执行或助手式行为——都需要在基础模型之上进行额外的微调(fine-tuning)。Shakespeare 示例和 nanoGPT 只捕捉了这个流水线的第一阶段，但它们提供了构建其余部分所需的架构基础。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="6935">[01:55:35]</a></sub></p>
+</main>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const articlePane = document.getElementById('articlePane');
+  const tocPane = document.getElementById('tocPane');
+  const tocList = document.getElementById('tocList');
+  const tocToggle = document.getElementById('tocToggle');
+  const tocOverlay = document.getElementById('tocOverlay');
+  const body = document.body;
+
+  function openToc() {
+    tocPane.classList.add('open');
+    tocOverlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeToc() {
+    tocPane.classList.remove('open');
+    tocOverlay.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  tocToggle.addEventListener('click', () => {
+    if (tocPane.classList.contains('open')) {
+      closeToc();
+    } else {
+      openToc();
+    }
+  });
+
+  tocOverlay.addEventListener('click', closeToc);
+
+  // ---------- 1. 自动生成目录 ----------
+  const headings = articlePane.querySelectorAll('h1, h2, h3');
+  if (headings.length === 0) {
+    tocList.innerHTML = '<div style="padding:0 20px;color:#b2bec3;font-size:13px;">无章节导航</div>';
+  } else {
+    headings.forEach((heading, index) => {
+      const id = 'section-' + index;
+      heading.id = id;
+      const a = document.createElement('a');
+      a.href = '#' + id;
+      a.textContent = heading.textContent;
+      a.className = heading.tagName.toLowerCase();
+      a.addEventListener('click', function(e) {
+        e.preventDefault();
+        heading.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        closeToc();
+      });
+      tocList.appendChild(a);
+    });
+  }
+
+  // ---------- 2. 滚动高亮当前章节 ----------
+  if (headings.length > 0) {
+    const tocLinks = tocList.querySelectorAll('a');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          tocLinks.forEach(link => link.classList.remove('active'));
+          const activeLink = tocList.querySelector('a[href="#' + entry.target.id + '"]');
+          if (activeLink) activeLink.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-10% 0px -75% 0px', threshold: 0 });
+    headings.forEach(h => observer.observe(h));
+  }
+
+});
+</script>
+
+<!-- 浮窗视频播放器 -->
+<div class="video-overlay" id="videoOverlay"></div>
+
+<div class="video-player-container hidden" id="videoPlayerContainer">
+  <div class="video-header" id="videoHeader">
+    <span class="video-title">视频播放</span>
+    <div class="video-controls">
+      <button id="btnMinimize" title="最小化">−</button>
+      <button id="btnClose" title="关闭">×</button>
+    </div>
+  </div>
+  <div class="player-wrap">
+    <div id="player"></div>
+    <div class="docked-hint" id="dockedHint">▶</div>
+  </div>
+</div>
+
+<script src="https://www.youtube.com/iframe_api"></script>
+<script>
+(function() {
+  var youtubeId = 'kCc8FmEb1nY';
+  var container = document.getElementById('videoPlayerContainer');
+  var overlay = document.getElementById('videoOverlay');
+  var btnMinimize = document.getElementById('btnMinimize');
+  var btnClose = document.getElementById('btnClose');
+  var dockedHint = document.getElementById('dockedHint');
+  var player;
+  var isReady = false;
+
+  window.onYouTubeIframeAPIReady = function() {
+    player = new YT.Player('player', {
+      videoId: youtubeId,
+      playerVars: {
+        rel: 0,
+        modestbranding: 1,
+        playsinline: 1
+      },
+      events: {
+        onReady: function() { isReady = true; }
+      }
+    });
+  };
+
+  function openPlayer(seconds) {
+    container.classList.remove('hidden', 'docked');
+    container.classList.add('centered');
+    overlay.classList.add('active');
+    if (isReady && player && player.loadVideoById) {
+      player.loadVideoById({
+        videoId: youtubeId,
+        startSeconds: seconds
+      });
+    }
+  }
+
+  function minimizePlayer() {
+    container.classList.remove('centered');
+    container.classList.add('docked');
+    overlay.classList.remove('active');
+    if (isReady && player && player.pauseVideo) {
+      player.pauseVideo();
+    }
+  }
+
+  function restorePlayer() {
+    if (!container.classList.contains('docked')) return;
+    container.classList.remove('docked');
+    container.classList.add('centered');
+    overlay.classList.add('active');
+    if (isReady && player && player.playVideo) {
+      player.playVideo();
+    }
+  }
+
+  function closePlayer() {
+    container.classList.add('hidden');
+    container.classList.remove('centered', 'docked');
+    overlay.classList.remove('active');
+    if (isReady && player && player.pauseVideo) {
+      player.pauseVideo();
+    }
+  }
+
+  // 时间戳点击拦截
+  document.addEventListener('click', function(e) {
+    var link = e.target.closest('a.ts-jump');
+    if (!link) return;
+    e.preventDefault();
+    var seconds = parseInt(link.getAttribute('data-seconds'), 10);
+    if (!isNaN(seconds)) {
+      openPlayer(seconds);
+    }
+  });
+
+  // 播放器控件事件
+  btnMinimize.addEventListener('click', function(e) {
+    e.stopPropagation();
+    minimizePlayer();
+  });
+  btnClose.addEventListener('click', function(e) {
+    e.stopPropagation();
+    closePlayer();
+  });
+  overlay.addEventListener('click', minimizePlayer);
+
+  // 右下角状态点击恢复
+  container.addEventListener('click', function(e) {
+    if (container.classList.contains('docked')) {
+      restorePlayer();
+    }
+  });
+
+  // 键盘 ESC 最小化
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && !container.classList.contains('hidden')) {
+      if (container.classList.contains('centered')) {
+        minimizePlayer();
+      } else {
+        closePlayer();
+      }
+    }
+  });
+})();
+</script>
+
+</body>
+</html>

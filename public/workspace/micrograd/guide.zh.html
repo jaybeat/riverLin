@@ -1,0 +1,1513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Micrograd 伴读指南</title>
+<style>
+  :root {
+    --toc-width: 240px;
+    --article-padding: 40px;
+    --article-max-width: 800px;
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    min-height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+    color: #2d3436;
+    background: #f5f6fa;
+  }
+  body {
+    display: grid;
+    grid-template-columns: var(--toc-width) minmax(0, 1fr);
+    min-height: 100vh;
+  }
+
+  /* ---------- 左侧章节导航 ---------- */
+  .toc-pane {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    height: 100vh;
+    background: #fff;
+    border-right: 1px solid #e1e4e8;
+    overflow-y: auto;
+    padding: 24px 0;
+    z-index: 50;
+  }
+  .toc-header {
+    padding: 0 20px 16px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #b2bec3;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .toc-list a {
+    display: block;
+    padding: 6px 20px;
+    color: #636e72;
+    text-decoration: none;
+    font-size: 13px;
+    line-height: 1.5;
+    border-left: 3px solid transparent;
+    transition: all 0.15s;
+  }
+  .toc-list a.h1 { font-weight: 600; color: #2d3436; }
+  .toc-list a.h2 { padding-left: 32px; }
+  .toc-list a.h3 { padding-left: 44px; font-size: 12px; color: #636e72; }
+  .toc-list a:hover { background: #f8f9fa; color: #0984e3; }
+  .toc-list a.active {
+    color: #0984e3;
+    background: #f1f2f6;
+    border-left-color: #0984e3;
+  }
+
+  /* ---------- 文章区域 ---------- */
+  .article-pane {
+    padding: var(--article-padding);
+    min-height: 100vh;
+  }
+  .article-pane > * {
+    max-width: var(--article-max-width);
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .article-pane img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 6px;
+    margin: 16px 0;
+    display: block;
+  }
+
+  /* ---------- 排版 ---------- */
+  h1 {
+    border-bottom: 2px solid #2d3436;
+    padding-bottom: 10px;
+    margin-top: 50px;
+    font-size: 1.8em;
+  }
+  h2 {
+    margin-top: 50px;
+    color: #0984e3;
+    border-left: 4px solid #0984e3;
+    padding-left: 12px;
+    font-size: 1.4em;
+  }
+  h3 { color: #00b894; margin-top: 32px; font-size: 1.2em; }
+  h4 { color: #636e72; margin-top: 24px; font-size: 1.1em; }
+  p { line-height: 1.75; }
+  pre {
+    background: #2d3436;
+    color: #dfe6e9;
+    padding: 16px 20px;
+    border-radius: 6px;
+    overflow-x: auto;
+    line-height: 1.5;
+  }
+  pre code { font-family: "Menlo", "Consolas", monospace; font-size: 14px; }
+  :not(pre) > code {
+    background: #f1f2f6;
+    padding: 2px 6px;
+    border-radius: 3px;
+    color: #d63031;
+    font-family: "Menlo", "Consolas", monospace;
+    font-size: 0.92em;
+  }
+
+  /* ---------- 时间戳 ---------- */
+  sub a.ts-jump {
+    color: #74b9ff;
+    text-decoration: none;
+    font-size: 0.85em;
+    cursor: pointer;
+    padding: 1px 6px;
+    border-radius: 3px;
+    background: #f1f2f6;
+  }
+  sub a.ts-jump:hover {
+    background: #74b9ff;
+    color: white;
+  }
+
+  /* ---------- 浮窗视频播放器 ---------- */
+  .video-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 99;
+    display: none;
+  }
+  .video-overlay.active { display: block; }
+
+  .video-player-container {
+    position: fixed;
+    z-index: 100;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    overflow: hidden;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+  }
+  .video-player-container.hidden {
+    display: none;
+  }
+  .video-player-container.centered {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 800px;
+    max-width: 90vw;
+  }
+  .video-player-container.centered .player-wrap {
+    height: 450px;
+    max-height: 70vh;
+  }
+  .video-player-container.docked {
+    right: 20px;
+    bottom: 20px;
+    width: 320px;
+    transform: none;
+    top: auto;
+    left: auto;
+    cursor: pointer;
+  }
+  .video-player-container.docked .player-wrap {
+    height: 180px;
+  }
+  .video-player-container.docked .video-title {
+    display: none;
+  }
+  .video-player-container.docked .video-controls {
+    gap: 4px;
+  }
+  .video-player-container.docked .video-header {
+    padding: 6px 10px;
+  }
+
+  .video-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: #2d3436;
+    color: #dfe6e9;
+    font-size: 14px;
+    user-select: none;
+  }
+  .video-title {
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .video-controls {
+    display: flex;
+    gap: 8px;
+  }
+  .video-controls button {
+    background: transparent;
+    border: none;
+    color: #b2bec3;
+    font-size: 18px;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0 4px;
+    transition: color 0.15s;
+  }
+  .video-controls button:hover {
+    color: #fff;
+  }
+  .player-wrap {
+    position: relative;
+    background: #000;
+  }
+  .player-wrap iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+  .docked-hint {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.35);
+    color: #fff;
+    font-size: 36px;
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+  }
+  .video-player-container.docked:hover .docked-hint {
+    opacity: 1;
+  }
+  /* docked 状态下让 iframe 不拦截鼠标事件，点击可穿透恢复播放器 */
+  .video-player-container.docked .player-wrap iframe {
+    pointer-events: none;
+  }
+
+  @media (max-width: 768px) {
+    .video-player-container.centered {
+      width: 100vw;
+      max-width: 100vw;
+      border-radius: 0;
+      top: auto;
+      bottom: 0;
+      left: 0;
+      transform: none;
+    }
+    .video-player-container.centered .player-wrap {
+      height: 56.25vw;
+      max-height: 60vh;
+    }
+    .video-player-container.docked {
+      width: 200px;
+    }
+    .video-player-container.docked .player-wrap {
+      height: 112px;
+    }
+  }
+
+  /* ---------- 目录切换按钮（移动端） ---------- */
+  .toc-toggle {
+    display: none;
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 60;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: #fff;
+    border: 1px solid #e1e4e8;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    font-size: 18px;
+    color: #2d3436;
+  }
+  .toc-toggle:hover {
+    background: #f8f9fa;
+    color: #0984e3;
+  }
+  .toc-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 40;
+  }
+
+  /* ---------- 响应式断点 ---------- */
+  @media (min-width: 1280px) {
+    :root {
+      --toc-width: 260px;
+      --article-max-width: 880px;
+    }
+  }
+
+  @media (max-width: 1024px) {
+    :root {
+      --toc-width: 200px;
+      --article-padding: 32px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    body { grid-template-columns: 1fr; }
+    .toc-pane {
+      position: fixed;
+      left: 0; top: 0;
+      width: 260px;
+      height: 100vh;
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+    }
+    .toc-pane.open { transform: translateX(0); }
+    .toc-overlay.active { display: block; }
+    .toc-toggle { display: flex; }
+    .article-pane {
+      padding: 24px;
+    }
+    .article-pane > * {
+      max-width: 100%;
+    }
+  }
+
+  @media (max-width: 480px) {
+    :root {
+      --article-padding: 16px;
+    }
+  }
+</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body, {
+    delimiters: [
+      {left: '$$', right: '$$', display: true},
+      {left: '$', right: '$', display: false}
+    ]
+  });"></script>
+</head>
+<body>
+
+<button class="toc-toggle" id="tocToggle" title="打开目录" aria-label="打开目录">☰</button>
+<div class="toc-overlay" id="tocOverlay"></div>
+
+<nav class="toc-pane" id="tocPane">
+  <div class="toc-header">目录</div>
+  <div class="toc-list" id="tocList"></div>
+</nav>
+
+<main class="article-pane" id="articlePane">
+<h1>Micrograd 伴读指南</h1>
+<h1>micrograd 的目标与导数直观理解</h1>
+<h2>Micrograd 简介与反向传播的作用</h2>
+<p>神经网络训练若仅从高层框架观察，往往像一个黑箱。在深入反向传播的数学原理之前，有必要认识到其核心机制远比大多数人想象的精简。本节介绍 Micrograd，一个极简的 autograd 引擎，并展示训练一个网络所需的全部代码大约只需 150 行 Python。其余的一切都是为了效率。</p>
+<p><img alt="Micrograd README 示例用法代码" src="images/ch01_fig1.jpg" /></p>
+<p><em>Micrograd README 示例用法代码</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="90">[00:01:30]</a></sub></p>
+<p><img alt="白板上的神经网络示意图" src="images/ch01_fig2.jpg" /></p>
+<p><em>白板上的神经网络示意图</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="390">[00:06:30]</a></sub></p>
+<p><img alt="Micrograd 引擎源代码（约100行）" src="images/ch01_fig3.jpg" /></p>
+<p><em>Micrograd 引擎源代码（约100行）</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="450">[00:07:30]</a></sub></p>
+<h3>Micrograd 是什么</h3>
+<p>Micrograd 是一个标量值 autograd 引擎。Autograd（automatic gradient，自动梯度）本质上就是实现了反向传播的系统；反向传播是一种高效算法，用于计算损失函数对网络中每一个权重的梯度。一旦获得这些梯度，就可以迭代地调整权重以最小化损失并提升准确率。这一过程位于每一个现代深度学习库（如 PyTorch 或 JAX）的数学核心。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="32">[00:00:32]</a></sub></p>
+<p>Micrograd 的 API 最好通过示例说明。两个标量输入 <code>a = -4</code> 和 <code>b = 2</code> 被包装成 <code>Value</code> 对象，并组合成更大的表达式：</p>
+<pre><code class="language-python">a = Value(-4.0)
+b = Value(2.0)
+c = a + b
+d = a * b + b**3
+c += c + 1
+c += 1 + c + (-a)
+d += d * 2 + (b + a).relu()
+d += 3 * d + (b - a).relu()
+e = c - d
+f = e**2
+g = f / 2.0
+g += 10.0 / f
+</code></pre>
+<p>支持的操作包括加法、乘法、常数幂运算、取负、ReLU、除以常数等。在构建表达式的过程中，Micrograd 会在 <code>Value</code> 节点之间维护指针，从而隐式地记录完整的计算图(computational graph)。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="94">[00:01:34]</a></sub></p>
+<h3>前向传播与反向传播</h3>
+<p>求值表达式的过程称为<strong>前向传播</strong>。数值结果保存在 <code>.data</code> 属性中；对于上面的表达式，<code>g.data</code> 为 <code>24.7041...</code>。更重要的步骤是<strong>反向传播</strong>。调用 <code>g.backward()</code> 即可从输出节点启动反向传播。该算法沿图反向遍历，递归地应用微积分中的链式法则，计算 <code>g</code> 对每一个内部节点以及每一个输入的导数。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="156">[00:02:36]</a></sub></p>
+<p>反向传播完成后，梯度可通过 <code>.gradient</code> 属性获取：</p>
+<pre><code class="language-python">print(a.grad)  # 138.8338...
+print(b.grad)  # 645.5773...
+</code></pre>
+<p>这些数值描述了 <code>g</code> 对 <code>a</code> 和 <code>b</code> 的微小扰动有多敏感。<code>a</code> 的梯度为 <code>138.83</code>，意味着若 <code>a</code> 增加一个无穷小量，<code>g</code> 将以 <code>138.83</code> 的速率增加。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="220">[00:03:40]</a></sub></p>
+<h3>神经网络只是数学表达式</h3>
+<p>上面的表达式是任意的，其目的仅在于展示 Micrograd 支持的操作。真正重要的是，神经网络本身也是同类的数学表达式。网络以数据和权重为输入，执行一系列加法、乘法与非线性变换，最终输出预测值或损失值。反向传播并非神经网络所特有——它对任何可微的数学表达式都适用。神经网络只是恰好让这套机制发挥作用的其中一类表达式。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="282">[00:04:42]</a></sub></p>
+<h3>为什么是标量？</h3>
+<p>Micrograd 在单个标量上运算，将网络拆解到单个数字和原始操作的原子级别。这并不是生产系统的做法；真正的框架将标量打包成 n 维张量(tensor)，以便操作能够利用并行计算。然而，数学原理并未改变。使用标量消除了张量(tensor)  bookkeeping 的干扰，使底层的反向传播和链式法则变得清晰透明。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="345">[00:05:45]</a></sub></p>
+<h3>代码的规模</h3>
+<p>整个反向传播引擎大约只有 100 行简洁的 Python，而在其之上构建的神经网络库——定义一个神经元、一层神经元，以及将多层串联成 MLP——大约还有 50 行。这就是理解神经网络训练 fundamentally 所需的全部内容。超出这 150 行的一切，都是对速度和规模的优化。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="406">[00:06:46]</a></sub></p>
+<h2>建立单输入函数导数的直观理解</h2>
+<p>在构建自动微分引擎之前，先将导数这一抽象概念具体化会很有帮助。本节通过数值方法直接运用极限定义，处理一个单标量函数，使导数成为可测量的量，而不仅仅是纸上的符号。</p>
+<p><img alt="Jupyter notebook 展示二次函数定义及其抛物线图。" src="images/ch02_fig1.jpg" /></p>
+<p><em>Jupyter notebook 展示二次函数定义及其抛物线图。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="600">[00:10:00]</a></sub></p>
+<p><img alt="数值导数计算，取 h = 0.001，得到斜率 ~14.0。" src="images/ch02_fig2.jpg" /></p>
+<p><em>数值导数计算，取 h = 0.001，得到斜率 ~14.0。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="690">[00:11:30]</a></sub></p>
+<p><img alt="Notebook 展示在抛物线图 x = -3.0 处的负斜率 ~-22。" src="images/ch03_fig3.jpg" /></p>
+<p><em>Notebook 展示在抛物线图 x = -3.0 处的负斜率 ~-22。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="810">[00:13:30]</a></sub></p>
+<p>讲师定义了一个简单的二次函数作为贯穿全节的示例：</p>
+<pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+
+def f(x):
+    return 3*x**2 - 4*x + 5
+
+f(3.0)  # returns 20.0
+</code></pre>
+<p>为了观察其形状，他在区间 -5 到 5 上以 0.25 为步长采样并绘制结果，确认了预期的抛物线。点 <code>(3.0, 20.0)</code> 位于曲线右侧的上升段 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="498">[00:08:18]</a></sub>。</p>
+<p>他没有进行符号微分，而是转向导数的极限定义：</p>
+<p>$$
+\frac{df}{dx} = \lim_{h \to 0} \frac{f(x + h) - f(x)}{h}
+$$</p>
+<p>其含义很直接：将输入微小地扰动一个 <code>h</code>，观察输出变化了多少，再用扰动的大小进行归一化。结果就是该点处函数的斜率，即敏感度 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="622">[00:10:22]</a></sub>。</p>
+<p>选取一个很小但有限的 <code>h = 0.001</code>，在 <code>x = 3.0</code> 处的数值近似为：</p>
+<pre><code class="language-python">h = 0.001
+x = 3.0
+slope = (f(x + h) - f(x)) / h  # approximately 14.0
+</code></pre>
+<p>由于该点位于抛物线的上升部分，将 <code>x</code> 向上微增会提高 <code>f(x)</code>。斜率为正，其大小告诉我们增长的程度 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="686">[00:11:26]</a></sub>。一个快速的符号验证确认了结果：<code>3x^2 - 4x + 5</code> 的导数是 <code>6x - 4</code>，在 <code>x = 3</code> 处取值为 <code>14</code>。</p>
+<p>同样的步骤在 <code>x = -3.0</code> 处得到一个负斜率，约为 <code>-22</code>。在这里，对输入施加一个小的正向扰动会使函数值下降，因此敏感度为负 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="780">[00:13:00]</a></sub>。</p>
+<p>最后，讲师指出每条抛物线都有一个最小值点，在该点处斜率恰好平坦为零。对于这个函数，最小值出现在 <code>x = 2/3</code>。在那个精确点上，输入的无穷小变化不会产生一阶输出变化，这是驻点(stationary point)的标志 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="810">[00:13:30]</a></sub>。</p>
+<h2>将导数直觉扩展到多输入函数</h2>
+<p>单输入函数是一个有用的起点，但真正的神经网络同时依赖许多参数。在构建处理那些庞大表达式的机制之前，我们需要看看导数的概念如何从一个输入扩展到多个输入。关键洞见在于，我们仍然可以问："如果我只微调一个输入，输出会发生什么变化？"——前提是我们保持所有其他输入不变。</p>
+<p><img alt="Jupyter cell showing three-variable function setup." src="images/ch03_fig1.jpg" /></p>
+<p><em>Jupyter 单元格展示三变量函数的设置。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="960">[00:16:00]</a></sub></p>
+<p><img alt="Numerical derivative computation with printed slope." src="images/ch03_fig2.jpg" /></p>
+<p><em>数值导数计算并打印斜率。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="1020">[00:17:00]</a></sub></p>
+<p><img alt="Partial derivative results for inputs b and c." src="images/ch03_fig3.jpg" /></p>
+<p><em>输入 b 和 c 的偏导数结果。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="1140">[00:19:00]</a></sub></p>
+<p>为了探索这一点，考虑一个简单的函数，它有三个标量输入和一个输出：</p>
+<pre><code class="language-python">a = 2.0
+b = -3.0
+c = 10.0
+d = a * b + c
+</code></pre>
+<p>在这些值下计算 <code>d</code> 得到 <code>4.0</code>。问题是：<code>d</code> 对 <code>a</code>、<code>b</code> 和 <code>c</code> 各自的敏感度如何？<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="843">[00:14:03]</a></sub></p>
+<p>我们可以通过引入一个微小的增量 <code>h</code>，重新计算只改变一个输入后的 <code>d</code>，并测量变化来数值地回答这个问题。例如，为了求关于 <code>a</code> 的导数：</p>
+<pre><code class="language-python">h = 0.0001
+
+# baseline
+d1 = a * b + c
+
+# bump a by h
+a += h
+d2 = a * b + c
+
+slope = (d2 - d1) / h
+</code></pre>
+<p>在运行代码之前，值得先推理一下符号。因为 <code>b</code> 是负数（<code>-3.0</code>），稍微增加 <code>a</code> 意味着用一个稍微大一点的正数乘以 <code>-3.0</code>，这会从总数中<em>减去</em>更多。因此 <code>d</code> 应该减小，斜率应该是负的。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="970">[00:16:10]</a></sub> 运行计算证实了这一点：<code>d</code> 从 <code>4.0</code> 下降到大约 <code>3.9996</code>，得到的斜率为 <code>-3.0</code>。从解析上看，这是合理的，因为对 <code>a * b + c</code> 关于 <code>a</code> 求导后剩下 <code>b</code>，而 <code>b</code> 是 <code>-3.0</code>。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="1036">[00:17:16]</a></sub></p>
+<p>对 <code>b</code> 重复实验则讲述了一个不同的故事。由于 <code>a</code> 是正数（<code>2.0</code>），将 <code>b</code> 向上微调会增加乘积 <code>a * b</code>，因此 <code>d</code> 增加。数值斜率结果为 <code>2.0</code>，与解析导数 <code>∂d/∂b = a = 2.0</code> 相符。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="1068">[00:17:48]</a></sub></p>
+<p>最后，将 <code>c</code> 增加 <code>h</code> 会使 <code>d</code> 改变完全相同的量，因为 <code>c</code> 仅以加法项的形式出现。斜率为 <code>1.0</code>，即解析导数 <code>∂d/∂c = 1</code>。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="1098">[00:18:18]</a></sub></p>
+<p>这三个值——<code>-3</code>、<code>2</code> 和 <code>1</code>——分别是 <code>d</code> 关于 <code>a</code>、<code>b</code> 和 <code>c</code> 的<strong>偏导数(partial derivatives)</strong>。每一个都隔离了单个输入的影响，同时其余输入保持不变。这一原理，当扩展到数千或数百万个输入时，正是基于梯度的学习成为可能的原因。下一步是构建能够表示和区分神经网络中庞大表达式的数据结构。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="1128">[00:18:48]</a></sub></p>
+<h1>核心 Value 对象与表达式图可视化</h1>
+<h2>构建支持运算符重载与图追踪的 Value 类</h2>
+<p>本节介绍 micrograd 的核心 <code>Value</code> 类，它是整个库的基本构建单元。<code>Value</code> 包装了一个标量数值，并通过运算符重载让 Python 像对待原生数值类型一样对待它。除了简单的算术运算，我们还扩展了这个类，使其记录每一次操作的历史，从而创建一种数据结构，能够准确知道每个数值是如何产生的。</p>
+<p><img alt="Value 类通过 __add__ 和 __mul__ 实现运算符重载" src="images/ch04_fig1.jpg" /></p>
+<p><em>Value 类通过 <strong>add</strong> 和 <strong>mul</strong> 实现运算符重载</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="1320">[00:22:00]</a></sub></p>
+<p><img alt="Value 通过 _prev 和 _op 追踪图的来源" src="images/ch04_fig2.jpg" /></p>
+<p><em>Value 通过 _prev 和 _op 追踪图的来源</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="1440">[00:24:00]</a></sub></p>
+<h3>包装标量并实现美观打印</h3>
+<p><code>Value</code> 的最简版本接收一个标量，并将其存入 <code>data</code> 属性。为了让调试体验更友好，我们实现 <code>__repr__</code>，使得打印 <code>Value</code> 时显示人类可读的内容，而不是晦涩的对象地址。</p>
+<pre><code class="language-python">class Value:
+    def __init__(self, data):
+        self.data = data
+
+    def __repr__(self):
+        return f&quot;Value(data={self.data})&quot;
+</code></pre>
+<p>有了这个骨架，<code>Value(2.0)</code> 会打印为 <code>Value(data=2.0)</code>。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="1159">[00:19:19]</a></sub></p>
+<h3>教会 Python 使用 <code>+</code> 和 <code>*</code></h3>
+<p>默认情况下，Python 不知道如何对自定义对象进行加法或乘法运算。我们定义 <code>__add__</code> 和 <code>__mul__</code> 这两个 dunder 方法，让表达式如 <code>a + b</code> 和 <code>a * b</code> 能够自然工作。在内部，<code>a + b</code> 被翻译成 <code>a.__add__(b)</code>，<code>a * b</code> 被翻译成 <code>a.__mul__(b)</code>。每个运算符返回一个全新的 <code>Value</code>，包装底层浮点运算的结果。</p>
+<pre><code class="language-python">class Value:
+    def __init__(self, data):
+        self.data = data
+
+    def __repr__(self):
+        return f&quot;Value(data={self.data})&quot;
+
+    def __add__(self, other):
+        out = Value(self.data + other.data)
+        return out
+
+    def __mul__(self, other):
+        out = Value(self.data * other.data)
+        return out
+</code></pre>
+<p>现在我们可以编写看起来像普通数学的表达性代码：</p>
+<pre><code class="language-python">a = Value(2.0)
+b = Value(-3.0)
+c = Value(10.0)
+d = a * b + c   # (2.0 * -3.0) + 10.0 == 4.0
+</code></pre>
+<p>表达式 <code>a * b + c</code> 从左到右求值：首先 <code>a.__mul__(b)</code> 产生 <code>Value(data=-6.0)</code>，然后该结果的 <code>__add__</code> 被调用并传入 <code>c</code>，得到 <code>Value(data=4.0)</code>。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="1221">[00:20:21]</a></sub> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="1346">[00:22:26]</a></sub></p>
+<h3>追踪来源：子节点与操作</h3>
+<p>仅有算术运算不足以实现反向传播。我们需要重建整个表达式图，这意味着每个 <code>Value</code> 都必须记住是哪些数值创建了它，以及通过哪个操作。我们在构造函数中引入两个新字段：<code>_prev</code>，一个子节点集合；<code>_op</code>，一个记录操作名称的字符串。</p>
+<pre><code class="language-python">class Value:
+    def __init__(self, data, _children=(), _op=''):
+        self.data = data
+        self._prev = set(_children)
+        self._op = _op
+
+    def __repr__(self):
+        return f&quot;Value(data={self.data})&quot;
+
+    def __add__(self, other):
+        out = Value(self.data + other.data, (self, other), '+')
+        return out
+
+    def __mul__(self, other):
+        out = Value(self.data * other.data, (self, other), '*')
+        return out
+</code></pre>
+<p>叶节点——直接从标量创建的数值——具有空的 <code>_prev</code> 和空的 <code>_op</code> 字符串。内部节点携带完整的来源信息。对于表达式 <code>d = a * b + c</code>，检查 <code>d._prev</code> 可以揭示两个中间值（<code>a*b</code> 和 <code>c</code>），而 <code>d._op</code> 告诉我们最后一步是加法。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="1376">[00:22:56]</a></sub> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="1469">[00:24:29]</a></sub></p>
+<p>有了这个连接组织，<code>Value</code> 对象不再仅仅是一个数字；它是一个活跃表达式图中的节点。下一步是在图变大时将其可视化。</p>
+<h2>用 draw_dot 可视化表达式图</h2>
+<p>为了理解梯度如何在表达式中流动，看到表达式本身会很有帮助。本节介绍 <code>draw_dot</code>，一个小工具，它会遍历 <code>Value</code> 节点的图，并用 Graphviz 将其渲染出来。有了这张图，前向传播就变得具体了：每个方形节点都是一个 <code>Value</code> 对象，每个圆形都是一个操作，箭头精确地展示了数据如何从输入流向输出。</p>
+<p><img alt="draw_dot 代码和第一张图输出" src="images/ch05_fig1.jpg" /></p>
+<p><em>draw_dot 代码和第一张图输出</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="1530">[00:25:30]</a></sub></p>
+<p><img alt="带 a、b、c、e、d 标签的 Value 图" src="images/ch05_fig2.jpg" /></p>
+<p><em>带 a、b、c、e、d 标签的 Value 图</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="1710">[00:28:30]</a></sub></p>
+<p><img alt="以 L 结尾的完整四输入表达式图" src="images/ch05_fig3.jpg" /></p>
+<p><em>以 L 结尾的完整四输入表达式图</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="1740">[00:29:00]</a></sub></p>
+<p><code>draw_dot</code> 的实现分为两部分。首先，一个名为 <code>trace</code> 的辅助函数递归地收集从根节点可达的每一个 <code>Value</code> 节点和每一条边（<code>(parent, child)</code>），并将它们放入两个集合中。集合构建完成后，函数遍历节点并为每个节点调用 <code>dot.node</code>，然后遍历边并调用 <code>dot.edge</code>。唯一微妙的地方是伪造的 "op" 节点：对于每个二元操作，<code>draw_dot</code> 会注入一个小圆形节点来显示操作符符号（例如 <code>+</code> 或 <code>*</code>）。这些圆形不是 <code>Value</code> 对象；它们只存在于可视化中，使得图从左到右读起来像一个数学表达式，而不是坍缩成一团直接连接的乱麻。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="1500">[00:25:00]</a></sub></p>
+<p>标签通过在每个 <code>Value</code> 上存储一个 <code>label</code> 字符串来添加。默认情况下它是空的，但对于运行示例我们设置：</p>
+<pre><code class="language-python">a.label = 'a'
+b.label = 'b'
+c.label = 'c'
+
+e = a * b
+e.label = 'e'
+
+d = e + c
+d.label = 'd'
+</code></pre>
+<p>当调用 <code>draw_dot(d)</code> 时，渲染出的图显示 <code>a</code> 和 <code>b</code> 流入一个 <code>*</code> 节点产生 <code>e</code>，然后 <code>e</code> 和 <code>c</code> 流入一个 <code>+</code> 节点产生 <code>d</code>。标签打印在每个方形节点的左侧，因此很容易将图片映射回代码。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="1625">[00:27:05]</a></sub></p>
+<p>为了让图再深一层，引入一个新的输入 <code>f</code> 和一个最终输出 <code>L</code>：</p>
+<pre><code class="language-python">f = Value(-2.0)
+f.label = 'f'
+
+L = d * f
+L.label = 'L'
+</code></pre>
+<p>现在调用 <code>draw_dot(L)</code> 会渲染一个四输入、单输出的表达式：<code>a</code>、<code>b</code>、<code>c</code> 和 <code>f</code> 流经两次乘法和一次加法，产生 <code>L = -8.0</code>。每个方形节点携带其标量数据，每个圆形显示操作，箭头追踪从叶子到根的完整前向传播。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="1687">[00:28:07]</a></sub></p>
+<p>这张图是反向传播开始之前系统的状态。图已经构建好，前向值已知，下一步是从 <code>L</code> 向后遍历并计算每个节点的梯度。</p>
+<h1>手动反向传播：计算图与神经元</h1>
+<h2>手动反向传播：一个简单表达式</h2>
+<p>反向传播(backpropagation)是计算计算图(computational graph)中每个中间值如何影响最终输出的过程。在神经网络中，输出通常是损失(loss)函数，而叶节点是网络的权重(weight)和输入数据。我们通常不需要关于数据本身的梯度(gradient)，因为数据是固定的；我们需要的是关于权重的梯度，之后我们会用它们通过梯度下降(gradient descent)来更新权重。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="1779">[00:29:39]</a></sub></p>
+<p><img alt="计算图，其中 l.gradient 设为 1.0" src="images/ch06_fig1.jpg" /></p>
+<p><em>计算图，其中 l.gradient 设为 1.0</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="2070">[00:34:30]</a></sub></p>
+<p><img alt="乘法节点 l = d * f 的梯度" src="images/ch06_fig2.jpg" /></p>
+<p><em>乘法节点 l = d * f 的梯度</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="2280">[00:38:00]</a></sub></p>
+<p><img alt="完全反向传播后的图，包含所有梯度" src="images/ch06_fig3.jpg" /></p>
+<p><em>完全反向传播后的图，包含所有梯度</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="2910">[00:48:30]</a></sub></p>
+<p>为了跟踪这些导数，我们在 <code>Value</code> 类中添加一个 <code>gradient</code> 字段。它存储最终输出（这里称为 <code>l</code>）关于该 <code>Value</code> 的导数。默认情况下，<code>gradient</code> 初始化为 <code>0.0</code>，表示最初假设每个值对输出都没有影响。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="1841">[00:30:41]</a></sub></p>
+<p>反向传播从图的末端开始。<code>l</code> 关于自身的导数是 <code>1.0</code>，因为 <code>l</code> 的一个微小变化 <code>h</code> 会恰好使 <code>l</code> 改变 <code>h</code>。我们可以通过将一个叶节点增加一个小的 <code>h</code>，测量 <code>l</code> 的变化，并除以 <code>h</code> 来数值验证这一点。为了避免污染全局命名空间，我们将这个检查包装在一个局部函数中：</p>
+<pre><code class="language-python">def lol():
+    h = 0.001
+    a = Value(2.0, label='a')
+    b = Value(-3.0, label='b')
+    c = Value(10.0, label='c')
+    f = Value(-2.0, label='f')
+    e = a * b; e.label = 'e'
+    d = e + c; d.label = 'd'
+    l = d * f; l.label = 'l'
+
+    l1 = l.data
+    # 将 a 增加 h
+    a.data += h
+    l2 = l.data
+    print((l2 - l1) / h)
+</code></pre>
+<p>运行这段代码得到 <code>l</code> 关于 <code>a</code> 的导数。对于基础情况，我们手动设置 <code>l.gradient = 1.0</code>。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="1932">[00:32:12]</a></sub></p>
+<p>接下来，考虑节点 <code>l = d * f</code>。局部导数很简单：如果 <code>l = d * f</code>，那么 <code>dl/dd = f</code> 且 <code>dl/df = d</code>。这可以从导数的极限定义推导出来，其中 <code>d*f</code> 项相消后留下 <code>f</code>（或 <code>d</code>）。因此，<code>d.gradient = f.data = -2.0</code> 且 <code>f.gradient = d.data = 4.0</code>。一个快速的数值检查确认了这些值。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="2091">[00:34:51]</a></sub></p>
+<p>反向传播的精髓在于通过中间节点应用链式法则(chain rule)。以加法节点 <code>d = c + e</code> 为例。我们已经知道 <code>dl/dd = -2.0</code>。局部地，一个和关于其任一输入的导数是 <code>1.0</code>（同样可以通过极限定义验证）。链式法则表明：</p>
+<p>$$ \frac{\partial l}{\partial c} = \frac{\partial l}{\partial d} \cdot \frac{\partial d}{\partial c} $$</p>
+<p>由于 <code>dd/dc = 1.0</code>，梯度直接路由通过：<code>c.gradient = dl/dd * 1.0 = -2.0</code>。由对称性，<code>e.gradient</code> 也是 <code>-2.0</code>。直观上，一个加号节点将传入的梯度平均分配给其子节点，因为其局部导数都是 1。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="2307">[00:38:27]</a></sub></p>
+<p>最后，我们递归到乘法节点 <code>e = a * b</code>。我们知道 <code>dl/de = -2.0</code>。局部梯度是 <code>de/da = b = -3.0</code> 和 <code>de/db = a = 2.0</code>。再次应用链式法则：</p>
+<pre><code class="language-python">a.grad = dl_de * de_da = -2.0 * -3.0 = 6.0
+b.grad = dl_de * de_db = -2.0 *  2.0 = -4.0
+</code></pre>
+<p>数值验证确认 <code>a.gradient = 6.0</code> 和 <code>b.gradient = -4.0</code>。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="2840">[00:47:20]</a></sub></p>
+<p>本质上，手动反向传播从输出到叶节点迭代遍历整个图。在每个节点，我们取损失关于该节点输出的导数（我们已经知道）并将其乘以该节点操作关于每个输入的局部导数。这个乘积随后被赋值为该输入的梯度，允许信号递归地向后流过整个图。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="3030">[00:50:30]</a></sub></p>
+<h2>使用梯度进行单步优化</h2>
+<p>既然已经计算出了图中每个节点的梯度，我们就可以利用它们来影响最终输出。原理很简单：每个叶节点的梯度精确地告诉我们，对该节点进行微小改动会如何影响最终的损失 <code>L</code>。通过让每个叶节点沿着其梯度的方向移动，我们就能增大最终的值 <code>L</code>。</p>
+<p>这是基于梯度的优化的核心思想。这里演示的过程是单步操作，之后它会扩展为迭代训练循环。同时微调所有输入，充分利用了反向传播获得的全部信息。</p>
+<p><img alt="Leaf node gradient updates in Jupyter notebook." src="images/ch07_fig1.jpg" /></p>
+<p><em>Jupyter notebook 中叶节点梯度的更新。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="3120">[00:52:00]</a></sub></p>
+<p><img alt="Recomputed forward pass and updated L output." src="images/ch07_fig2.jpg" /></p>
+<p><em>重新计算前向传播并更新 L 的输出。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="3150">[00:52:30]</a></sub></p>
+<h3>单步梯度上升</h3>
+<p>回顾叶节点 <code>a</code>、<code>b</code>、<code>c</code> 和 <code>f</code>。它们相对于 <code>L</code> 的梯度已经计算完毕。为了让 <code>L</code> 增大（变得不那么负），用每个叶节点的梯度乘以一个很小的比例后加到自身：</p>
+<pre><code class="language-python"># Step size (learning rate)
+step = 0.01
+
+# Nudge leaf nodes in the direction of their gradients
+a.data += step * a.grad
+b.data += step * b.grad
+c.data += step * c.grad
+f.data += step * f.grad
+</code></pre>
+<p>调整完叶节点后，必须重新运行前向传播以计算新的 <code>L</code> 值：</p>
+<pre><code class="language-python"># Recompute forward pass with updated values
+d = a * b       # unchanged structure, new a.data and b.data
+e = d + c       # unchanged structure, new d.data and c.data
+L = e * f       # unchanged structure, new e.data and f.data
+
+print(L.data)
+</code></pre>
+<p>更新前，<code>L</code> 约为 <code>-8.0</code>。将四个叶节点都沿各自梯度的方向推动 <code>0.01</code> 倍后，新的输出约为 <code>-7.0</code>。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="3061">[00:51:01]</a></sub> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="3123">[00:52:03]</a></sub></p>
+<p>该值变得不那么负，说明梯度方向是正确的。这一单步验证了反向传播的强大之处：无需对图进行穷举式重新求值，梯度就能精确指示如何调整输入，从而在输出上得到期望的变化。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="3154">[00:52:34]</a></sub></p>
+<p>这一概念可直接扩展到神经网络的训练中，同样的过程会重复数千次，以最小化损失函数。</p>
+<h2>手动反向传播通过一个 tanh 神经元</h2>
+<p>单个神经元是神经网络最简单的单元。从生物学角度看，神经元非常复杂，但在数学上它们被建模为加权求和后再通过一个压缩函数。本章构建一个具有两个输入、权重、偏置和 tanh 激活的神经元，然后手动对其进行反向传播，以理解为什么自动化是必不可少的。</p>
+<p><img alt="Computation graph of a tanh neuron" src="images/ch08_fig1.jpg" /></p>
+<p><em>tanh 神经元的计算图</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="3750">[01:02:30]</a></sub></p>
+<p><img alt="Backpropagation through addition nodes" src="images/ch08_fig2.jpg" /></p>
+<p><em>通过加法节点的反向传播</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="3930">[01:05:30]</a></sub></p>
+<p><img alt="Final leaf gradients after multiplication backpropagation" src="images/ch08_fig3.jpg" /></p>
+<p><em>乘法反向传播后的最终叶子梯度</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="4170">[01:09:30]</a></sub></p>
+<h3>构建一个 tanh 神经元</h3>
+<p>一个神经元接收输入 $x_i$，将每个输入乘以突触权重 $w_i$，加上偏置 $b$，然后将结果传递给激活函数。在本例中，我们使用 tanh，它平滑地将输入压缩到 $(-1, 1)$ 范围内。</p>
+<pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+
+x = np.arange(-5, 5, 0.2)
+y = np.tanh(x)
+plt.plot(x, y)
+</code></pre>
+<p>在零点处，tanh 的输出恰好为零。当输入增大为正时，输出趋近于 1 并趋于平缓；当输入增大为负时，输出趋近于 -1。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="3248">[00:54:08]</a></sub></p>
+<p>为了在代码中构建该神经元，我们将输入、权重和偏置定义为 <code>Value</code> 对象，并以小步骤构建前向传播，使每个中间结果都可寻址：</p>
+<pre><code class="language-python">x1 = Value(2.0, label='x1')
+x2 = Value(0.0, label='x2')
+w1 = Value(-3.0, label='w1')
+w2 = Value(1.0, label='w2')
+b = Value(6.8813735870195432, label='b')
+
+x1w1 = x1 * w1; x1w1.label = 'x1*w1'
+x2w2 = x2 * w2; x2w2.label = 'x2*w2'
+n = x1w1 + x2w2 + b; n.label = 'n'
+</code></pre>
+<p>原始的细胞体激活值 <code>n</code> 是权重与输入的点积加上偏置。接下来我们应用 tanh。由于 tanh 涉及指数运算，而我们尚未将其实现为原生的 <code>Value</code> 操作，因此我们将 tanh 本身视为一个单一的复合操作。唯一的要求是我们知道它的局部导数。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="3495">[00:58:15]</a></sub></p>
+<pre><code class="language-python">def tanh(self):
+    x = self.data
+    t = (math.exp(2*x) - 1) / (math.exp(2*x) + 1)
+    out = Value(t, (self,), 'tanh')
+    return out
+</code></pre>
+<p>调用 <code>o = n.tanh()</code> 即可得到神经元的输出。在给定的偏置下，<code>n</code> 的值约为 $0.8814$，<code>o</code> 的值为 $0.7071$。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="3651">[01:00:51]</a></sub></p>
+<h3>通过 tanh 反向传播</h3>
+<p>目标是计算输出相对于每个叶子节点（即权重和输入）的梯度。在真实的网络中，这些权重梯度驱动优化。</p>
+<p>我们以基础情况为输出梯度设种子：</p>
+<pre><code class="language-python">o.grad = 1.0
+</code></pre>
+<p>要通过 tanh 反向传播，我们需要 $\tanh(x)$ 的导数。根据微积分，</p>
+<p>$$\frac{d}{dx} \tanh(x) = 1 - \tanh^2(x)$$ <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="3806">[01:03:26]</a></sub></p>
+<p>因为 <code>o</code> 是 $\tanh(n)$，局部导数为 $1 - o^2$。当 $o = 0.7071$ 时，</p>
+<p>$$1 - (0.7071)^2 = 0.5$$</p>
+<p>因此 <code>n.gradient = 0.5</code>。</p>
+<p>从 <code>n</code> 开始，计算图通过加法节点展开。加法节点将其传入的梯度均等地分配给所有输入，因为加法相对于每个输入的局部导数都是 1。因此：</p>
+<pre><code class="language-python">x1w1.grad = 0.5
+x2w2.grad = 0.5
+b.grad = 0.5
+</code></pre>
+<p>继续向后通过下一个加法节点，<code>x1w1</code> 和 <code>x2w2</code> 得到相同的结果。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="3918">[01:05:18]</a></sub></p>
+<h3>通过乘法反向传播</h3>
+<p>在乘法节点处，链式法则引入另一个因子。对于 <code>x2w2 = x2 * w2</code>：</p>
+<pre><code class="language-python">x2.grad = w2.data * x2w2.grad  # 1.0 * 0.5 = 0.5
+w2.grad = x2.data * x2w2.grad  # 0.0 * 0.5 = 0.0
+</code></pre>
+<p>因为 <code>x2</code> 为零，<code>w2</code> 收到的梯度为零。直观地说，扰动一个乘以零的权重不会改变输出，因此它的导数为零。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="4015">[01:06:55]</a></sub></p>
+<p>对于 <code>x1w1 = x1 * w1</code>：</p>
+<pre><code class="language-python">x1.grad = w1.data * x1w1.grad  # -3.0 * 0.5 = -1.5
+w1.grad = x1.data * x1w1.grad  # 2.0 * 0.5 = 1.0
+</code></pre>
+<p>这些是最终的叶子梯度。如果目标是增加神经元的输出，<code>w1</code> 应该增加（正梯度），而 <code>w2</code> 目前无关紧要（零梯度）。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="4109">[01:08:29]</a></sub></p>
+<p>手动执行这个过程既繁琐又容易出错。下一步是将这些反向规则直接编码到 <code>Value</code> 类中，使梯度能够自动传播。</p>
+<h1>自动反向传播：backward() 与拓扑排序</h1>
+<h2>存储局部梯度：为每个操作添加 backward 函数</h2>
+<p>每个 <code>Value</code> 节点都需要知道如何将梯度反向路由经过自身。我们在每个节点上引入一个 <code>_backward</code> 闭包，它捕获了创建该节点的操作的局部链式法则逻辑。默认情况下，这个闭包什么都不做，这对于没有父节点需要更新的叶节点来说是正确的行为。对于加法、乘法和 <code>tanh</code> 等操作，我们定义一个自定义闭包，它接收 <code>out.gradient</code> 并使用相应的局部导数将其传播到 <code>self.gradient</code> 和 <code>other.gradient</code>。</p>
+<p>这种设计是实现自动微分模块化的关键一步：每个节点负责自身反向传播中的一个小部分，因此我们不再需要一个大型的梯度函数来理解图中的每一个操作。</p>
+<p><img alt="Addition backward closure with self.gradient and other.gradient." src="images/ch09_fig1.jpg" /></p>
+<p><em>Addition backward closure with self.gradient and other.gradient.</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="4260">[01:11:00]</a></sub></p>
+<p><img alt="Completed backward closures for add, mul, and tanh." src="images/ch09_fig2.jpg" /></p>
+<p><em>Completed backward closures for add, mul, and tanh.</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="4380">[01:13:00]</a></sub></p>
+<p><img alt="Computation graph with gradient fields after tanh backward." src="images/ch09_fig3.jpg" /></p>
+<p><em>Computation graph with gradient fields after tanh backward.</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="4410">[01:13:30]</a></sub></p>
+<h3>默认的 <code>_backward</code> 闭包</h3>
+<p>在 <code>Value</code> 的构造函数中，我们将 <code>_backward</code> 初始化为一个空操作函数：</p>
+<pre><code class="language-python">class Value:
+    def __init__(self, data, _children=(), _op=''):
+        self.data = data
+        self.grad = 0.0
+        self._backward = lambda: None   # 默认为空操作
+        self._prev = set(_children)
+        self._op = _op
+</code></pre>
+<p>叶节点——即由用户直接创建的节点——保留这个默认值，因为没有父节点需要传播。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="4171">[01:09:31]</a></sub></p>
+<h3>加法的 backward</h3>
+<p>当我们创建 <code>out = self + other</code> 时，和相对于每个输入的局部导数是 <code>1.0</code>。根据链式法则，<code>self.gradient</code> 和 <code>other.gradient</code> 各自接收 <code>out.gradient</code> 乘以该局部导数：</p>
+<pre><code class="language-python">def __add__(self, other):
+    other = other if isinstance(other, Value) else Value(other)
+    out = Value(self.data + other.data, (self, other), '+')
+
+    def _backward():
+        self.grad += 1.0 * out.grad
+        other.grad += 1.0 * out.grad
+    out._backward = _backward
+
+    return out
+</code></pre>
+<p>由于局部导数是 <code>1.0</code>，<code>out.gradient</code> 只是被复制到两个父节点的梯度中。这与我们之前手动追踪梯度时观察到的行为一致。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="4235">[01:10:35]</a></sub></p>
+<h3>乘法的 backward</h3>
+<p>对于 <code>out = self * other</code>，相对于 <code>self</code> 的局部导数是 <code>other.data</code>，相对于 <code>other</code> 的局部导数是 <code>self.data</code>。backward 闭包变为：</p>
+<pre><code class="language-python">def __mul__(self, other):
+    other = other if isinstance(other, Value) else Value(other)
+    out = Value(self.data * other.data, (self, other), '*')
+
+    def _backward():
+        self.grad += other.data * out.grad
+        other.grad += self.data * out.grad
+    out._backward = _backward
+
+    return out
+</code></pre>
+<p>这里链式法则表现为：在将 <code>out.gradient</code> 累加到每个父节点之前，先将其按兄弟操作数的数据值进行缩放。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="4331">[01:12:11]</a></sub></p>
+<h3>Tanh 的 backward</h3>
+<p>对于 <code>out = tanh(self)</code>，回顾 $\tanh(x)$ 的导数是 $1 - \tanh^2(x)$。由于 <code>out.data</code> 已经保存了 $\tanh(x)$，我们可以将局部导数简洁地写为 $1 - \text{out.data}^2$：</p>
+<pre><code class="language-python">def tanh(self):
+    t = math.tanh(self.data)
+    out = Value(t, (self,), 'tanh')
+
+    def _backward():
+        self.grad += (1 - t**2) * out.grad
+    out._backward = _backward
+
+    return out
+</code></pre>
+<p>变量 <code>t</code> 在闭包中被捕获，因此局部导数 $1 - t^2$ 在稍后调用 <code>_backward</code> 时可用。乘以 <code>out.gradient</code> 将传入的梯度通过双曲正切操作链式传递到 <code>self.gradient</code>。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="4393">[01:13:13]</a></sub></p>
+<h2>手动自动反向传播：按正确顺序调用 backward</h2>
+<p>既然我们已经为每个 <code>Value</code> 内置了 <code>_backward</code> 闭包，就可以停止手工计算梯度，改为按逆拓扑顺序调用它们。整个过程与之前手动做的完全相同，只是运算逻辑现在隐藏在每个操作所存储的函数内部。</p>
+<p><img alt="反向传播前的计算图。" src="images/ch10_fig1.jpg" /></p>
+<p><em>反向传播前的计算图。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="4440">[01:14:00]</a></sub></p>
+<p><img alt="Bug：'NoneType' is not callable 的 traceback。" src="images/ch10_fig2.jpg" /></p>
+<p><em>Bug：'NoneType' is not callable 的 traceback。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="4530">[01:15:30]</a></sub></p>
+<p><img alt="按顺序调用 backward 后的梯度。" src="images/ch10_fig3.jpg" /></p>
+<p><em>按顺序调用 backward 后的梯度。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="4560">[01:16:00]</a></sub></p>
+<h3>设置基例</h3>
+<p>在调用 <code>backward()</code> 之前，所有梯度都初始化为 <code>0.0</code>。由于最终输出 <code>o</code> 是标量，因此 <code>o</code> 对自身的导数为 <code>1.0</code>。我们必须显式设置这个值；否则第一次乘法 <code>out.gradient * local_derivative</code> 就会把整个梯度流清零。</p>
+<pre><code class="language-python">o.grad = 1.0
+</code></pre>
+<p>有了这个基例，<code>o.gradient</code> 就充当了前一操作传入的全局梯度。
+<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="4424">[01:13:44]</a></sub></p>
+<h3>调用存储的闭包</h3>
+<p>对于单神经元示例，其计算图如下：</p>
+<pre><code>x1*w1  x2*w2
+   |      |
+   +------+
+      |
+     n    + b
+      |    |
+      +----+
+         |
+        o = tanh(n)
+</code></pre>
+<p>要进行反向传播，我们从输出向叶节点遍历，每一步调用 <code>_backward</code>：</p>
+<ol>
+<li><code>o._backward()</code> — <code>o</code> 是 <code>tanh(n)</code> 的结果。其存储的闭包计算局部导数 <code>1 - tanh(n)**2</code>（即 <code>1 - o.data**2</code>），乘以 <code>o.gradient</code>（当前为 <code>1.0</code>），并将结果存入 <code>n.gradient</code>。调用后，<code>n.gradient</code> 变为 <code>0.5</code>。</li>
+<li><code>n._backward()</code> — <code>n</code> 是 <code>x1*w1 + x2*w2</code> 的结果。它的闭包将同样的 <code>0.5</code> 路由到两个加数，因此两个乘积节点的梯度都变为 <code>0.5</code>。</li>
+<li><code>b._backward()</code> — <code>b</code> 是叶节点，没有操作；它的 <code>_backward</code> 是空函数，因此无任何变化。</li>
+<li><code>x1*w1._backward()</code> 和 <code>x2*w2._backward()</code> — 每个乘积节点现在使用另一个因子作为局部导数，将自身的 <code>0.5</code> 分配给输入。这就得到了最终的叶节点梯度。</li>
+</ol>
+<pre><code class="language-python">o._backward()          # n.grad  -&gt; 0.5
+n._backward()          # prod grads -&gt; 0.5 each
+b._backward()          # no-op (leaf)
+(x1*w1)._backward()    # x1.grad, w1.grad
+(x2*w2)._backward()    # x2.grad, w2.grad
+</code></pre>
+<p>经过这五次调用后，叶节点的梯度为：</p>
+<table>
+<thead>
+<tr>
+<th>叶节点</th>
+<th>梯度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>x1</td>
+<td>1.0</td>
+</tr>
+<tr>
+<td>w1</td>
+<td>0.0</td>
+</tr>
+<tr>
+<td>x2</td>
+<td>-1.5</td>
+</tr>
+<tr>
+<td>w2</td>
+<td>0.5</td>
+</tr>
+</tbody>
+</table>
+<p>这些值与上一章中手动推导的结果完全一致，说明存储的闭包正确地编码了链式法则。
+<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="4558">[01:15:58]</a></sub></p>
+<h3>一个快速的 bug 修复小插曲</h3>
+<p>第一次尝试时代码崩溃了，报错 <code>'NoneType' object is not callable</code>。错误在于在构建图时不小心调用了 <code>_backward</code> 函数，而不是存储它：</p>
+<pre><code class="language-python"># 错误 —— 返回 None 并存储了结果
+self._backward = _backward()
+
+# 正确 —— 存储闭包本身
+self._backward = _backward
+</code></pre>
+<p>一旦将函数对象（而非其返回值）赋值，一切就按预期进行了。
+<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="4527">[01:15:27]</a></sub></p>
+<h2>拓扑排序：自动化逆序遍历</h2>
+<p>到目前为止，我们一直在每个中间节点上手动调用 <code>_backward()</code>。对于微小表达式这还能工作，但它很脆弱且无法扩展。我们真正需要的是一种遍历图的方式，使得每个节点在向自己的父节点传播梯度之前，先从所有依赖于它的节点接收梯度。这种顺序正是拓扑排序所提供的。</p>
+<p>有向无环图（DAG, directed acyclic graph）的拓扑排序将节点排成一条线，使得每条边都从左指向右。在我们的计算图中，这意味着所有依赖项都出现在依赖于它们的节点之前。一旦有了这样的顺序，我们就可以逆序遍历它，并在每个节点上自动调用 <code>_backward()</code>。</p>
+<p><img alt="递归 build_topo 代码与图可视化" src="images/ch11_fig1.jpg" /></p>
+<p><em>递归 build_topo 代码与图可视化</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="4770">[01:19:30]</a></sub></p>
+<p><img alt="逆序遍历循环与 topo 列表输出" src="images/ch11_fig2.jpg" /></p>
+<p><em>逆序遍历循环与 topo 列表输出</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="4830">[01:20:30]</a></sub></p>
+<p><img alt="最终封装的 backward() 方法调用" src="images/ch11_fig3.jpg" /></p>
+<p><em>最终封装的 backward() 方法调用</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="4920">[01:22:00]</a></sub></p>
+<h3>构建拓扑序</h3>
+<p>下面的递归辅助函数从输出节点（<code>o</code>）出发，先访问每个子节点，再将当前节点加入列表。这保证了不变量：一个节点只有在所有依赖于它的节点都被追加之后，才会被追加。</p>
+<pre><code class="language-python">topo = []
+visited = set()
+def build_topo(v):
+    if v not in visited:
+        visited.add(v)
+        for child in v._prev:
+            build_topo(child)
+        topo.append(v)
+
+build_topo(o)
+</code></pre>
+<p>调用后检查 <code>topo</code>，可以看到节点从输入到输出依次排列。最后一个元素是输出值（<code>0.707</code>），前面是它的直接前驱，依此类推一直回溯到叶变量。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="4742">[01:19:02]</a></sub></p>
+<h3>逆序遍历</h3>
+<p>有了列表之后，剩下的步骤就是机械化的：将所有梯度清零，将输出梯度设为 <code>1.0</code>，然后逆序遍历拓扑列表并触发每个节点的局部反向规则。</p>
+<pre><code class="language-python"># 重置梯度
+for node in topo:
+    node.grad = 0.0
+
+# 基例
+o.grad = 1.0
+
+# 逆序遍历
+for node in reversed(topo):
+    node._backward()
+</code></pre>
+<p>因为列表是从输入到输出的，逆序它就能确保我们从输出端开始，逆向穿过整个表达式，完全匹配我们之前手动维护的顺序。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="4804">[01:20:04]</a></sub></p>
+<h3>将遍历隐藏在 <code>backward()</code> 内部</h3>
+<p>最后一步是将这些逻辑封装起来，让调用者无需关心拓扑序或手动初始化梯度。我们直接在 <code>Value</code> 类上添加一个公共的 <code>backward()</code> 方法：</p>
+<pre><code class="language-python">class Value:
+    # ... 已有的 __init__, __add__, __mul__, _backward 等 ...
+
+    def backward(self):
+        topo = []
+        visited = set()
+        def build_topo(v):
+            if v not in visited:
+                visited.add(v)
+                for child in v._prev:
+                    build_topo(child)
+                topo.append(v)
+        build_topo(self)
+
+        self.grad = 1.0
+        for node in reversed(topo):
+            node._backward()
+</code></pre>
+<p>现在整个反向传播过程就简化为一次调用：</p>
+<pre><code class="language-python">o.backward()
+</code></pre>
+<p>所有梯度都被正确计算，而调用者被屏蔽在遍历细节之外。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="4904">[01:21:44]</a></sub></p>
+<h2>修复节点复用导致的梯度累积 bug</h2>
+<p>在接入 <code>backward()</code> 和拓扑排序后，反向传播看起来对单个神经元已经可以工作了。然而，当一个值在计算图中被复用时，一个隐蔽但关键的 bug 才会暴露出来。最简单的例子是单个节点 <code>a</code> 与自身相加。当 <code>b = a + a</code> 时，自动计算的 <code>a</code> 的梯度结果是 <code>1.0</code>，而预期值应为 <code>2.0</code>。本章解释为什么会发生这种情况，并应用多变量链式法则来修复它。</p>
+<p><img alt="展示节点复用 bug 的计算图。" src="images/ch12_fig1.jpg" /></p>
+<p><em>展示节点复用 bug 的计算图。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5070">[01:24:30]</a></sub></p>
+<p><img alt="在 backward 中将 = 改为 += 的代码 diff。" src="images/ch12_fig2.jpg" /></p>
+<p><em>在 backward 中将 = 改为 += 的代码 diff。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5130">[01:25:30]</a></sub></p>
+<p><img alt="修复后具有正确梯度的神经元图。" src="images/ch12_fig3.jpg" /></p>
+<p><em>修复后具有正确梯度的神经元图。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5190">[01:26:30]</a></sub></p>
+<h3>Bug：赋值覆盖了之前的梯度</h3>
+<p>考虑一个最小示例：</p>
+<pre><code class="language-python">a = Value(3.0)
+b = a + a
+b.backward()
+</code></pre>
+<p>这里 <code>a</code> 参与了两次加法，因此计算图中包含两条从 <code>a</code> 到 <code>b</code> 的边。在反向传播期间，<code>b</code> 是一个加法节点，因此它的局部规则将 <code>self.gradient</code> 设为 <code>1.0</code>，<code>other.gradient</code> 设为 <code>1.0</code>。问题在于 <code>self</code> 和 <code>other</code> 指向的是同一个 <code>Value</code> 对象（<code>a</code>）。第一次赋值将 <code>a.gradient</code> 设为 <code>1.0</code>，第二次赋值又把它覆盖为 <code>1.0</code>。因为梯度是赋值而非累积，最终结果停留在 <code>1.0</code>，而 <code>b</code> 对 <code>a</code> 的真实导数应该是 <code>2</code>。</p>
+<p>一个稍复杂的表达式能让这个模式更清晰：</p>
+<pre><code class="language-python">a = Value(2.0)
+b = Value(3.0)
+d = a * b
+e = a + b
+f = e * d
+f.backward()
+</code></pre>
+<p>在这个图中，<code>a</code> 和 <code>b</code> 各出现了两次。反向传播时，梯度从 <code>f</code> 正确地流向 <code>e</code> 和 <code>d</code>，但当 <code>d.backward()</code> 在 <code>e.backward()</code> 之后运行时，它会覆盖 <code>e</code> 已经写入 <code>a</code> 和 <code>b</code> 的梯度。每当一个变量被使用多次时，同样的覆盖就会发生。到目前为止测试的每个表达式恰好让每个变量只用了一次，这就是为什么这个 bug 一直没被发现。</p>
+<h3>修复：用 <code>+=</code> 累积</h3>
+<p>多变量链式法则（multivariate chain rule）指出，当一个变量流入多个下游操作时，总梯度是沿每条路径的梯度之和。因此，梯度必须累积，而不是赋值。将 <code>_backward</code> lambda 中的每一次梯度更新从 <code>=</code> 改为 <code>+=</code> 即可解决问题：</p>
+<pre><code class="language-python"># 在 Value.__add__ 中
+out._backward = lambda: (
+    self.grad += out.grad,
+    other.grad += out.grad,
+)
+
+# 在 Value.__mul__ 中
+out._backward = lambda: (
+    self.grad += other.data * out.grad,
+    other.grad += self.data * out.grad,
+)
+
+# 在 Value.tanh 中
+out._backward = lambda: (
+    self.grad += (1 - out.data**2) * out.grad,
+)
+</code></pre>
+<p>因为所有 <code>gradient</code> 字段都初始化为 <code>0.0</code>，所以每次反向传播的贡献都会叠加在之前的值之上。回到 <code>a + a</code> 的例子，<code>a.gradient</code> 现在从 <code>0</code> 开始，从第一条边接收 <code>1.0</code>，再从第二条边接收另一个 <code>1.0</code>，得到正确的值 <code>2.0</code>。同样，在 <code>f = e * d</code> 表达式中，<code>e.backward()</code> 写入 <code>a</code> 和 <code>b</code> 的梯度在 <code>d.backward()</code> 随后添加自己的贡献时仍然保留，从而得到正确的最终梯度。</p>
+<p>经过这一改动，引擎就能正确处理值被任意多次复用的任意计算图了。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="4935">[01:22:15]</a></sub> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5063">[01:24:23]</a></sub> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5126">[01:25:26]</a></sub></p>
+<h1>扩展运算与 PyTorch 等价性验证</h1>
+<h2>扩展自动微分引擎：指数、幂和除法</h2>
+<p>上一章使用的双曲正切函数通常被视为单一的原子函数，因为它的导数是众所周知的。然而，它也可以分解为更简单的操作：指数、加法、减法和除法。用这些基本操作重建 <code>tanh</code> 是扩展 <code>Value</code> 类并验证梯度是否保持一致的好练习。在添加新操作之前，引擎必须首先处理算术中的标量常数。</p>
+<p><img alt="Scalar constant guard in __add__ and __mul__" src="images/ch13_fig1.jpg" /></p>
+<p><em><strong>add</strong> 和 <strong>mul</strong> 中的标量常数保护</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5280">[01:28:00]</a></sub></p>
+<p><img alt="Derivative rules cheat sheet for power and exp" src="images/ch13_fig2.jpg" /></p>
+<p><em>幂和指数的导数规则速查表</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5610">[01:33:30]</a></sub></p>
+<p><img alt="Completed exp, pow, and division methods" src="images/ch13_fig3.jpg" /></p>
+<p><em>完成的 exp、pow 和除法方法</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5670">[01:34:30]</a></sub></p>
+<h3>在加法和乘法中添加标量常数</h3>
+<p>目前，<code>a + 1</code> 会引发 <code>AttributeError</code>，因为 <code>__add__</code> 期望 <code>other</code> 是一个 <code>Value</code> 并尝试读取 <code>other.data</code>。修复方法很简单：如果 <code>other</code> 已经是 <code>Value</code>，则保持不变；否则将其包装为 <code>Value(other)</code>。同样的改动也应用于 <code>__mul__</code>。</p>
+<pre><code class="language-python">class Value:
+    ...
+    def __add__(self, other):
+        other = other if isinstance(other, Value) else Value(other)
+        out = Value(self.data + other.data, (self, other), '+')
+        def _backward():
+            self.grad += out.grad
+            other.grad += out.grad
+        out._backward = _backward
+        return out
+
+    def __mul__(self, other):
+        other = other if isinstance(other, Value) else Value(other)
+        out = Value(self.data * other.data, (self, other), '*')
+        def _backward():
+            self.grad += other.data * out.grad
+            other.grad += self.data * out.grad
+        out._backward = _backward
+        return out
+</code></pre>
+<p>这使得像 <code>a + 1</code> 和 <code>a * 2</code> 这样的表达式可以正常工作，但 <code>2 * a</code> 仍然失败，因为 Python 首先调用 <code>int.__mul__</code>，而它不认识 <code>Value</code>。Python 然后回退到右侧操作数的反射操作 <code>__rmul__</code>。通过交换顺序实现 <code>__rmul__</code> 即可解决这个问题。</p>
+<pre><code class="language-python">    def __rmul__(self, other):
+        return self * other
+</code></pre>
+<p>经过这些改动，<code>a * 2</code> 和 <code>2 * a</code> 都能返回正确结果。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5282">[01:28:02]</a></sub></p>
+<h3>指数运算：<code>exp</code></h3>
+<p>下一个基本操作是自然指数。与 <code>tanh</code> 类似，<code>exp</code> 是一个一元函数：它取出原始标量，应用 <code>math.exp</code>，并将结果包装在一个新的 <code>Value</code> 中。</p>
+<pre><code class="language-python">    def exp(self):
+        x = self.data
+        out = Value(math.exp(x), (self,), 'exp')
+        def _backward():
+            self.grad += out.data * out.grad
+        out._backward = _backward
+        return out
+</code></pre>
+<p>$e^x$ 的局部导数就是 $e^x$ 本身。因为 <code>out.data</code> 已经保存了 $e^x$，反向传播只需将 <code>out.data</code> 乘以传入的梯度 <code>out.gradient</code> 并累加到 <code>self.gradient</code> 中。这就是链式法则的实际应用。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5469">[01:31:09]</a></sub></p>
+<h3>幂运算：将 <code>Value</code> 提升到常数次幂</h3>
+<p>除法是更一般操作的特殊情况：将一个值提升到常数次幂。如果 $a / b$ 可以重写为 $a \cdot b^{-1}$，那么为常数 $k$ 实现 <code>pow(k)</code> 就能立即免费得到除法。</p>
+<pre><code class="language-python">    def __pow__(self, other):
+        assert isinstance(other, (int, float)), &quot;only supporting int/float powers&quot;
+        out = Value(self.data**other, (self,), f'**{other}')
+        def _backward():
+            self.grad += (other * self.data**(other - 1)) * out.grad
+        out._backward = _backward
+        return out
+</code></pre>
+<p>微积分中的幂法则指出</p>
+<p>$$\frac{d}{dx} x^n = n \cdot x^{n-1}.$$</p>
+<p>这里 $n$ 是常数 <code>other</code>，$x$ 是 <code>self.data</code>。因此局部导数为 <code>other * self.data**(other - 1)</code>，通过上游梯度进行链式求导就得到了上面的完整表达式。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5653">[01:34:13]</a></sub></p>
+<h3>通过 <code>pow(-1)</code> 实现除法</h3>
+<p>有了 <code>__pow__</code> 之后，除法通过结合乘法和指数运算来定义：</p>
+<pre><code class="language-python">    def __truediv__(self, other):
+        return self * other**-1
+</code></pre>
+<p>现在 <code>a / b</code> 被求值为 <code>a * b**-1</code>，反向传播通过现有的 <code>__mul__</code> 和 <code>__pow__</code> 机制流动。这些补充完成了表达 <code>tanh</code> 所需的基本操作集合，而无需单一的单体内核，并且为与 PyTorch 验证梯度等价性铺平了道路。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5714">[01:35:14]</a></sub></p>
+<h2>添加减法并将 tanh 分解为基本操作</h2>
+<p>除法的前向传播可以工作，但在验证反向传播之前还需要一个操作：减法。减法不是从头构建，而是用已有的基本操作来表达。取反通过将一个值乘以负一来实现，减法 <code>a - b</code> 则变为 <code>a + (-b)</code>。有了这些，就可以在完整的表达式图上测试反向传播。</p>
+<p>接下来，单一的 <code>tanh</code> 节点被替换为其明确的数学定义。这展示了操作的粒度是一种设计选择：只要局部的前向和反向传播是正确的，一个操作可以是原子的，也可以是任意复合的。</p>
+<p><img alt="Neuron graph with subtraction and gradient values." src="images/ch14_fig1.jpg" /></p>
+<p><em>带有减法和梯度值的神经元图。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5790">[01:36:30]</a></sub></p>
+<p><img alt="Decomposed tanh into explicit primitive operations." src="images/ch14_fig2.jpg" /></p>
+<p><em>将 tanh 分解为显式基本操作。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5850">[01:37:30]</a></sub></p>
+<p><img alt="Code and graph for decomposed tanh with verified gradients." src="images/ch14_fig3.jpg" /></p>
+<p><em>分解后的 tanh 代码和图，梯度已验证。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5880">[01:38:00]</a></sub></p>
+<h3>通过取反和加法实现减法</h3>
+<p>减法通过复用现有的基本操作来添加。取反定义为乘以 -1，减法则是加上第二个操作数的取反结果。</p>
+<pre><code class="language-python"># a - b implemented as a + (-b)
+# where -b is b * -1
+</code></pre>
+<p>有了减法之后，反向传播在一个之前使用单一 <code>tanh</code> 节点的二维神经元上运行。所有叶节点的梯度都被计算并存储。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5746">[01:35:46]</a></sub></p>
+<h3>将 tanh 分解为其基本操作</h3>
+<p>tanh 公式展开为其显式定义：</p>
+<p>$$
+\tanh(x) = \frac{e^{2x} - 1}{e^{2x} + 1}
+$$</p>
+<p>这是用新实现的基本操作构建的。首先计算 <code>2 * n</code>，然后取指数得到 <code>e^(2x)</code>。一个中间变量 <code>e</code> 存储这个结果以便复用。输出 <code>o</code> 然后定义为：</p>
+<pre><code class="language-python">e = (2 * n).exp()
+o = (e - 1) / (e + 1)
+</code></pre>
+<p>这用一连串的乘法、指数、加法、减法和除法替代了之前的单一 <code>tanh()</code> 调用。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5809">[01:36:49]</a></sub></p>
+<h3>验证前向和反向等价性</h3>
+<p>在运行扩展后的图之前，有两个预期。首先，图应该显著变大，因为 <code>tanh</code> 被拆分为多个操作。其次，因为数学定义是相同的，前向结果和叶节点梯度必须与之前的实现完全匹配。</p>
+<p>运行代码后，图显示了各个操作：<code>x</code>、<code>+</code>、<code>*</code> 和除法节点。前向传播产生的数值输出与之前相同。叶梯度按顺序验证：</p>
+<ul>
+<li><code>w2</code> 和 <code>x2</code>：0 和 0.5</li>
+<li><code>w1</code> 和 <code>x1</code>：1 和 -1.5</li>
+</ul>
+<p>这些与单一 <code>tanh</code> 节点实现的梯度完全匹配。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5873">[01:37:53]</a></sub></p>
+<h3>粒度作为设计选择</h3>
+<p>这个练习说明，操作实现的层级完全取决于设计者。反向传播可以为微小表达式（如单一加法或乘法）编写，也可以为复合函数（如 <code>tanh</code>）编写。重要的不在于一个操作是否"原子"，而在于有输入、有作为这些输入函数的输出，以及正确的局部梯度。如果局部前向和反向传播被定义好了，链式法则会处理其余部分，反向传播会继续进行，无论操作看起来简单还是复杂。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5936">[01:38:56]</a></sub></p>
+<h2>用 PyTorch 验证 micrograd</h2>
+<p>micrograd 是一个仿照生产库设计的标量值自动微分引擎。为了确认其正确性，在 PyTorch 中重现了相同的前向和反向计算，并对结果进行了比较。PyTorch 使用张量(tensor)——标量的 n 维数组——因此映射需要一些小的调整，但底层操作和梯度值保持不变。</p>
+<p><img alt="micrograd graph above, PyTorch port below" src="images/ch15_fig1.jpg" /></p>
+<p><em>上方为 micrograd 图，下方为 PyTorch 移植版本</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="6000">[01:40:00]</a></sub></p>
+<p><img alt="Full PyTorch setup with .double() and requires_grad" src="images/ch15_fig2.jpg" /></p>
+<p><em>使用 .double() 和 requires_grad 的完整 PyTorch 设置</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="6090">[01:41:30]</a></sub></p>
+<p><img alt="Equivalent gradients printed for both engines" src="images/ch15_fig3.jpg" /></p>
+<p><em>两个引擎输出的等价梯度</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="6180">[01:43:00]</a></sub></p>
+<h3>在 PyTorch 中设置标量张量</h3>
+<p>PyTorch 通常处理多元素张量，但因为 micrograd 严格是标量值的，每个量都表示为单元素张量。例如，<code>2.0</code> 的值变为：</p>
+<pre><code class="language-python">import torch
+
+x1 = torch.Tensor([2.0]).double()
+</code></pre>
+<p>Python 浮点数是双精度（<code>float64</code>），而 PyTorch 默认使用 <code>float32</code>。转换为 <code>.double()</code> 确保数据类型完全匹配。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="5999">[01:39:59]</a></sub></p>
+<p>默认情况下，PyTorch 假设叶节点不需要梯度以提高效率。因为这些标量是将被求导的网络输入，必须显式启用梯度追踪：</p>
+<pre><code class="language-python">x1.requires_grad = True
+x2 = torch.Tensor([0.0]).double(); x2.requires_grad = True
+w1 = torch.Tensor([-3.0]).double(); w1.requires_grad = True
+w2 = torch.Tensor([1.0]).double();  w2.requires_grad = True
+b  = torch.Tensor([6.8813735870195432]).double(); b.requires_grad = True
+</code></pre>
+<h3>前向和反向传播</h3>
+<p>叶节点建立后，前向表达式与 micrograd 中的写法完全相同：</p>
+<pre><code class="language-python">n = x1 * w1 + x2 * w2 + b
+o = torch.tanh(n)
+</code></pre>
+<p>结果张量 <code>o</code> 携带 <code>.data</code> 属性表示其值，<code>.gradient</code> 属性表示其梯度，就像 micrograd 的 <code>Value</code> 一样。要从单元素张量中提取原始 Python 标量，使用 <code>.item()</code>：</p>
+<pre><code class="language-python">print(o.data.item())   # 0.707106...
+</code></pre>
+<p>调用 <code>o.backward()</code> 会触发计算图的反向模式自动微分。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="6126">[01:42:06]</a></sub></p>
+<h3>确认等价性</h3>
+<p>每个叶节点上存储的梯度以相同方式获取：</p>
+<pre><code class="language-python">print('x2', x2.grad.item())
+print('w2', w2.grad.item())
+print('x1', x1.grad.item())
+print('w1', w1.grad.item())
+</code></pre>
+<p>输出为：</p>
+<pre><code>x2 0.5
+w2 0.0
+x1 -1.5
+w1 1.0
+</code></pre>
+<p>这些与 micrograd 的前向值（<code>0.7071...</code>）以及每个叶梯度完全匹配，确认 micrograd 的标量自动微分逻辑在限制为单元素张量时与 PyTorch 的张量引擎一致。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="6156">[01:42:36]</a></sub></p>
+<h1>构建与训练神经网络</h1>
+<h2>构建模块化神经网络组件：Neuron、Layer 和 MLP</h2>
+<p>有了自动微分引擎，下一步就是搭建神经网络。神经网络是一类由可重复、可组合单元构成的数学表达式。本章介绍三个基础组件——Neuron（神经元）、Layer（层）和 MLP（多层感知机）——它们的实现遵循 PyTorch 模块 API。每个组件都是一个普通的 Python 类，带有 <code>__call__</code> 方法，使其成为可调用对象，可以链式组合成任意深度的网络。</p>
+<p><img alt="Neuron class implementation in Jupyter." src="images/ch16_fig1.jpg" /></p>
+<p><em>Jupyter 中的 Neuron 类实现。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="6300">[01:45:00]</a></sub></p>
+<p><img alt="Layer and MLP classes with network diagram." src="images/ch16_fig2.jpg" /></p>
+<p><em>Layer 和 MLP 类及网络示意图。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="6510">[01:48:30]</a></sub></p>
+<p><img alt="Full MLP instantiation and forward-pass output." src="images/ch16_fig3.jpg" /></p>
+<p><em>完整的 MLP 实例化与前向传播输出。</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="6660">[01:51:00]</a></sub></p>
+<h3>Neuron（神经元）</h3>
+<p>单个神经元接收固定数量的标量输入，计算加权和，加上偏置，然后将结果传入非线性激活函数。在构造函数中，神经元为每个输入存储一个权重，初始化为 -1 到 1 之间的均匀分布，以及一个控制其整体触发阈值的偏置。</p>
+<pre><code class="language-python">class Neuron:
+    def __init__(self, nin):
+        self.w = [Value(random.uniform(-1, 1)) for _ in range(nin)]
+        self.b = Value(random.uniform(-1, 1))
+
+    def __call__(self, x):
+        act = sum((wi * xi for wi, xi in zip(self.w, x)), self.b)
+        out = act.tanh()
+        return out
+</code></pre>
+<p>前向传播就是熟悉的 $w \cdot x + b$ 后接 $\tanh$。Python 的 <code>sum</code> 接受可选的 <code>start</code> 参数，因此将偏置作为初始累加值传入，避免了循环后再显式相加。调用神经元只需 <code>n(x)</code>，Python 会将其路由到 <code>__call__</code>。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="6252">[01:44:12]</a></sub></p>
+<h3>Layer（层）</h3>
+<p>层不过是一组相互独立的神经元，每个神经元接收相同的输入向量，但产生各自的标量输出。由于神经元之间彼此独立，层可以将它们存储在列表中，并在前向传播时并行计算。</p>
+<pre><code class="language-python">class Layer:
+    def __init__(self, nin, nout):
+        self.neurons = [Neuron(nin) for _ in range(nout)]
+
+    def __call__(self, x):
+        outs = [n(x) for n in self.neurons]
+        return outs
+</code></pre>
+<p>创建一个具有两个输入和三个输出的层会得到一个包含三个 <code>Value</code> 对象的列表，每个神经元一个。同一层内部的神经元之间没有连接；全连接只发生在层与层之间。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="6475">[01:47:55]</a></sub></p>
+<h3>MLP（多层感知机）</h3>
+<p>MLP 将层按顺序链式连接：一层的输出成为下一层的输入。构造函数接收输入维度，以及一个指定后续每层神经元数量的列表。然后遍历相邻的尺寸对来构建连接层。</p>
+<pre><code class="language-python">class MLP:
+    def __init__(self, nin, nouts):
+        sz = [nin] + nouts
+        self.layers = [Layer(sz[i], sz[i+1]) for i in range(len(nouts))]
+
+    def __call__(self, x):
+        for layer in self.layers:
+            x = layer(x)
+        return x[0] if len(x) == 1 else x
+</code></pre>
+<p>例如，一个具有三个输入、两个各含四个神经元的隐藏层、以及一个单输出的 MLP 可实例化为 <code>MLP(3, [4, 4, 1])</code>。<code>__call__</code> 中最后的便捷处理会将单元素列表解包，使单输出网络直接返回标量 <code>Value</code>，而不是包含它的列表。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="6568">[01:49:28]</a></sub></p>
+<p>由于这些组件内部的所有操作都是在 <code>Value</code> 对象上执行的，生成的计算图覆盖了整个网络。尽管表达式复杂到无法手工求导，自动微分引擎仍能反向传播穿过每一层，一直到达每个独立的权重和偏置。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="6631">[01:50:31]</a></sub></p>
+<h2>定义损失函数并验证端到端反向传播</h2>
+<p>神经网络的首次前向传播预测很少完美。为了改进预测，我们需要一个可量化的误差指标来驱动学习。本章构建了一个包含四个样本的最小二分类任务，将均方误差定义为损失，并确认反向传播能够正确地将梯度传播到 MLP 的每一层。</p>
+<p><img alt="MSE loss computation in Jupyter" src="images/ch17_fig1.jpg" /></p>
+<p><em>Jupyter 中的 MSE 损失计算</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="6840">[01:54:00]</a></sub></p>
+<p><img alt="Gradient on weight after backward()" src="images/ch17_fig2.jpg" /></p>
+<p><em>backward() 后权重的梯度</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="6900">[01:55:00]</a></sub></p>
+<p><img alt="Full computation graph for loss node" src="images/ch17_fig3.jpg" /></p>
+<p><em>损失节点的完整计算图</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="7050">[01:57:30]</a></sub></p>
+<h3>一个玩具二分类数据集</h3>
+<p>考虑四组输入-输出对。网络应对第一个和最后一个输入输出 <code>1.0</code>，对中间两个输出 <code>-1.0</code>：</p>
+<pre><code class="language-python">xs = [
+    [2.0, 3.0, -1.0],
+    [3.0, -1.0, 0.5],
+    [0.5, 1.0, 1.0],
+    [1.0, 1.0, -1.0],
+]
+ys = [1.0, -1.0, -1.0, 1.0]
+</code></pre>
+<p>在未训练的 MLP 上运行这些样本，得到的预测值如 <code>0.91</code>、<code>0.88</code>、<code>0.80</code> —— 既接近 <code>1.0</code> 也接近 <code>-1.0</code>。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="6662">[01:51:02]</a></sub></p>
+<h3>均方误差损失</h3>
+<p>为了将网络性能压缩为单个标量，我们使用均方误差（MSE）损失。对每个样本，用预测值减去真实值，将结果平方，然后在整个数据集上求和：</p>
+<pre><code class="language-python">loss = sum((y_out - y_gt)**2 for y_gt, y_out in zip(ys, ypred))
+</code></pre>
+<p>平方有两个作用：它消除符号，使正负偏差同等计数；同时更严厉地惩罚大误差。当每个预测都等于其目标时，该表达式恰好为零。对于当前网络，各样本的平方误差约为 <code>0</code>、<code>0</code> 和 <code>7</code>，总损失约为 <code>7.12</code>。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="6724">[01:52:04]</a></sub></p>
+<h3>通过完整计算图的反向传播</h3>
+<p>调用 <code>loss.backward()</code> 会在整个计算图上启动反向模式自动微分。由于损失节点位于一个包含四次完整前向传播（每个样本一次）的图顶部，生成的表达式非常庞大。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="6909">[01:55:09]</a></sub></p>
+<p>检查某个特定权重可以确认梯度已到达参数：</p>
+<pre><code class="language-python">n.layers[0].neurons[0].w[0].grad
+</code></pre>
+<p>该权重上的负梯度表明，稍微增加权重会降低损失。这一信息现在对每一层的每个神经元的每个权重和偏置都可用。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="6940">[01:55:40]</a></sub></p>
+<p>用 <code>draw_dot(loss)</code> 可视化的计算图显示，四次并行的前向传播汇入最终的损失节点。梯度流经所有中间值，一直反向传播到输入。虽然输入数据节点也会收到梯度，但这些梯度没有用处，因为数据是固定的；权重参数（<code>w</code> 和 <code>b</code>）上的梯度才是我们将用来更新网络的信息。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="7001">[01:56:41]</a></sub></p>
+<h2>收集参数并执行手动梯度下降更新</h2>
+<p>在网络能够学习之前，它必须暴露其可训练状态。本章为 <code>Neuron</code>、<code>Layer</code> 和 <code>MLP</code> 添加 <code>parameters()</code> 方法，递归地收集每个权重和偏置。一旦完整的参数向量可访问，就可以组装第一个手动训练循环：前向传播、反向传播，以及沿梯度反方向的小幅度调整。迭代此循环可以看到损失下降，而改变步长则揭示了收敛速度与稳定性之间的微妙平衡。</p>
+<p><img alt="parameters() methods in Neuron, Layer, and MLP" src="images/ch18_fig1.jpg" /></p>
+<p><em>Neuron、Layer 和 MLP 中的 parameters() 方法</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="7140">[01:59:00]</a></sub></p>
+<p><img alt="Manual gradient descent update loop" src="images/ch18_fig2.jpg" /></p>
+<p><em>手动梯度下降更新循环</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="7320">[02:02:00]</a></sub></p>
+<p><img alt="Loss converging to near zero after repeated updates" src="images/ch18_fig3.jpg" /></p>
+<p><em>重复更新后损失收敛到接近零</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="7680">[02:08:00]</a></sub></p>
+<h3>暴露可训练参数</h3>
+<p>每个 <code>Neuron</code> 为其权重存储一个 <code>Value</code> 对象列表，为其偏置存储一个单独的 <code>Value</code>。<code>parameters</code> 方法将它们作为扁平列表返回，遵循 PyTorch 模块的约定。</p>
+<pre><code class="language-python">class Neuron:
+    ...
+    def parameters(self):
+        return self.w + [self.b]
+</code></pre>
+<p><code>Layer</code> 包含多个神经元，因此它的 <code>parameters</code> 用嵌套列表推导式将结果展平。</p>
+<pre><code class="language-python">class Layer:
+    ...
+    def parameters(self):
+        return [p for neuron in self.neurons for p in neuron.parameters()]
+</code></pre>
+<p><code>MLP</code> 在各层之间做同样的操作。</p>
+<pre><code class="language-python">class MLP:
+    ...
+    def parameters(self):
+        return [p for layer in self.layers for p in layer.parameters()]
+</code></pre>
+<p>重新实例化网络以采用新 API 后，调用 <code>n.parameters()</code> 会返回全部 41 个标量参数——权重和偏置——分布在整个 MLP 中。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="7094">[01:58:14]</a></sub></p>
+<h3>单步梯度下降</h3>
+<p>在计算完损失和所有梯度后，可以调整每个参数。参数的梯度表示该参数的微小增加如何改变损失。由于目标是<em>最小化</em>损失，更新必须朝相反方向移动。</p>
+<pre><code class="language-python">for p in n.parameters():
+    p.data += -step_size * p.grad
+</code></pre>
+<p>例如，某个神经元的初始 <code>data = 0.85</code>，梯度为轻微负值。如果没有负号，更新会降低该神经元的值，反而会增大损失。负号确保这一步降低损失，将值从 <code>0.854</code> 推到 <code>0.857</code>。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="7288">[02:01:28]</a></sub></p>
+<h3>迭代更新循环</h3>
+<p>更新后重新评估前向传播，损失从 <code>4.84</code> 下降到 <code>4.36</code>。重复这一循环——前向、反向、更新——持续下降：<code>4.36</code>、<code>3.90</code>、<code>3.66</code>、<code>3.47</code>，依此类推。每次迭代都将预测推近目标。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="7472">[02:04:32]</a></sub></p>
+<h3>学习率与稳定性</h3>
+<p>更大的步长可以加速进展。在 <code>0.31</code> 时损失下降很快，但如果步长过于激进，更新可能会 overshoot，因为梯度只描述了损失曲面在局部的几何形状。网络可能落入损失行为截然不同的区域，导致损失爆炸。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="7595">[02:06:35]</a></sub></p>
+<p>在实践中，设置学习率是一种权衡。太小则收敛极其缓慢；太大则训练失稳。经过一些震荡后，本例中的网络损失达到接近 <code>7e-9</code>，预测几乎完全匹配目标，这表明即使是最朴素的梯度下降，在步长得到控制时也能找到良好的参数设置。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="7659">[02:07:39]</a></sub></p>
+<h2>形式化训练循环与零梯度 bug</h2>
+<p>训练循环无非是前向传播、损失计算、反向传播和参数更新被包裹在一个外层迭代中。从一个刚刚初始化的网络和同样的四个数据点开始，我们反复进行预测、测量误差、反向传播，并用梯度下降微调权重。</p>
+<p><img alt="有 bug 的训练循环，损失值爆炸" src="images/ch19_fig1.jpg" /></p>
+<p><em>有 bug 的训练循环，损失值爆炸</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="7830">[02:10:30]</a></sub></p>
+<p><img alt="修复后显式清零梯度的循环" src="images/ch19_fig2.jpg" /></p>
+<p><em>修复后显式清零梯度的循环</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="7980">[02:13:00]</a></sub></p>
+<pre><code class="language-python">for k in range(20):
+    # forward pass
+    ypred = [n(x) for x in xs]
+    loss = sum((yout - ygt)**2 for yout, ygt in zip(ypred, ys))
+
+    # backward pass
+    loss.backward()
+
+    # update (gradient descent)
+    for p in n.parameters():
+        p.data -= 0.05 * p.grad
+</code></pre>
+<p>以 0.05 的学习率运行 20 步，损失迅速下降，预测结果也变得自信，包括对"白面包"样本给出了强烈的正分数。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="7721">[02:08:41]</a></sub></p>
+<p>然而，表面上良好的结果隐藏了一个严重且极其常见的 bug：梯度在每一步之间从未被重置为零。每次调用 <code>.backward()</code> 都会对 <code>p.gradient</code> 使用 <code>+=</code>，因此梯度会无限累积。第二步把新的梯度加在旧的上面，第三步再加一次，依此类推。这人为地放大了有效步长，使收敛看起来比实际更快。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="7823">[02:10:23]</a></sub></p>
+<p>修复方法是在每次反向传播前显式地将梯度清零，正如 <code>Value</code> 构造器初始化 <code>gradient = 0</code> 一样：</p>
+<pre><code class="language-python">for k in range(20):
+    # zero gradients
+    for p in n.parameters():
+        p.grad = 0.0
+
+    # forward, backward, update
+    ypred = [n(x) for x in xs]
+    loss = sum((yout - ygt)**2 for yout, ygt in zip(ypred, ys))
+    loss.backward()
+    for p in n.parameters():
+        p.data -= 0.05 * p.grad
+</code></pre>
+<p>经过这一修正，下降过程更慢、更可控，但在足够的步数后仍然能达到低损失和准确的预测。之前带 bug 的运行之所以成功，只是因为数据集极小且问题过于简单；在更难的任务上，累积的梯度会使训练失稳。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="7948">[02:12:28]</a></sub></p>
+<h1>连接真实 PyTorch 与总结</h1>
+<h2>神经网络作为由梯度下降优化的数学表达式</h2>
+<p>神经网络是经由可学习参数转换数据的数学表达式。以多层感知器(MLP)为例，网络接收两个输入：训练数据和权重（参数）。前向传播对这个数学表达式求值，产生预测。随后损失函数衡量这些预测的准确程度。当网络表现良好——输出与目标对齐时——损失就低。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="8046">[02:14:06]</a></sub></p>
+<p><img alt="训练循环代码与损失输出" src="images/ch20_fig1.jpg" /></p>
+<p><em>训练循环代码与损失输出</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="8160">[02:16:00]</a></sub></p>
+<p><img alt="收敛后的损失与最终预测" src="images/ch20_fig2.jpg" /></p>
+<p><em>收敛后的损失与最终预测</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="8190">[02:16:30]</a></sub></p>
+<p>训练目标是塑造损失函数，使得最小化它对应于解决目标任务。反向传播计算损失关于每个参数的梯度，揭示如何局部地调整每个权重以降低损失。这一梯度信息驱动一个称为梯度下降的迭代过程：反复求值前向传播、计算损失、反向传播梯度、更新参数。经过多次迭代，网络收敛到使损失最小化的参数值，从而执行所需的计算。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="8077">[02:14:37]</a></sub></p>
+<p>本系列中构建的 micrograd 网络只有 41 个参数，却已经展示了完整的训练循环。真实世界的网络将同样的结构扩展到数十亿——甚至接近万亿——参数。它们在核心上仍然是一大块模拟的神经组织，可以被训练来执行任意复杂的任务。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="8109">[02:15:09]</a></sub></p>
+<p>以 GPT 为例。训练数据由互联网上的大量文本组成，学习问题是下一个 token 预测：给定一个词序列，预测紧随其后的词。在互联网规模上训练后，得到的网络展现出显著的涌现特性。然而在规模之下，底层原理完全相同。网络包含数千亿参数，但它仍然基于数值和梯度运作，仍然由梯度下降优化。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="8140">[02:15:40]</a></sub></p>
+<p>当然，生产系统包含更多细节。更新规则可能比简单的随机梯度下降更复杂，对于离散 token 预测，损失函数通常采用交叉熵而非均方误差。这些都是改进，而非根本性改变。核心架构——前向表达式、可微损失、反向传播和基于梯度的优化——从 41 参数的 micrograd 网络到十亿参数的语言模型保持不变。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="8170">[02:16:10]</a></sub></p>
+<h2>走进真正的 micrograd 仓库</h2>
+<p>既然自动微分和多层感知器训练的机制已经掌握，micrograd 的源代码看起来应该是熟悉的，而非陌生的。本章逐步浏览实际仓库，展示讲座中的概念如何映射到生产代码，以及超出讲座范围的实用扩展有哪些。</p>
+<p><img alt="micrograd engine.py 中的 Value 类" src="images/ch21_fig1.jpg" /></p>
+<p><em>micrograd engine.py 中的 Value 类</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="8220">[02:17:00]</a></sub></p>
+<p><img alt="neural network.py 中的 Neuron、Layer 和 MLP" src="images/ch21_fig2.jpg" /></p>
+<p><em>neural network.py 中的 Neuron、Layer 和 MLP</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="8280">[02:18:00]</a></sub></p>
+<p><img alt="批量损失与 L2 正则化代码" src="images/ch21_fig3.jpg" /></p>
+<p><em>批量损失与 L2 正则化代码</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="8370">[02:19:30]</a></sub></p>
+<h3>核心引擎：<code>engine.py</code></h3>
+<p><code>engine.py</code> 中的 <code>Value</code> 类包含与讲座中构建的相同要素：一个 <code>data</code> 标量、一个 <code>gradient</code> 累加器、一组 <code>_prev</code> 子节点，以及创建该节点的 <code>_op</code>。它实现了加法、乘法和标量幂运算，反向传播也完全一致。提供的非线性激活是 ReLU，而非 tanh：</p>
+<pre><code class="language-python">def relu(self):
+    out = Value(0 if self.data &lt; 0 else self.data, (self,), 'ReLU')
+    def _backward():
+        self.grad += (out.data &gt; 0) * out.grad
+    out._backward = _backward
+    return out
+</code></pre>
+<p>ReLU、tanh 和 sigmoid 是可互换的多层感知器非线性激活；讲座中使用 tanh 是因为其平滑的导数更能显式地考验局部梯度记录。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="8233">[02:17:13]</a></sub></p>
+<h3>神经网络层：<code>neural network.py</code></h3>
+<p><code>neural network.py</code> 定义了 <code>Neuron</code>、<code>Layer</code> 和 <code>MLP</code>，前向逻辑相同。一个值得注意的补充是 <code>Module</code> 基类，它模仿了 PyTorch 的 <code>nn.Module</code>。它将 <code>zero_grad</code> 等实用方法抽离出来，使 API 与 PyTorch 的惯例保持一致。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="8296">[02:18:16]</a></sub></p>
+<h3>与 PyTorch 的一致性</h3>
+<p>测试套件在 micrograd 和 PyTorch 中构建完全相同的表达式，然后断言前向值和反向梯度完全匹配。这保证了 <code>engine.py</code> 中手推的导数行为与 PyTorch 的 autograd 引擎在支持的操作上相同。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="8327">[02:18:47]</a></sub></p>
+<h3>高级演示笔记本</h3>
+<p>附带的 <code>demo.ipynb</code> 超越了玩具般的四个数据点，转向一个更大的二维二分类问题，包含许多红点和蓝点。其中出现了几种实用技术：</p>
+<ul>
+<li><strong>批量损失(Batched loss)。</strong> 每一步不再前向传播整个数据集，而是采样随机子集（批次）。当训练集扩展到数百万样本时，这一点至关重要。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="8358">[02:19:18]</a></sub></li>
+<li><strong>最大间隔损失(Max-margin loss)。</strong> 讲座为简单起见使用了均方误差；演示实现了一种最大间隔（铰链式）损失，这是二分类的另一种可行选择。</li>
+<li><strong>L2 正则化(L2 regularization)。</strong> 对大权重的惩罚鼓励泛化，并有助于控制过拟合(overfitting)。</li>
+<li><strong>学习率衰减(Learning-rate decay)。</strong> 更新步骤随着训练进行逐步降低学习率。早期较高的学习率加速收敛；末期较低的学习率细化细节。 <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="8421">[02:20:21]</a></sub></li>
+</ul>
+<p>这些扩展——批量化、替代损失、正则化和衰减——是真实世界训练循环中的标准做法，它们自然地建立在讲座中构建的同一前向/反向/更新基础之上。</p>
+<h2>同样的反向传播逻辑如何存在于生产级 PyTorch 中</h2>
+<p>在从零构建了 micrograd 之后，很自然地会问这些思想如何映射到生产级框架上。答案是：几乎完全相同。本章将 tanh 的反向传播过程从 micrograd 追踪到 PyTorch 源码树中，最后简要介绍 PyTorch 如何为自定义操作暴露同样的前向/反向契约。</p>
+<p><img alt="micrograd tanh backward implementation in Python" src="images/ch22_fig1.jpg" /></p>
+<p><em>micrograd 的 tanh 反向传播 Python 实现</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="8460">[02:21:00]</a></sub></p>
+<p><img alt="PyTorch CPU kernel backward formula a*(1-b*b)" src="images/ch22_fig2.jpg" /></p>
+<p><em>PyTorch CPU 核函数的反向传播公式 a</em>(1-b<em>b)</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="8550">[02:22:30]</a></sub></p>
+<p><img alt="PyTorch custom autograd.Function example" src="images/ch22_fig3.jpg" /></p>
+<p><em>PyTorch 自定义 autograd.Function 示例</em> <sub><a href="javascript:void(0)" class="ts-jump" data-seconds="8610">[02:23:30]</a></sub></p>
+<p>在 micrograd 中，tanh 的反向传播实现如下：</p>
+<pre><code class="language-python"># self.data holds tanh(x)
+# out.grad holds upstream gradient
+self.grad += (1 - self.data**2) * out.grad
+</code></pre>
+<p>这就是链式法则的实际应用：tanh 的局部导数是 $1 - \tanh^2(x)$，再乘以来自后续层的传入梯度。问题在于 PyTorch 是否编码了同样的公式。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="8453">[02:20:53]</a></sub></p>
+<p>在 PyTorch 仓库中搜索 "tanh" 会在 400 多个文件中返回大约 2,800 条结果。代码库之所以庞大，是因为它必须支持多种设备、数据类型和分发机制。在缩小搜索范围后，相关的核函数出现在两个地方：一个用于 CPU，一个用于 CUDA。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="8483">[02:21:23]</a></sub></p>
+<p>CPU 核函数位于一个处理许多逐元素操作的文件内部。在去掉复数和 bfloat16 类型的分支后，核心逻辑归结为：</p>
+<pre><code class="language-cpp">a * (1 - b * b)
+</code></pre>
+<p>这里 <code>b</code> 是 tanh 的输出，<code>a</code> 是上游梯度。这正是 $1 - \tanh^2(x)$ 乘以 <code>grad_output</code>，与 micrograd 的代码逐行对应。CUDA 核函数更加紧凑，用一行设备代码表达了同样的计算。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="8546">[02:22:26]</a></sub></p>
+<p>这个练习揭示了一个一致的规律：数学上的反向传播规则在教育型引擎和工业级引擎之间并不会改变。改变的是周围的机制——设备分发、向量化、类型分支和内存布局——但核心的链式法则公式保持不变。</p>
+<p>PyTorch 还通过其 <code>torch.autograd.Function</code> API 展示了这种可扩展性。要注册一个新的原语操作，用户需要继承 <code>Function</code> 并实现两个静态方法：</p>
+<pre><code class="language-python">class LegendrePolynomial3(torch.autograd.Function):
+    @staticmethod
+    def forward(ctx, input):
+        ...
+
+    @staticmethod
+    def backward(ctx, grad_output):
+        ...
+</code></pre>
+<p>只要提供了前向传播和局部反向传播的定义，PyTorch 就会自动将该操作集成到自动求导图中。它成为更大模型中的另一个乐高积木块，无需进一步手动干预即可通过它进行反向传播。<sub><a href="javascript:void(0)" class="ts-jump" data-seconds="8639">[02:23:59]</a></sub></p>
+</main>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const articlePane = document.getElementById('articlePane');
+  const tocPane = document.getElementById('tocPane');
+  const tocList = document.getElementById('tocList');
+  const tocToggle = document.getElementById('tocToggle');
+  const tocOverlay = document.getElementById('tocOverlay');
+  const body = document.body;
+
+  function openToc() {
+    tocPane.classList.add('open');
+    tocOverlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeToc() {
+    tocPane.classList.remove('open');
+    tocOverlay.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  tocToggle.addEventListener('click', () => {
+    if (tocPane.classList.contains('open')) {
+      closeToc();
+    } else {
+      openToc();
+    }
+  });
+
+  tocOverlay.addEventListener('click', closeToc);
+
+  // ---------- 1. 自动生成目录 ----------
+  const headings = articlePane.querySelectorAll('h1, h2, h3');
+  if (headings.length === 0) {
+    tocList.innerHTML = '<div style="padding:0 20px;color:#b2bec3;font-size:13px;">无章节导航</div>';
+  } else {
+    headings.forEach((heading, index) => {
+      const id = 'section-' + index;
+      heading.id = id;
+      const a = document.createElement('a');
+      a.href = '#' + id;
+      a.textContent = heading.textContent;
+      a.className = heading.tagName.toLowerCase();
+      a.addEventListener('click', function(e) {
+        e.preventDefault();
+        heading.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        closeToc();
+      });
+      tocList.appendChild(a);
+    });
+  }
+
+  // ---------- 2. 滚动高亮当前章节 ----------
+  if (headings.length > 0) {
+    const tocLinks = tocList.querySelectorAll('a');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          tocLinks.forEach(link => link.classList.remove('active'));
+          const activeLink = tocList.querySelector('a[href="#' + entry.target.id + '"]');
+          if (activeLink) activeLink.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-10% 0px -75% 0px', threshold: 0 });
+    headings.forEach(h => observer.observe(h));
+  }
+
+});
+</script>
+
+<!-- 浮窗视频播放器 -->
+<div class="video-overlay" id="videoOverlay"></div>
+
+<div class="video-player-container hidden" id="videoPlayerContainer">
+  <div class="video-header" id="videoHeader">
+    <span class="video-title">视频播放</span>
+    <div class="video-controls">
+      <button id="btnMinimize" title="最小化">−</button>
+      <button id="btnClose" title="关闭">×</button>
+    </div>
+  </div>
+  <div class="player-wrap">
+    <div id="player"></div>
+    <div class="docked-hint" id="dockedHint">▶</div>
+  </div>
+</div>
+
+<script src="https://www.youtube.com/iframe_api"></script>
+<script>
+(function() {
+  var youtubeId = 'VMj-3S1tku0';
+  var container = document.getElementById('videoPlayerContainer');
+  var overlay = document.getElementById('videoOverlay');
+  var btnMinimize = document.getElementById('btnMinimize');
+  var btnClose = document.getElementById('btnClose');
+  var dockedHint = document.getElementById('dockedHint');
+  var player;
+  var isReady = false;
+
+  window.onYouTubeIframeAPIReady = function() {
+    player = new YT.Player('player', {
+      videoId: youtubeId,
+      playerVars: {
+        rel: 0,
+        modestbranding: 1,
+        playsinline: 1
+      },
+      events: {
+        onReady: function() { isReady = true; }
+      }
+    });
+  };
+
+  function openPlayer(seconds) {
+    container.classList.remove('hidden', 'docked');
+    container.classList.add('centered');
+    overlay.classList.add('active');
+    if (isReady && player && player.loadVideoById) {
+      player.loadVideoById({
+        videoId: youtubeId,
+        startSeconds: seconds
+      });
+    }
+  }
+
+  function minimizePlayer() {
+    container.classList.remove('centered');
+    container.classList.add('docked');
+    overlay.classList.remove('active');
+    if (isReady && player && player.pauseVideo) {
+      player.pauseVideo();
+    }
+  }
+
+  function restorePlayer() {
+    if (!container.classList.contains('docked')) return;
+    container.classList.remove('docked');
+    container.classList.add('centered');
+    overlay.classList.add('active');
+    if (isReady && player && player.playVideo) {
+      player.playVideo();
+    }
+  }
+
+  function closePlayer() {
+    container.classList.add('hidden');
+    container.classList.remove('centered', 'docked');
+    overlay.classList.remove('active');
+    if (isReady && player && player.pauseVideo) {
+      player.pauseVideo();
+    }
+  }
+
+  // 时间戳点击拦截
+  document.addEventListener('click', function(e) {
+    var link = e.target.closest('a.ts-jump');
+    if (!link) return;
+    e.preventDefault();
+    var seconds = parseInt(link.getAttribute('data-seconds'), 10);
+    if (!isNaN(seconds)) {
+      openPlayer(seconds);
+    }
+  });
+
+  // 播放器控件事件
+  btnMinimize.addEventListener('click', function(e) {
+    e.stopPropagation();
+    minimizePlayer();
+  });
+  btnClose.addEventListener('click', function(e) {
+    e.stopPropagation();
+    closePlayer();
+  });
+  overlay.addEventListener('click', minimizePlayer);
+
+  // 右下角状态点击恢复
+  container.addEventListener('click', function(e) {
+    if (container.classList.contains('docked')) {
+      restorePlayer();
+    }
+  });
+
+  // 键盘 ESC 最小化
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && !container.classList.contains('hidden')) {
+      if (container.classList.contains('centered')) {
+        minimizePlayer();
+      } else {
+        closePlayer();
+      }
+    }
+  });
+})();
+</script>
+
+</body>
+</html>

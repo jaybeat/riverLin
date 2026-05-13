@@ -1,7 +1,26 @@
 import { motion } from 'framer-motion'
-import { ExternalLink } from 'lucide-react'
+import { ExternalLink, Star, ArrowRight } from 'lucide-react'
 
-const projects = [
+interface Project {
+  title: string
+  description: string
+  tags: string[]
+  href: string
+  featured?: boolean
+}
+
+interface ProjectsProps {
+  onSelectProject?: () => void
+}
+
+const projects: Project[] = [
+  {
+    title: 'Video to Guide',
+    description: '将长视频转换为章节化、可交互的配套指南网页，支持浮动视频播放器与时间戳跳转',
+    tags: ['Python', 'LLM Pipeline', 'Claude Skill', 'HTML Generator'],
+    href: 'https://github.com/jaybeat/video_to_guide',
+    featured: true,
+  },
   {
     title: '雨滴打字机',
     description: '一个沉浸式的打字体验工具，模拟雨声背景下的专注写作环境。支持多种雨声场景与打字音效组合。',
@@ -51,7 +70,7 @@ const itemVariants = {
   },
 }
 
-export default function Projects() {
+export default function Projects({ onSelectProject }: ProjectsProps) {
   return (
     <section
       id="projects"
@@ -106,95 +125,211 @@ export default function Projects() {
         }}
       >
         {projects.map((project) => (
-          <motion.a
+          <motion.div
             key={project.title}
-            href={project.href}
-            target="_blank"
-            rel="noopener noreferrer"
             variants={itemVariants}
             style={{
               display: 'flex',
               flexDirection: 'column',
-              padding: '32px',
-              background: 'var(--bg-secondary)',
-              borderRadius: '20px',
-              border: '1px solid var(--border)',
-              boxShadow: 'var(--shadow)',
-              transition: 'all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1)',
-              cursor: 'pointer',
-              height: '100%',
-            }}
-            onMouseEnter={(e) => {
-              const el = e.currentTarget
-              el.style.transform = 'translateY(-4px)'
-              el.style.boxShadow = 'var(--shadow-hover)'
-            }}
-            onMouseLeave={(e) => {
-              const el = e.currentTarget
-              el.style.transform = 'translateY(0)'
-              el.style.boxShadow = 'var(--shadow)'
+              gridColumn: project.featured ? '1 / -1' : undefined,
             }}
           >
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'flex-start',
-                marginBottom: '16px',
-              }}
-            >
-              <h3
+            {project.featured ? (
+              <div
+                onClick={onSelectProject}
                 style={{
-                  fontSize: '18px',
-                  fontWeight: 600,
-                  lineHeight: 1.4,
-                  color: 'var(--text-primary)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  padding: '36px',
+                  background: 'var(--bg-secondary)',
+                  borderRadius: '20px',
+                  border: '1.5px solid var(--text-muted)',
+                  boxShadow: 'var(--shadow)',
+                  transition: 'all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1)',
+                  cursor: 'pointer',
+                  height: '100%',
+                  position: 'relative',
+                }}
+                onMouseEnter={(e) => {
+                  const el = e.currentTarget
+                  el.style.transform = 'translateY(-4px)'
+                  el.style.boxShadow = 'var(--shadow-hover)'
+                }}
+                onMouseLeave={(e) => {
+                  const el = e.currentTarget
+                  el.style.transform = 'translateY(0)'
+                  el.style.boxShadow = 'var(--shadow)'
                 }}
               >
-                {project.title}
-              </h3>
-              <ExternalLink
-                size={16}
-                strokeWidth={1.5}
-                style={{
-                  color: 'var(--text-muted)',
-                  flexShrink: 0,
-                  marginTop: '4px',
-                }}
-              />
-            </div>
-
-            <p
-              style={{
-                fontSize: '14px',
-                lineHeight: 1.65,
-                color: 'var(--text-secondary)',
-                marginBottom: '20px',
-                flex: 1,
-              }}
-            >
-              {project.description}
-            </p>
-
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-              {project.tags.map((tag) => (
-                <span
-                  key={tag}
+                <div
                   style={{
+                    position: 'absolute',
+                    top: '16px',
+                    right: '16px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
                     fontFamily: 'var(--font-mono)',
                     fontSize: '11px',
-                    color: 'var(--text-secondary)',
-                    background: 'var(--bg-primary)',
-                    padding: '5px 12px',
-                    borderRadius: '20px',
-                    border: '1px solid var(--border)',
+                    color: 'var(--text-muted)',
+                    letterSpacing: '0.5px',
                   }}
                 >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          </motion.a>
+                  <Star size={12} strokeWidth={1.5} />
+                  FEATURED
+                </div>
+
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'flex-start',
+                    marginBottom: '16px',
+                  }}
+                >
+                  <h3
+                    style={{
+                      fontSize: '20px',
+                      fontWeight: 600,
+                      lineHeight: 1.4,
+                      color: 'var(--text-primary)',
+                    }}
+                  >
+                    {project.title}
+                  </h3>
+                  <ArrowRight
+                    size={18}
+                    strokeWidth={1.5}
+                    style={{
+                      color: 'var(--text-muted)',
+                      flexShrink: 0,
+                      marginTop: '4px',
+                    }}
+                  />
+                </div>
+
+                <p
+                  style={{
+                    fontSize: '14px',
+                    lineHeight: 1.65,
+                    color: 'var(--text-secondary)',
+                    marginBottom: '20px',
+                    flex: 1,
+                    maxWidth: '640px',
+                  }}
+                >
+                  {project.description}
+                </p>
+
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  {project.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      style={{
+                        fontFamily: 'var(--font-mono)',
+                        fontSize: '11px',
+                        color: 'var(--text-secondary)',
+                        background: 'var(--bg-primary)',
+                        padding: '5px 12px',
+                        borderRadius: '20px',
+                        border: '1px solid var(--border)',
+                      }}
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <motion.a
+                href={project.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  padding: '32px',
+                  background: 'var(--bg-secondary)',
+                  borderRadius: '20px',
+                  border: '1px solid var(--border)',
+                  boxShadow: 'var(--shadow)',
+                  transition: 'all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1)',
+                  cursor: 'pointer',
+                  height: '100%',
+                }}
+                onMouseEnter={(e) => {
+                  const el = e.currentTarget
+                  el.style.transform = 'translateY(-4px)'
+                  el.style.boxShadow = 'var(--shadow-hover)'
+                }}
+                onMouseLeave={(e) => {
+                  const el = e.currentTarget
+                  el.style.transform = 'translateY(0)'
+                  el.style.boxShadow = 'var(--shadow)'
+                }}
+              >
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'flex-start',
+                    marginBottom: '16px',
+                  }}
+                >
+                  <h3
+                    style={{
+                      fontSize: '18px',
+                      fontWeight: 600,
+                      lineHeight: 1.4,
+                      color: 'var(--text-primary)',
+                    }}
+                  >
+                    {project.title}
+                  </h3>
+                  <ExternalLink
+                    size={16}
+                    strokeWidth={1.5}
+                    style={{
+                      color: 'var(--text-muted)',
+                      flexShrink: 0,
+                      marginTop: '4px',
+                    }}
+                  />
+                </div>
+
+                <p
+                  style={{
+                    fontSize: '14px',
+                    lineHeight: 1.65,
+                    color: 'var(--text-secondary)',
+                    marginBottom: '20px',
+                    flex: 1,
+                  }}
+                >
+                  {project.description}
+                </p>
+
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  {project.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      style={{
+                        fontFamily: 'var(--font-mono)',
+                        fontSize: '11px',
+                        color: 'var(--text-secondary)',
+                        background: 'var(--bg-primary)',
+                        padding: '5px 12px',
+                        borderRadius: '20px',
+                        border: '1px solid var(--border)',
+                      }}
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </motion.a>
+            )}
+          </motion.div>
         ))}
       </motion.div>
     </section>
