@@ -1,51 +1,7 @@
 import { motion } from 'framer-motion'
 import { ExternalLink, Star, ArrowRight } from 'lucide-react'
-
-interface Project {
-  title: string
-  description: string
-  tags: string[]
-  href: string
-  featured?: boolean
-}
-
-interface ProjectsProps {
-  onSelectProject?: () => void
-}
-
-const projects: Project[] = [
-  {
-    title: 'Video to Guide',
-    description: '将长视频转换为章节化、可交互的配套指南网页，支持浮动视频播放器与时间戳跳转',
-    tags: ['Python', 'LLM Pipeline', 'Claude Skill', 'HTML Generator'],
-    href: 'https://github.com/jaybeat/video_to_guide',
-    featured: true,
-  },
-  {
-    title: '雨滴打字机',
-    description: '一个沉浸式的打字体验工具，模拟雨声背景下的专注写作环境。支持多种雨声场景与打字音效组合。',
-    tags: ['React', 'Web Audio', 'Animation'],
-    href: '#',
-  },
-  {
-    title: 'Clawd 动画引擎',
-    description: '轻量级的 CSS 动画编排库，通过声明式 API 让复杂的交互动画变得简单直观。',
-    tags: ['TypeScript', 'Animation', 'Library'],
-    href: '#',
-  },
-  {
-    title: 'Meta Prompt 工坊',
-    description: '一套用于优化和评估 AI 提示词的工具集合，帮助开发者快速迭代高质量的 prompt 设计。',
-    tags: ['AI', 'Next.js', 'OpenAI'],
-    href: '#',
-  },
-  {
-    title: '极简待办',
-    description: '回归本质的任务管理应用，没有冗余功能，只有清晰的待办事项与优雅的交互体验。',
-    tags: ['React', 'PWA', 'LocalStorage'],
-    href: '#',
-  },
-]
+import { useNavigate } from 'react-router-dom'
+import { projects } from '../data/projects'
 
 const sectionVariants = {
   hidden: { opacity: 0 },
@@ -70,7 +26,9 @@ const itemVariants = {
   },
 }
 
-export default function Projects({ onSelectProject }: ProjectsProps) {
+export default function Projects() {
+  const navigate = useNavigate()
+
   return (
     <section
       id="projects"
@@ -126,7 +84,7 @@ export default function Projects({ onSelectProject }: ProjectsProps) {
       >
         {projects.map((project) => (
           <motion.div
-            key={project.title}
+            key={project.id}
             variants={itemVariants}
             style={{
               display: 'flex',
@@ -136,7 +94,7 @@ export default function Projects({ onSelectProject }: ProjectsProps) {
           >
             {project.featured ? (
               <div
-                onClick={onSelectProject}
+                onClick={() => navigate(`/project/${project.id}`)}
                 style={{
                   display: 'flex',
                   flexDirection: 'column',
