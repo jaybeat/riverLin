@@ -1,0 +1,16 @@
+{
+  "rewrites": [
+    {
+      "source": "/fragments",
+      "destination": "https://fragments-woad.vercel.app/fragments"
+    },
+    {
+      "source": "/fragments/:path*",
+      "destination": "https://fragments-woad.vercel.app/fragments/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
