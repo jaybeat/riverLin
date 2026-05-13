@@ -1,0 +1,67 @@
+:root {
+  --bg-primary: #f3f1ed;
+  --bg-secondary: #eae8e3;
+  --text-primary: #1a1a1a;
+  --text-secondary: #666666;
+  --text-muted: #999999;
+  --accent: #2d2d2d;
+  --border: #e0ded9;
+  --shadow: rgba(0, 0, 0, 0.06) 0 4px 20px -2px, rgba(0, 0, 0, 0.02) 0 2px 8px -2px;
+  --shadow-hover: rgba(0, 0, 0, 0.1) 0 10px 30px -4px, rgba(0, 0, 0, 0.04) 0 4px 12px -2px;
+
+  --font-sans: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+  --font-heading: 'Space Grotesk', 'Noto Sans SC', system-ui, sans-serif;
+  --font-mono: 'Geist Mono', 'IBM Plex Mono', ui-monospace, monospace;
+
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--text-primary);
+  background: var(--bg-primary);
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--bg-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+::selection {
+  background: var(--text-primary);
+  color: var(--bg-primary);
+}
+
+@media (max-width: 768px) {
+  :root {
+    font-size: 15px;
+  }
+}
