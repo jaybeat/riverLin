@@ -258,6 +258,36 @@ export default function ProjectDetail() {
               </span>
             ))}
           </div>
+          {detail?.appUrl && (
+            <a
+              href={detail.appUrl}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '12px 24px',
+                background: 'var(--text-primary)',
+                color: 'var(--bg-primary)',
+                borderRadius: '14px',
+                fontSize: '15px',
+                fontWeight: 500,
+                textDecoration: 'none',
+                marginTop: '28px',
+                transition: 'all 0.3s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.opacity = '0.85'
+                e.currentTarget.style.transform = 'translateY(-2px)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.opacity = '1'
+                e.currentTarget.style.transform = 'translateY(0)'
+              }}
+            >
+              <ExternalLink size={18} strokeWidth={1.5} />
+              打开应用
+            </a>
+          )}
         </motion.div>
       </section>
 
@@ -327,6 +357,54 @@ export default function ProjectDetail() {
                 </span>
               ))}
             </div>
+            {detail.screenshots && (
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+                  gap: '24px',
+                  marginTop: '40px',
+                }}
+              >
+                {detail.screenshots.map((shot, idx) => (
+                  <div key={idx}>
+                    <p
+                      style={{
+                        fontSize: '15px',
+                        fontWeight: 500,
+                        lineHeight: 1.6,
+                        color: 'var(--text-secondary)',
+                        marginBottom: '20px',
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontFamily: 'var(--font-mono)',
+                          fontSize: '12px',
+                          fontWeight: 400,
+                          color: 'var(--text-muted)',
+                          marginRight: '8px',
+                        }}
+                      >
+                        例{idx + 1}.
+                      </span>
+                      {shot.caption}
+                    </p>
+                    <img
+                      src={shot.src}
+                      alt={shot.caption}
+                      style={{
+                        width: '100%',
+                        borderRadius: '16px',
+                        border: '1px solid var(--border)',
+                        boxShadow: 'var(--shadow)',
+                        display: 'block',
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
           </motion.div>
         )}
 
@@ -636,6 +714,36 @@ export default function ProjectDetail() {
                 flexWrap: 'wrap',
               }}
             >
+              {detail.appUrl && (
+                <a
+                  href={detail.appUrl}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '14px 28px',
+                    background: 'var(--bg-primary)',
+                    color: 'var(--text-primary)',
+                    borderRadius: '14px',
+                    fontSize: '15px',
+                    fontWeight: 500,
+                    textDecoration: 'none',
+                    border: '1.5px solid var(--border)',
+                    transition: 'all 0.3s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = 'var(--text-muted)'
+                    e.currentTarget.style.transform = 'translateY(-2px)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = 'var(--border)'
+                    e.currentTarget.style.transform = 'translateY(0)'
+                  }}
+                >
+                  <ExternalLink size={18} strokeWidth={1.5} />
+                  打开应用
+                </a>
+              )}
               <a
                 href={detail.githubUrl}
                 target="_blank"

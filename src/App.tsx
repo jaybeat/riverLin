@@ -6,6 +6,7 @@ import Projects from './components/Projects'
 import Writings from './components/Writings'
 import Footer from './components/Footer'
 import ProjectDetail from './components/ProjectDetail'
+import ArticleDetail from './components/ArticleDetail'
 
 function HomePage() {
   return (
@@ -32,6 +33,7 @@ function AnimatedRoutes() {
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<HomePage />} />
         <Route path="/project/:id" element={<ProjectDetail />} />
+        <Route path="/article/:id" element={<ArticleDetail />} />
       </Routes>
     </AnimatePresence>
   )

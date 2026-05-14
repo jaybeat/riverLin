@@ -11,12 +11,19 @@ export interface Example {
   githubSrc: string
 }
 
+export interface Screenshot {
+  src: string
+  caption: string
+}
+
 export interface ProjectDetailData {
   detailDescription: string
   highlights: string[]
   pipelineSteps?: PipelineStep[]
   example?: Example
   githubUrl: string
+  appUrl?: string
+  screenshots?: Screenshot[]
   extraCta?: {
     label: string
     url: string
@@ -59,7 +66,26 @@ export const projects: Project[] = [
         { name: '人工校验与精修', type: 'llm', desc: '校准时间戳、优化分段边界、确保上下文完整' },
         { name: 'React 前端渲染', type: 'script', desc: '构建沉浸式音频播放界面，支持双主题切换' },
       ],
+      appUrl: '/fragments',
       githubUrl: 'https://github.com/jaybeat/Fragments',
+      screenshots: [
+        {
+          src: '/images/fragments/screenshot-1.png',
+          caption: '首页浏览不同人物的精选片段，按产品与打磨、组织与公司演化等领域分类展示',
+        },
+        {
+          src: '/images/fragments/screenshot-2.png',
+          caption: '人物详情页按主题聚类，如巴菲特的"决策与判断"，一览核心思考时刻',
+        },
+        {
+          src: '/images/fragments/screenshot-3.png',
+          caption: '沉浸式播放界面支持双语对照、时间戳跳转与章节导航，还原真人原声语境',
+        },
+        {
+          src: '/images/fragments/screenshot-4.png',
+          caption: '新增收藏功能：粘贴 YouTube 链接，自动提取转录并切分高光片段',
+        },
+      ],
     },
   },
   {

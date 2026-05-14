@@ -1,7 +1,17 @@
 import { motion } from 'framer-motion'
 import { ArrowUpRight, Calendar, Tag } from 'lucide-react'
+import { articles } from '../data/articles'
 
-const writings = [
+interface WritingItem {
+  id?: string
+  title: string
+  date: string
+  description: string
+  tags: string[]
+  href: string
+}
+
+const placeholderWritings: WritingItem[] = [
   {
     title: '边界定义法：让 AI 更懂你的需求',
     date: '2024.12.15',
@@ -30,6 +40,18 @@ const writings = [
     tags: ['Philosophy', 'AI'],
     href: '#',
   },
+]
+
+const allWritings: WritingItem[] = [
+  ...articles.map((a) => ({
+    id: a.id,
+    title: a.title,
+    date: a.date,
+    description: a.description,
+    tags: a.tags,
+    href: `/article/${a.id}`,
+  })),
+  ...placeholderWritings,
 ]
 
 const sectionVariants = {
@@ -105,9 +127,9 @@ export default function Writings() {
         viewport={{ once: true, margin: '-60px' }}
         style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}
       >
-        {writings.map((writing) => (
+        {allWritings.map((writing) => (
           <motion.a
-            key={writing.title}
+            key={writing.id || writing.title}
             href={writing.href}
             variants={itemVariants}
             style={{
