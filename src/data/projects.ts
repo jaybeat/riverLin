@@ -42,6 +42,34 @@ export interface Project {
 
 export const projects: Project[] = [
   {
+    id: 'evo',
+    title: 'EvoLearn',
+    description:
+      '对抗"知识点清单式学习"的进化式学习平台。每个主题都有一个核心机制，所有复杂知识都是它为了解决新问题而演化出的变体。沿知识的演化路径学习，而非面对扁平清单。',
+    tags: ['React', 'TypeScript', 'Vite', 'Tailwind', 'Anthropic API', 'Zustand'],
+    href: 'https://github.com/jaybeat/EvoLearn',
+    featured: true,
+    detail: {
+      detailDescription:
+        'EvoLearn（知识的进化）是一个基于认知科学设计的在线学习平台，核心理念是"每个主题都有一个核心机制，所有看似复杂的知识点都是这个核心机制为了解决新问题而演化出来的变体"。它让学习者沿知识的演化路径走一遍——先感受问题，再归纳概念，再看它如何进化出变体——而不是面对一份扁平的知识点清单。',
+      highlights: [
+        'AI 驱动的课程生成管线',
+        '五层语义学习结构（Hook → Sensation → Insight → Verification → Transfer）',
+        '认知科学课程拆分算法',
+        '进度追踪与互动学习',
+        '课程创建与章节管理',
+      ],
+      pipelineSteps: [
+        { name: '课程蓝图生成', type: 'llm', desc: 'AI 分析原始材料，生成符合 EvoLearn 结构的课程蓝图（≤40 字标题 / 4 章节 / 4 成就）' },
+        { name: '课时拆分分析', type: 'both', desc: '基于 HookingQuestion、Cognitive Leap、Achievement Mapping、Attention Window 四个测试拆分课时' },
+        { name: '内容精修与填充', type: 'llm', desc: '为每个课时生成 Hook、Stepped Demo、Knowledge Card、Quiz、Reflection 五层内容' },
+        { name: 'React 前端渲染', type: 'script', desc: '构建沉浸式学习界面，支持进度追踪与互动答题' },
+      ],
+      appUrl: 'https://evo.riverlin.me',
+      githubUrl: 'https://github.com/jaybeat/EvoLearn',
+    },
+  },
+  {
     id: 'fragments',
     title: 'Fragments',
     description:
