@@ -59,7 +59,7 @@ export default function Navbar() {
           color: 'var(--text-primary)',
         }}
       >
-        riverlin
+        RiverLin
       </a>
 
       <div style={{ display: 'flex', gap: '32px', alignItems: 'center' }}>

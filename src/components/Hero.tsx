@@ -71,7 +71,7 @@ export default function Hero() {
             marginBottom: '20px',
           }}
         >
-          riverlin
+          RiverLin
         </motion.h1>
 
         <motion.p
@@ -83,7 +83,7 @@ export default function Hero() {
             marginBottom: '16px',
           }}
         >
-          全栈开发者 / 开源爱好者
+          AI产品经理 & Agent工程师
         </motion.p>
 
         <motion.p
@@ -96,7 +96,7 @@ export default function Hero() {
             margin: '0 auto 40px',
           }}
         >
-          热爱极简设计与优雅代码，专注于构建有温度的数字产品。在这里分享我的技术文章与项目实践。
+          林川杰，专注于 AI 产品设计与智能体工程化落地。热爱探索大模型应用与自动化工作流，在这里分享我的技术思考与项目实践。
         </motion.p>
 
         <motion.div

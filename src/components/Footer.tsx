@@ -28,7 +28,7 @@ export default function Footer() {
             marginBottom: '24px',
           }}
         >
-          由 riverlin 设计与开发 · 使用 React + Vite 构建
+          由 RiverLin 设计与开发 · 使用 React + Vite 构建
         </p>
 
         <button
@@ -71,7 +71,7 @@ export default function Footer() {
             opacity: 0.6,
           }}
         >
-          © {new Date().getFullYear()} riverlin. All rights reserved.
+          © {new Date().getFullYear()} RiverLin. All rights reserved.
         </p>
       </motion.div>
     </footer>
