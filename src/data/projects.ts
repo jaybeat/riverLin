@@ -157,39 +157,6 @@ export const projects: Project[] = [
       },
     },
   },
-  {
-    id: 'rain-typer',
-    title: '雨滴打字机',
-    description:
-      '一个沉浸式的打字体验工具，模拟雨声背景下的专注写作环境。支持多种雨声场景与打字音效组合。',
-    tags: ['React', 'Web Audio', 'Animation'],
-    href: '#',
-  },
-  {
-    id: 'clawd',
-    title: 'Clawd 动画引擎',
-    description:
-      '轻量级的 CSS 动画编排库，通过声明式 API 让复杂的交互动画变得简单直观。',
-    tags: ['TypeScript', 'Animation', 'Library'],
-    href: '#',
-  },
-  {
-    id: 'meta-prompt',
-    title: 'Meta Prompt 工坊',
-    description:
-      '一套用于优化和评估 AI 提示词的工具集合，帮助开发者快速迭代高质量的 prompt 设计。',
-    tags: ['AI', 'Next.js', 'OpenAI'],
-    href: '#',
-  },
-  {
-    id: 'minimal-todo',
-    title: '极简待办',
-    description:
-      '回归本质的任务管理应用，没有冗余功能，只有清晰的待办事项与优雅的交互体验。',
-    tags: ['React', 'PWA', 'LocalStorage'],
-    href: '#',
-  },
-]
 
 export function getProjectById(id: string): Project | undefined {
   return projects.find((p) => p.id === id)
