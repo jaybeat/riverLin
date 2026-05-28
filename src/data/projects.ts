@@ -157,6 +157,7 @@ export const projects: Project[] = [
       },
     },
   },
+]
 
 export function getProjectById(id: string): Project | undefined {
   return projects.find((p) => p.id === id)

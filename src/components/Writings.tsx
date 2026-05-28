@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { ArrowUpRight, Calendar, Tag } from 'lucide-react'
+import { ArrowUpRight, ArrowRight, Calendar, Tag } from 'lucide-react'
 import { articles } from '../data/articles'
 
 interface WritingItem {
@@ -11,48 +11,14 @@ interface WritingItem {
   href: string
 }
 
-const placeholderWritings: WritingItem[] = [
-  {
-    title: '边界定义法：让 AI 更懂你的需求',
-    date: '2024.12.15',
-    description: '探索如何通过清晰的边界定义来提升与 AI 协作的效率，减少模糊性带来的迭代成本。',
-    tags: ['AI', 'Prompt Engineering'],
-    href: '#',
-  },
-  {
-    title: '多线程 + 深度专注：AI 时代的新型工作流',
-    date: '2024.11.28',
-    description: '结合 AI 的多任务处理能力与人类的深度思考，构建一种全新的高效工作模式。',
-    tags: ['Productivity', 'AI'],
-    href: '#',
-  },
-  {
-    title: '现实的指纹：识别 AI 生成内容的微妙痕迹',
-    date: '2024.10.10',
-    description: '从语言模式、逻辑结构到创意表达，分析 AI 生成内容与人类创作之间的细微差异。',
-    tags: ['AI', 'Writing'],
-    href: '#',
-  },
-  {
-    title: '意义的自指性：当 AI 开始反思',
-    date: '2024.09.05',
-    description: '探讨大语言模型在自我引用和元认知层面的表现，以及这对未来 AI 设计的启示。',
-    tags: ['Philosophy', 'AI'],
-    href: '#',
-  },
-]
-
-const allWritings: WritingItem[] = [
-  ...articles.map((a) => ({
-    id: a.id,
-    title: a.title,
-    date: a.date,
-    description: a.description,
-    tags: a.tags,
-    href: `/article/${a.id}`,
-  })),
-  ...placeholderWritings,
-]
+const allWritings: WritingItem[] = articles.map((a) => ({
+  id: a.id,
+  title: a.title,
+  date: a.date,
+  description: a.description,
+  tags: a.tags,
+  href: `/article/${a.id}`,
+}))
 
 const sectionVariants = {
   hidden: { opacity: 0 },
@@ -241,6 +207,47 @@ export default function Writings() {
             </div>
           </motion.a>
         ))}
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-60px' }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+        style={{ marginTop: '40px', textAlign: 'center' }}
+      >
+        <a
+          href="https://mp.weixin.qq.com/s/ZZXw3tdWwNJGSr1pTD7HOA"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            fontFamily: 'var(--font-mono)',
+            fontSize: '14px',
+            color: 'var(--text-secondary)',
+            border: '1px solid var(--border)',
+            borderRadius: '40px',
+            padding: '12px 24px',
+            background: 'var(--bg-secondary)',
+            transition: 'all 0.3s ease',
+            cursor: 'pointer',
+          }}
+          onMouseEnter={(e) => {
+            const el = e.currentTarget
+            el.style.borderColor = 'var(--text-muted)'
+            el.style.transform = 'translateY(-2px)'
+          }}
+          onMouseLeave={(e) => {
+            const el = e.currentTarget
+            el.style.borderColor = 'var(--border)'
+            el.style.transform = 'translateY(0)'
+          }}
+        >
+          查看更多
+          <ArrowRight size={16} strokeWidth={1.5} />
+        </a>
       </motion.div>
     </section>
   )
