@@ -157,6 +157,35 @@ export const projects: Project[] = [
       },
     },
   },
+  {
+    id: 'justspeak',
+    title: 'justSpeak',
+    description:
+      '按住说话的实时语音翻译。说中文，松手出地道口语英文/日文并自动朗读。支持浏览器 PWA 和桌面命令行双端，底层是"全程流式+管线重叠"的低延迟语音管线。',
+    tags: ['React', 'TypeScript', 'Vite', 'FastAPI', 'WebSocket', 'PWA', 'AudioWorklet'],
+    href: 'https://github.com/jaybeat/justSpeak',
+    featured: true,
+    detail: {
+      detailDescription:
+        'justSpeak 是一个低延迟实时语音翻译工具。核心理念是"按住说话，松手即得"——用户按住按钮说中文，系统通过流式 STT → LLM 翻译 → TTS 合成，在松手瞬间输出地道口语化的英文或日文，并自动朗读。支持浏览器 PWA 和桌面命令行两个版本，两端复用同一套语音处理管线。',
+      highlights: [
+        'PWA 浏览器/手机端：按住说话，松手出翻译并朗读',
+        '桌面命令行版：回车录音/结束，支持中译英/中译日切换',
+        '低延迟流式处理：STT、LLM、TTS 三者管线重叠执行',
+        '可插拔 STT：云端阿里云 Paraformer 或本地 faster-whisper',
+        '国内直连：MiniMax API，无需代理',
+        'GaplessPlayer + AudioWorklet 实现无缝音频播放',
+      ],
+      pipelineSteps: [
+        { name: '音频采集', type: 'script', desc: '浏览器 AudioWorklet / 桌面 PyAudio 实时采集音频流' },
+        { name: '语音识别', type: 'both', desc: '云端 Paraformer 或本地 faster-whisper 流式转文字' },
+        { name: 'LLM 翻译', type: 'llm', desc: 'MiniMax-Text-01 将中文翻译为地道口语英文/日文' },
+        { name: 'TTS 合成', type: 'llm', desc: 'MiniMax speech-2.8-turbo 流式生成语音' },
+        { name: '无缝播放', type: 'script', desc: 'GaplessPlayer / AudioWorklet 队列实现零间隙音频播放' },
+      ],
+      githubUrl: 'https://github.com/jaybeat/justSpeak',
+    },
+  },
 ]
 
 export function getProjectById(id: string): Project | undefined {
