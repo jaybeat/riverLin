@@ -83,7 +83,7 @@ export default function Hero() {
             marginBottom: '16px',
           }}
         >
-          AI产品经理 & Agent工程师
+          AI 产品经理 · 做 AI 时代的学习工具
         </motion.p>
 
         <motion.p
@@ -96,7 +96,7 @@ export default function Hero() {
             margin: '0 auto 40px',
           }}
         >
-          林川杰，专注于 AI 产品设计与智能体工程化落地。热爱探索大模型应用与自动化工作流，在这里分享我的技术思考与项目实践。
+          我相信知识不是用来背诵的清单，而是在解决问题中生长出来的活系统。我写《林小川说学习》讲清每门学科的本质，也用 AI 做沿“演化路径”学习的产品——因为当 AI 吞噬了标准答案，真正稀缺的，是能提出新问题、生成新知识的人。
         </motion.p>
 
         <motion.div
