@@ -32,6 +32,8 @@ export interface ProjectDetailData {
   githubUrl: string
   appUrl?: string
   screenshots?: Screenshot[]
+  /** Render screenshots one-per-row instead of the default multi-column grid */
+  singleColumnScreenshots?: boolean
   extraCta?: {
     label: string
     url: string
@@ -49,6 +51,52 @@ export interface Project {
 }
 
 export const projects: Project[] = [
+  {
+    id: 'concept-map-builder',
+    title: 'Concept Map Builder',
+    description:
+      '从一个焦点问题出发，用 Novak 六步法逐步构建概念图的 Claude Skill。写成 Graphviz DOT 源、用 dot 渲染并注入柔光，输出一张自包含的暗色发光 .svg，再由 evaluator 子代理按八项标准评估并迭代修订。',
+    tags: ['Claude Skill', 'Graphviz', 'DOT', 'SVG', 'Subagent'],
+    href: 'https://github.com/jaybeat/concept-map-builder',
+    featured: true,
+    detail: {
+      detailDescription:
+        'Concept Map Builder 是一个 Claude Skill，把一块知识系统地图形化为概念图。它遵循认知科学家 Novak 的六步法：先在顶部确立一个强调"关系"而非"定义"的焦点问题，再自由头脑风暴概念、从抽象到具体做层级排序、搭建无标签骨架、为每条连线补上方向性的命题标签，最后加入跨分支交叉链接与具体实例。整张图写成 Graphviz DOT 源、用 dot 渲染并注入柔光，成为一张无需外部 CSS 或运行时、打开即可浏览的自包含暗色发光 SVG。完成后由一个独立的 evaluator 子代理按八项标准评估其主观质量，并据此按优先级迭代修订（2–3 轮收敛）。',
+      highlights: [
+        'Novak 六步法构建概念图',
+        '焦点问题驱动，拒绝知识点堆砌',
+        'Graphviz DOT 渲染 + 柔光注入',
+        '自包含暗色发光 SVG，打开即览',
+        'evaluator 子代理按八项标准评估',
+        '迭代收敛（最多 2–3 轮修订）',
+      ],
+      pipelineSteps: [
+        { name: '确立焦点问题', type: 'both', desc: '把宽泛主题收窄为强调关系的焦点问题；模糊则给出 2–4 个候选供选择' },
+        { name: '概念头脑风暴', type: 'llm', desc: '自由列出相关概念放入"停车场"，先不连线' },
+        { name: '层级排序', type: 'llm', desc: '从抽象到具体排序，保留 15–25 个核心概念' },
+        { name: '骨架搭建', type: 'both', desc: '写成 Graphviz DOT，dot 渲染为节点与无标签连线' },
+        { name: '关系标注与交叉链接', type: 'llm', desc: '为每条连线补上方向性命题标签，加入跨分支交叉链接与实例' },
+        { name: '柔光渲染', type: 'script', desc: '注入柔光，输出自包含的暗色发光 SVG' },
+        { name: '评估与修订', type: 'both', desc: 'evaluator 子代理按八项标准评估，按优先级迭代修订' },
+      ],
+      githubUrl: 'https://github.com/jaybeat/concept-map-builder',
+      singleColumnScreenshots: true,
+      screenshots: [
+        {
+          src: '/images/concept-map-builder/concept-map-data-structures-competency.svg',
+          caption: '焦点问题"数据结构培养学生具备什么？"——把核心目标外显为可锻炼的多项胜任力',
+        },
+        {
+          src: '/images/concept-map-builder/concept-map-hashtable-amortized-o1-alt.svg',
+          caption: '焦点问题"哈希表凭什么做到均摊 O(1)？"——把 O(1) 基底、哈希映射与摊还分析串成命题',
+        },
+      ],
+      extraCta: {
+        label: '查看 SKILL.md',
+        url: 'https://github.com/jaybeat/concept-map-builder/tree/master/.claude/skills/concept-map-builder',
+      },
+    },
+  },
   {
     id: 'spiral-explainer-video',
     title: 'Spiral Explainer Video',

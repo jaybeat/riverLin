@@ -349,7 +349,9 @@ export default function ProjectDetail() {
               <div
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+                  gridTemplateColumns: detail.singleColumnScreenshots
+                    ? '1fr'
+                    : 'repeat(auto-fill, minmax(300px, 1fr))',
                   gap: '24px',
                   marginTop: '40px',
                 }}
