@@ -581,7 +581,7 @@ export const articles: Article[] = [
   {
     id: 'essence-of-functions',
     title: '真正理解函数：万物联动关系的数学模型',
-    date: '2026.06.16',
+    date: '2026.02.28',
     author: '林小川说学习',
     album: '知识结构',
     description:
