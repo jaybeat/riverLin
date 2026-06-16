@@ -395,6 +395,222 @@ export default function ProjectDetail() {
                 ))}
               </div>
             )}
+            {detail.spiralScript && (
+              <div style={{ marginTop: '40px' }}>
+                <h3
+                  style={{
+                    fontFamily: 'var(--font-heading)',
+                    fontSize: '18px',
+                    fontWeight: 600,
+                    color: 'var(--text-primary)',
+                    marginBottom: '6px',
+                    letterSpacing: '-0.3px',
+                  }}
+                >
+                  问题驱动螺旋 · 脚本表示例
+                </h3>
+                <p
+                  style={{
+                    fontSize: '13px',
+                    lineHeight: 1.6,
+                    color: 'var(--text-muted)',
+                    marginBottom: '20px',
+                  }}
+                >
+                  {detail.spiralScript.caption}
+                </p>
+                <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '12px',
+                  }}
+                >
+                  {detail.spiralScript.rounds.map((round) => {
+                    const isInterlude = round.problem === ''
+                    return (
+                      <div
+                        key={round.phase}
+                        style={{
+                          background: 'var(--bg-secondary)',
+                          border: '1px solid var(--border)',
+                          borderRadius: '14px',
+                          padding: '16px 18px',
+                        }}
+                      >
+                        <div
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            marginBottom: '12px',
+                          }}
+                        >
+                          <span
+                            style={{
+                              fontFamily: 'var(--font-mono)',
+                              fontSize: '13px',
+                              fontWeight: 600,
+                              color: 'var(--text-primary)',
+                            }}
+                          >
+                            {round.phase}
+                          </span>
+                          <span
+                            style={{
+                              fontFamily: 'var(--font-mono)',
+                              fontSize: '11px',
+                              color: 'var(--text-muted)',
+                              background: 'var(--bg-primary)',
+                              padding: '2px 8px',
+                              borderRadius: '6px',
+                              border: '1px solid var(--border)',
+                            }}
+                          >
+                            {round.time}
+                          </span>
+                        </div>
+                        {isInterlude ? (
+                          <p
+                            style={{
+                              fontSize: '14px',
+                              lineHeight: 1.65,
+                              color: 'var(--text-secondary)',
+                            }}
+                          >
+                            {round.evolution}
+                          </p>
+                        ) : (
+                          <div
+                            style={{
+                              display: 'flex',
+                              gap: '12px',
+                              flexWrap: 'wrap',
+                              alignItems: 'stretch',
+                            }}
+                          >
+                            <div style={{ flex: '1 1 240px', minWidth: 0 }}>
+                              <span
+                                style={{
+                                  display: 'inline-block',
+                                  fontFamily: 'var(--font-mono)',
+                                  fontSize: '10px',
+                                  letterSpacing: '0.5px',
+                                  color: 'var(--text-muted)',
+                                  background: 'var(--bg-primary)',
+                                  padding: '2px 8px',
+                                  borderRadius: '4px',
+                                  border: '1px solid var(--border)',
+                                  marginBottom: '8px',
+                                }}
+                              >
+                                问题
+                              </span>
+                              <p
+                                style={{
+                                  fontSize: '14px',
+                                  lineHeight: 1.65,
+                                  color: 'var(--text-secondary)',
+                                }}
+                              >
+                                {round.problem}
+                              </p>
+                            </div>
+                            <div
+                              style={{
+                                flex: '0 0 auto',
+                                alignSelf: 'center',
+                                color: 'var(--text-muted)',
+                                fontSize: '18px',
+                              }}
+                            >
+                              →
+                            </div>
+                            <div style={{ flex: '1 1 240px', minWidth: 0 }}>
+                              <span
+                                style={{
+                                  display: 'inline-block',
+                                  fontFamily: 'var(--font-mono)',
+                                  fontSize: '10px',
+                                  letterSpacing: '0.5px',
+                                  color: 'var(--bg-primary)',
+                                  background: 'var(--text-primary)',
+                                  padding: '2px 8px',
+                                  borderRadius: '4px',
+                                  marginBottom: '8px',
+                                }}
+                              >
+                                进化
+                              </span>
+                              <p
+                                style={{
+                                  fontSize: '14px',
+                                  lineHeight: 1.65,
+                                  color: 'var(--text-secondary)',
+                                }}
+                              >
+                                {round.evolution}
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+                <p
+                  style={{
+                    fontSize: '13px',
+                    lineHeight: 1.7,
+                    color: 'var(--text-muted)',
+                    marginTop: '16px',
+                  }}
+                >
+                  <span
+                    style={{
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: '10px',
+                      letterSpacing: '0.5px',
+                      color: 'var(--text-muted)',
+                      marginRight: '8px',
+                    }}
+                  >
+                    痛点轨迹
+                  </span>
+                  {detail.spiralScript.trajectory}
+                </p>
+                <a
+                  href={detail.spiralScript.sourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    fontSize: '13px',
+                    color: 'var(--text-muted)',
+                    textDecoration: 'none',
+                    padding: '8px 14px',
+                    borderRadius: '10px',
+                    background: 'var(--bg-secondary)',
+                    border: '1px solid var(--border)',
+                    marginTop: '20px',
+                    transition: 'all 0.2s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = 'var(--text-primary)'
+                    e.currentTarget.style.borderColor = 'var(--text-muted)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = 'var(--text-muted)'
+                    e.currentTarget.style.borderColor = 'var(--border)'
+                  }}
+                >
+                  <FileText size={14} strokeWidth={1.5} />
+                  查看完整脚本表
+                </a>
+              </div>
+            )}
           </motion.div>
         )}
 

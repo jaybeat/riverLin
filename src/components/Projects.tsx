@@ -1,7 +1,8 @@
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { ExternalLink, Star, ArrowRight } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import { projects } from '../data/projects'
+import { projects, projectCategories, type ProjectCategory } from '../data/projects'
 
 const sectionVariants = {
   hidden: { opacity: 0 },
@@ -28,6 +29,9 @@ const itemVariants = {
 
 export default function Projects() {
   const navigate = useNavigate()
+  const [activeCategory, setActiveCategory] = useState<ProjectCategory>('deconstruction')
+
+  const visibleProjects = projects.filter((p) => p.category === activeCategory)
 
   return (
     <section
@@ -71,18 +75,55 @@ export default function Projects() {
         </h2>
       </motion.div>
 
+      <div
+        role="tablist"
+        style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: '8px',
+          marginBottom: '32px',
+        }}
+      >
+        {projectCategories.map((category) => {
+          const isActive = category.key === activeCategory
+          return (
+            <button
+              key={category.key}
+              role="tab"
+              aria-selected={isActive}
+              onClick={() => setActiveCategory(category.key)}
+              style={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: '13px',
+                color: isActive ? 'var(--text-primary)' : 'var(--text-muted)',
+                background: isActive ? 'var(--bg-secondary)' : 'transparent',
+                padding: '8px 16px',
+                borderRadius: '20px',
+                border: isActive
+                  ? '1px solid var(--text-muted)'
+                  : '1px solid var(--border)',
+                cursor: 'pointer',
+                transition: 'all 0.25s ease',
+              }}
+            >
+              {category.label}
+            </button>
+          )
+        })}
+      </div>
+
       <motion.div
+        key={activeCategory}
         variants={sectionVariants}
         initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: '-60px' }}
+        animate="visible"
         style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
           gap: '20px',
         }}
       >
-        {projects.map((project) => (
+        {visibleProjects.map((project) => (
           <motion.div
             key={project.id}
             variants={itemVariants}

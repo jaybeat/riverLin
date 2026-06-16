@@ -19,8 +19,8 @@ function HomePage() {
     >
       <Navbar />
       <Hero />
-      <Projects />
       <Writings />
+      <Projects />
       <Footer />
     </motion.div>
   )

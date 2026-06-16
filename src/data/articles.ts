@@ -5,6 +5,7 @@ export interface Article {
   author: string
   album: string
   description: string
+  category: '学习原理与方法' | '数学' | '编程'
   tags: string[]
   originalUrl: string
   readNum: number
@@ -1034,6 +1035,7 @@ export const articles: Article[] = [
     album: '知识结构',
     description:
       '递归为什么要自己调自己？写递归时为什么无从下手？回到知识源头，看递归如何为描述"问题自我包含"而生，并用"递归三步法"把阶乘、数组求和、爬楼梯一一拆解清楚。',
+    category: '编程',
     tags: ['Learning', 'Computer Science'],
     originalUrl: 'https://mp.weixin.qq.com/s/IJUZ1z_gPg4iu9B4T76kyQ',
     readNum: 3538,
@@ -1049,6 +1051,7 @@ export const articles: Article[] = [
     album: '知识结构',
     description:
       '函数到底在解决什么问题？从初中的"变量变化"到高中的"集合映射"，看函数如何从描述动态关系出发，演化出二次、三角、指数、对数等一整张数学知识网络。',
+    category: '数学',
     tags: ['Learning', 'Mathematics'],
     originalUrl: 'https://mp.weixin.qq.com/s/A8x8xIKOv53cpWfxyebJEw',
     readNum: 2836,
@@ -1064,6 +1067,7 @@ export const articles: Article[] = [
     album: '知识结构',
     description:
       '十几个三角函数公式不必死记硬背。回到知识源头，看它如何从"测量金字塔"的比例工具，被一个个真实问题逼着演化成"描述万物周期"的数学语言。',
+    category: '数学',
     tags: ['Learning', 'Mathematics'],
     originalUrl: 'https://mp.weixin.qq.com/s/WGjmH1q8RwdZbapfoNFLFg',
     readNum: 3421,
@@ -1079,6 +1083,7 @@ export const articles: Article[] = [
     album: '学习的底层原理',
     description:
       '知识有高低层次之分。借吴金闪教授的"知识五层模型"，看为什么停留在背公式、记套路的低层知识只会越学越忘，而掌握第3、4层的"学科大图景"与底层思维，才能成为指挥 AI 的"知识生成器"，在 AI 时代立于不败之地。',
+    category: '学习原理与方法',
     tags: ['Learning', 'Meta-cognition', '知识结构'],
     originalUrl: 'https://mp.weixin.qq.com/s/2grbPdQWPae_pI2UHLAHKg',
     readNum: 1802,
@@ -1094,6 +1099,7 @@ export const articles: Article[] = [
     album: '【精简版】学习的底层原理',
     description:
       '从"知识的结构"出发，理解知识是为了解决问题而发明和演化的，从而把零散的知识点组织成可调用、可迁移的终身学习能力。',
+    category: '学习原理与方法',
     tags: ['Learning', 'Meta-cognition', '知识结构'],
     originalUrl:
       'https://mp.weixin.qq.com/s/aVPrRus9KWDqMlbRcCSIHA',
@@ -1110,6 +1116,7 @@ export const articles: Article[] = [
     album: '学习的底层原理',
     description:
       '探索如何将学科视为一个系统，通过理解层级结构和连接法则，从死记硬背转向系统化的终身学习能力。',
+    category: '学习原理与方法',
     tags: ['Learning', 'System Thinking'],
     originalUrl:
       'https://mp.weixin.qq.com/s/ZXE0DkJN9C-BC8iEMCSuaw',
