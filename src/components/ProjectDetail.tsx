@@ -222,17 +222,6 @@ export default function ProjectDetail() {
           >
             {project.title}
           </h1>
-          <p
-            style={{
-              fontSize: '18px',
-              lineHeight: 1.6,
-              color: 'var(--text-secondary)',
-              maxWidth: '540px',
-              margin: '0 auto 28px',
-            }}
-          >
-            {detail?.detailDescription ?? project.description}
-          </p>
           <div
             style={{
               display: 'flex',
@@ -258,36 +247,6 @@ export default function ProjectDetail() {
               </span>
             ))}
           </div>
-          {detail?.appUrl && (
-            <a
-              href={detail.appUrl}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '12px 24px',
-                background: 'var(--text-primary)',
-                color: 'var(--bg-primary)',
-                borderRadius: '14px',
-                fontSize: '15px',
-                fontWeight: 500,
-                textDecoration: 'none',
-                marginTop: '28px',
-                transition: 'all 0.3s ease',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.opacity = '0.85'
-                e.currentTarget.style.transform = 'translateY(-2px)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.opacity = '1'
-                e.currentTarget.style.transform = 'translateY(0)'
-              }}
-            >
-              <ExternalLink size={18} strokeWidth={1.5} />
-              打开应用
-            </a>
-          )}
         </motion.div>
       </section>
 
@@ -333,6 +292,35 @@ export default function ProjectDetail() {
               >
                 {detail.detailDescription}
               </p>
+            )}
+            {detail.demoVideo && (
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  marginBottom: '28px',
+                }}
+              >
+                <video
+                  src={detail.demoVideo.src}
+                  poster={detail.demoVideo.poster}
+                  controls
+                  playsInline
+                  preload="metadata"
+                  style={{
+                    width: '100%',
+                    maxWidth:
+                      detail.demoVideo.orientation === 'portrait'
+                        ? '320px'
+                        : '100%',
+                    borderRadius: '16px',
+                    border: '1px solid var(--border)',
+                    boxShadow: 'var(--shadow)',
+                    background: 'var(--bg-secondary)',
+                    display: 'block',
+                  }}
+                />
+              </div>
             )}
             <div
               style={{

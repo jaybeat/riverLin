@@ -16,9 +16,17 @@ export interface Screenshot {
   caption: string
 }
 
+export interface DemoVideo {
+  src: string
+  poster?: string
+  /** 'portrait' constrains width for vertical (e.g. 1080×1920) videos */
+  orientation?: 'portrait' | 'landscape'
+}
+
 export interface ProjectDetailData {
   detailDescription: string
   highlights: string[]
+  demoVideo?: DemoVideo
   pipelineSteps?: PipelineStep[]
   example?: Example
   githubUrl: string
@@ -41,6 +49,44 @@ export interface Project {
 }
 
 export const projects: Project[] = [
+  {
+    id: 'spiral-explainer-video',
+    title: 'Spiral Explainer Video',
+    description:
+      '把"问题驱动螺旋"脚本自动转成竖屏讲解视频的 Claude Skill。沿"现状 → 问题 → 推理 → 方案 → 进化能力"的螺旋逐轮展开，配中文配音与逐句同步，输出 1080×1920 移动端长卷动画。',
+    tags: ['Claude Skill', 'Node.js', 'HyperFrames', 'FFmpeg', 'MiniMax TTS', 'Python'],
+    href: 'https://github.com/jaybeat/spiral-explainer-video',
+    featured: true,
+    detail: {
+      detailDescription:
+        'Spiral Explainer Video 是一个 Claude Skill，把"问题驱动螺旋"（现状 → 具体问题 → 推理 → 方案 → 进化出的新能力）结构的脚本，自动转换为竖屏 1080×1920 的讲解视频。它用 MiniMax 生成中文配音，按句测量时长并与画面逐句对齐，再用 HyperFrames 把内容编排成一张可滚动的"长卷"，配合平移镜头逐轮展开，最终渲染成适合手机观看的讲解短片。',
+      highlights: [
+        '问题驱动螺旋叙事结构',
+        '逐句音频与画面同步',
+        '竖屏 1080×1920 移动端优先',
+        '长卷构图 + 平移镜头',
+        '逐轮渲染与质量校验',
+        '示例作品《用达尔文进化论的方式讲解 Agent》',
+      ],
+      demoVideo: {
+        src: '/videos/spiral-explainer-video/agent-evolution.mp4',
+        orientation: 'portrait',
+      },
+      pipelineSteps: [
+        { name: '脚本解析', type: 'script', desc: '将脚本拆解为"问题—方案"的螺旋轮次结构' },
+        { name: '旁白分句', type: 'script', desc: '把每轮旁白切分为句级片段，作为对齐单元' },
+        { name: 'TTS 语音合成', type: 'llm', desc: 'MiniMax 生成中文配音，逐句测量音频时长' },
+        { name: '音频拼接', type: 'script', desc: '按顺序拼接句级音频，生成最终旁白文件' },
+        { name: 'HyperFrames 构图', type: 'both', desc: '编排为可滚动长卷，配合平移镜头逐轮展开' },
+        { name: '逐轮渲染校验', type: 'both', desc: '按轮次增量渲染并校验画面与配音同步' },
+      ],
+      githubUrl: 'https://github.com/jaybeat/spiral-explainer-video',
+      extraCta: {
+        label: '查看 SKILL.md',
+        url: 'https://github.com/jaybeat/spiral-explainer-video/tree/main/.claude/skills/spiral-explainer-video',
+      },
+    },
+  },
   {
     id: 'evo',
     title: 'EvoLearn',
@@ -67,6 +113,24 @@ export const projects: Project[] = [
       ],
       appUrl: 'https://evo.riverlin.me',
       githubUrl: 'https://github.com/jaybeat/EvoLearn',
+      screenshots: [
+        {
+          src: '/images/evo/screenshot-1.png',
+          caption: '主题首页：每个主题沿"核心机制 → 演化变体"组织，如二叉搜索树从"快速查找"出发',
+        },
+        {
+          src: '/images/evo/screenshot-2.png',
+          caption: '问题驱动的课时：先感受线性扫描逐个比对的笨拙，再一步步逼出更优解法',
+        },
+        {
+          src: '/images/evo/screenshot-3.png',
+          caption: '演化出二分查找：数据排好序后，每次对半排除，效率实现飞跃',
+        },
+        {
+          src: '/images/evo/screenshot-4.png',
+          caption: '沿演化路径推进：把有序数组从中间"拎起来"，自然演化出二叉搜索树',
+        },
+      ],
     },
   },
   {

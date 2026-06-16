@@ -161,6 +161,53 @@ const markdownComponents: Components = {
       }}
     />
   ),
+  pre: ({ children }) => (
+    <pre
+      style={{
+        margin: '1.2em 0',
+        padding: '1em 1.2em',
+        background: 'var(--bg-secondary)',
+        border: '1px solid var(--border)',
+        borderRadius: '12px',
+        overflowX: 'auto',
+        lineHeight: 1.6,
+        fontSize: '14px',
+      }}
+    >
+      {children}
+    </pre>
+  ),
+  code: ({ className, children }) => {
+    const isBlock = className?.includes('language-')
+    if (isBlock) {
+      return (
+        <code
+          style={{
+            fontFamily: 'var(--font-mono)',
+            fontSize: '14px',
+            color: 'var(--text-primary)',
+            whiteSpace: 'pre',
+          }}
+        >
+          {children}
+        </code>
+      )
+    }
+    return (
+      <code
+        style={{
+          fontFamily: 'var(--font-mono)',
+          fontSize: '0.9em',
+          background: 'var(--bg-secondary)',
+          padding: '0.15em 0.4em',
+          borderRadius: '4px',
+          color: 'var(--text-primary)',
+        }}
+      >
+        {children}
+      </code>
+    )
+  },
 }
 
 export default function ArticleDetail() {
