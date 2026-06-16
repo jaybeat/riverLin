@@ -161,6 +161,7 @@ export const projects: Project[] = [
       ],
       appUrl: 'https://evo.riverlin.me',
       githubUrl: 'https://github.com/jaybeat/EvoLearn',
+      singleColumnScreenshots: true,
       screenshots: [
         {
           src: '/images/evo/screenshot-1.png',
