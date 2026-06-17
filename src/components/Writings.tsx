@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowUpRight, ArrowRight, Calendar, Tag } from 'lucide-react'
+import { ArrowUpRight, ArrowRight } from 'lucide-react'
 import { articles } from '../data/articles'
 
 interface WritingItem {
@@ -35,25 +35,25 @@ const sectionVariants = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.12,
-      delayChildren: 0.1,
+      staggerChildren: 0.06,
+      delayChildren: 0.05,
     },
   },
 }
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 24 },
+  hidden: { opacity: 0, y: 12 },
   visible: {
     opacity: 1,
     y: 0,
     transition: {
-      duration: 0.6,
+      duration: 0.45,
       ease: [0.2, 0.8, 0.2, 1] as const,
     },
   },
 }
 
-function WritingCard({ writing }: { writing: WritingItem }) {
+function WritingRow({ writing }: { writing: WritingItem }) {
   return (
     <motion.a
       key={writing.id || writing.title}
@@ -61,111 +61,90 @@ function WritingCard({ writing }: { writing: WritingItem }) {
       variants={itemVariants}
       style={{
         display: 'block',
-        padding: '28px 32px',
-        background: 'var(--bg-secondary)',
-        borderRadius: '16px',
-        border: '1px solid var(--border)',
-        boxShadow: 'var(--shadow)',
-        transition: 'all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1)',
+        padding: '14px 0',
+        borderBottom: '1px solid var(--border)',
         cursor: 'pointer',
       }}
       onMouseEnter={(e) => {
-        const el = e.currentTarget
-        el.style.transform = 'translateY(-4px)'
-        el.style.boxShadow = 'var(--shadow-hover)'
+        const t = e.currentTarget.querySelector('h3') as HTMLElement | null
+        if (t) t.style.color = 'var(--text-primary)'
+        const a = e.currentTarget.querySelector('.row-arrow') as HTMLElement | null
+        if (a) a.style.opacity = '1'
       }}
       onMouseLeave={(e) => {
-        const el = e.currentTarget
-        el.style.transform = 'translateY(0)'
-        el.style.boxShadow = 'var(--shadow)'
+        const t = e.currentTarget.querySelector('h3') as HTMLElement | null
+        if (t) t.style.color = 'var(--text-secondary)'
+        const a = e.currentTarget.querySelector('.row-arrow') as HTMLElement | null
+        if (a) a.style.opacity = '0'
       }}
     >
       <div
         style={{
           display: 'flex',
           justifyContent: 'space-between',
-          alignItems: 'flex-start',
-          marginBottom: '12px',
+          alignItems: 'baseline',
+          gap: '16px',
         }}
       >
         <h3
           style={{
-            fontSize: '18px',
-            fontWeight: 600,
-            lineHeight: 1.4,
-            color: 'var(--text-primary)',
-            maxWidth: '85%',
+            fontSize: '16px',
+            fontWeight: 500,
+            lineHeight: 1.5,
+            color: 'var(--text-secondary)',
+            transition: 'color 0.25s ease',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            minWidth: 0,
           }}
         >
-          {writing.title}
+          <span
+            style={{
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {writing.title}
+          </span>
+          <ArrowUpRight
+            className="row-arrow"
+            size={15}
+            strokeWidth={1.5}
+            style={{
+              color: 'var(--text-muted)',
+              flexShrink: 0,
+              opacity: 0,
+              transition: 'opacity 0.25s ease',
+            }}
+          />
         </h3>
-        <ArrowUpRight
-          size={18}
-          strokeWidth={1.5}
+        <span
           style={{
+            fontFamily: 'var(--font-mono)',
+            fontSize: '12px',
             color: 'var(--text-muted)',
             flexShrink: 0,
-            marginTop: '4px',
           }}
-        />
+        >
+          {writing.date}
+        </span>
       </div>
 
       <p
         style={{
-          fontSize: '14px',
+          fontSize: '13px',
           lineHeight: 1.6,
-          color: 'var(--text-secondary)',
-          marginBottom: '16px',
+          color: 'var(--text-muted)',
+          marginTop: '4px',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
         }}
       >
         {writing.description}
       </p>
-
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '16px',
-          flexWrap: 'wrap',
-        }}
-      >
-        <span
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '6px',
-            fontFamily: 'var(--font-mono)',
-            fontSize: '12px',
-            color: 'var(--text-muted)',
-          }}
-        >
-          <Calendar size={12} strokeWidth={1.5} />
-          {writing.date}
-        </span>
-
-        <div style={{ display: 'flex', gap: '8px' }}>
-          {writing.tags.map((tag) => (
-            <span
-              key={tag}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '4px',
-                fontFamily: 'var(--font-mono)',
-                fontSize: '11px',
-                color: 'var(--text-secondary)',
-                background: 'var(--bg-primary)',
-                padding: '4px 10px',
-                borderRadius: '20px',
-                border: '1px solid var(--border)',
-              }}
-            >
-              <Tag size={10} strokeWidth={1.5} />
-              {tag}
-            </span>
-          ))}
-        </div>
-      </div>
     </motion.a>
   )
 }
@@ -182,42 +161,29 @@ export default function Writings() {
     <section
       id="writings"
       style={{
-        padding: '120px 24px',
-        maxWidth: '800px',
+        padding: '56px 24px',
+        maxWidth: '720px',
         margin: '0 auto',
       }}
     >
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 16 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: '-80px' }}
-        transition={{ duration: 0.6 }}
-        style={{ marginBottom: '60px' }}
+        viewport={{ once: true, margin: '-60px' }}
+        transition={{ duration: 0.5 }}
+        style={{ marginBottom: '20px' }}
       >
         <p
           style={{
             fontFamily: 'var(--font-mono)',
-            fontSize: '12px',
+            fontSize: '13px',
             color: 'var(--text-muted)',
-            letterSpacing: '1.5px',
+            letterSpacing: '1px',
             textTransform: 'uppercase',
-            marginBottom: '12px',
           }}
         >
-          Writings
+          Writings · 文章
         </p>
-        <h2
-          style={{
-            fontFamily: 'var(--font-heading)',
-            fontSize: 'clamp(28px, 4vw, 40px)',
-            fontWeight: 600,
-            letterSpacing: '-1px',
-            lineHeight: 1.2,
-            color: 'var(--text-primary)',
-          }}
-        >
-          文章
-        </h2>
       </motion.div>
 
       <div
@@ -225,7 +191,7 @@ export default function Writings() {
           display: 'flex',
           flexWrap: 'wrap',
           gap: '8px',
-          marginBottom: '40px',
+          marginBottom: '20px',
         }}
       >
         {writingsByCategory.map((group) => {
@@ -237,16 +203,16 @@ export default function Writings() {
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '8px',
+                gap: '6px',
                 fontFamily: 'var(--font-sans)',
-                fontSize: '14px',
+                fontSize: '13px',
                 fontWeight: 500,
                 color: isActive ? 'var(--bg-secondary)' : 'var(--text-secondary)',
                 background: isActive ? 'var(--text-primary)' : 'var(--bg-secondary)',
                 border: '1px solid var(--border)',
                 borderColor: isActive ? 'var(--text-primary)' : 'var(--border)',
                 borderRadius: '40px',
-                padding: '10px 20px',
+                padding: '7px 16px',
                 cursor: 'pointer',
                 transition: 'all 0.3s ease',
               }}
@@ -284,20 +250,20 @@ export default function Writings() {
           initial="hidden"
           animate="visible"
           exit={{ opacity: 0 }}
-          style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}
+          style={{ borderTop: '1px solid var(--border)' }}
         >
           {activeGroup?.items.map((writing) => (
-            <WritingCard key={writing.id || writing.title} writing={writing} />
+            <WritingRow key={writing.id || writing.title} writing={writing} />
           ))}
         </motion.div>
       </AnimatePresence>
 
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: '-60px' }}
-        transition={{ duration: 0.6, delay: 0.2 }}
-        style={{ marginTop: '40px', textAlign: 'center' }}
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true, margin: '-40px' }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+        style={{ marginTop: '24px' }}
       >
         <a
           href="https://mp.weixin.qq.com/s/ZZXw3tdWwNJGSr1pTD7HOA"
@@ -306,30 +272,21 @@ export default function Writings() {
           style={{
             display: 'inline-flex',
             alignItems: 'center',
-            gap: '8px',
+            gap: '6px',
             fontFamily: 'var(--font-mono)',
-            fontSize: '14px',
+            fontSize: '13px',
             color: 'var(--text-secondary)',
-            border: '1px solid var(--border)',
-            borderRadius: '40px',
-            padding: '12px 24px',
-            background: 'var(--bg-secondary)',
-            transition: 'all 0.3s ease',
-            cursor: 'pointer',
+            transition: 'color 0.3s ease',
           }}
           onMouseEnter={(e) => {
-            const el = e.currentTarget
-            el.style.borderColor = 'var(--text-muted)'
-            el.style.transform = 'translateY(-2px)'
+            e.currentTarget.style.color = 'var(--text-primary)'
           }}
           onMouseLeave={(e) => {
-            const el = e.currentTarget
-            el.style.borderColor = 'var(--border)'
-            el.style.transform = 'translateY(0)'
+            e.currentTarget.style.color = 'var(--text-secondary)'
           }}
         >
           查看更多
-          <ArrowRight size={16} strokeWidth={1.5} />
+          <ArrowRight size={15} strokeWidth={1.5} />
         </a>
       </motion.div>
     </section>

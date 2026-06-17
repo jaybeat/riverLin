@@ -1,50 +1,45 @@
 import { motion } from 'framer-motion'
-import { Github, Twitter, Mail } from 'lucide-react'
 
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.15,
-      delayChildren: 0.3,
+      staggerChildren: 0.12,
+      delayChildren: 0.2,
     },
   },
 }
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 30 },
+  hidden: { opacity: 0, y: 20 },
   visible: {
     opacity: 1,
     y: 0,
     transition: {
-      duration: 0.8,
+      duration: 0.7,
       ease: [0.2, 0.8, 0.2, 1] as const,
     },
   },
 }
+
+const links = [
+  { label: 'GitHub', href: 'https://github.com/jaybeat' },
+  { label: '公众号', href: 'https://mp.weixin.qq.com/s/ZZXw3tdWwNJGSr1pTD7HOA' },
+  { label: 'Mail', href: 'mailto:hello@riverlin.me' },
+]
 
 export default function Hero() {
   return (
     <section
       id="hero"
       style={{
-        minHeight: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        textAlign: 'center',
-        padding: '120px 24px 80px',
-        position: 'relative',
+        maxWidth: '720px',
+        margin: '0 auto',
+        padding: '120px 24px 48px',
       }}
     >
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        style={{ maxWidth: '680px' }}
-      >
+      <motion.div variants={containerVariants} initial="hidden" animate="visible">
         <motion.p
           variants={itemVariants}
           style={{
@@ -53,7 +48,7 @@ export default function Hero() {
             color: 'var(--text-muted)',
             letterSpacing: '1px',
             textTransform: 'uppercase',
-            marginBottom: '24px',
+            marginBottom: '16px',
           }}
         >
           你好，我是
@@ -63,12 +58,12 @@ export default function Hero() {
           variants={itemVariants}
           style={{
             fontFamily: 'var(--font-heading)',
-            fontSize: 'clamp(48px, 8vw, 80px)',
+            fontSize: 'clamp(40px, 6vw, 60px)',
             fontWeight: 700,
-            letterSpacing: '-2.4px',
+            letterSpacing: '-2px',
             lineHeight: 1.05,
             color: 'var(--text-primary)',
-            marginBottom: '20px',
+            marginBottom: '14px',
           }}
         >
           RiverLin
@@ -77,106 +72,67 @@ export default function Hero() {
         <motion.p
           variants={itemVariants}
           style={{
-            fontSize: '20px',
+            fontSize: '17px',
             fontWeight: 500,
             color: 'var(--text-secondary)',
-            marginBottom: '16px',
+            marginBottom: '14px',
           }}
         >
-          AI 产品经理 · 做 AI 时代的学习工具
+          AI 产品经理 · Agent 工程师 · 探索学习的本质
         </motion.p>
 
         <motion.p
           variants={itemVariants}
           style={{
-            fontSize: '16px',
-            lineHeight: 1.75,
+            fontSize: '15px',
+            lineHeight: 1.7,
             color: 'var(--text-muted)',
-            maxWidth: '480px',
-            margin: '0 auto 40px',
+            maxWidth: '600px',
+            marginBottom: '24px',
           }}
         >
-          我相信知识不是用来背诵的清单，而是在解决问题中生长出来的活系统。我写《林小川说学习》讲清每门学科的本质，也用 AI 做沿“演化路径”学习的产品——因为当 AI 吞噬了标准答案，真正稀缺的，是能提出新问题、生成新知识的人。
+          我相信知识不是死记硬背的清单，而是在解决问题中生长的活系统。在 AI
+          吞噬标准答案的时代，我做工具、写文章，帮人重走知识演化的路。
         </motion.p>
 
         <motion.div
           variants={itemVariants}
           style={{
             display: 'flex',
-            gap: '16px',
-            justifyContent: 'center',
+            gap: '20px',
             alignItems: 'center',
+            flexWrap: 'wrap',
           }}
         >
-          {[
-            { icon: Github, href: 'https://github.com' },
-            { icon: Twitter, href: 'https://twitter.com' },
-            { icon: Mail, href: 'mailto:hello@example.com' },
-          ].map(({ icon: Icon, href }) => (
+          {links.map(({ label, href }) => (
             <a
-              key={href}
+              key={label}
               href={href}
               target="_blank"
               rel="noopener noreferrer"
               style={{
-                width: '44px',
-                height: '44px',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                background: 'var(--bg-secondary)',
+                fontFamily: 'var(--font-mono)',
+                fontSize: '13px',
                 color: 'var(--text-secondary)',
-                transition: 'all 0.3s ease',
+                borderBottom: '1px solid var(--border)',
+                paddingBottom: '2px',
+                transition: 'color 0.3s ease, border-color 0.3s ease',
               }}
               onMouseEnter={(e) => {
                 const el = e.currentTarget
-                el.style.background = 'var(--text-primary)'
-                el.style.color = 'var(--bg-primary)'
-                el.style.transform = 'translateY(-2px)'
+                el.style.color = 'var(--text-primary)'
+                el.style.borderColor = 'var(--text-muted)'
               }}
               onMouseLeave={(e) => {
                 const el = e.currentTarget
-                el.style.background = 'var(--bg-secondary)'
                 el.style.color = 'var(--text-secondary)'
-                el.style.transform = 'translateY(0)'
+                el.style.borderColor = 'var(--border)'
               }}
             >
-              <Icon size={20} strokeWidth={1.5} />
+              {label}
             </a>
           ))}
         </motion.div>
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.5, duration: 1 }}
-        style={{
-          position: 'absolute',
-          bottom: '40px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-        }}
-      >
-        <div
-          style={{
-            width: '1px',
-            height: '40px',
-            background: 'var(--border)',
-            margin: '0 auto 8px',
-          }}
-        />
-        <span
-          style={{
-            fontFamily: 'var(--font-mono)',
-            fontSize: '11px',
-            color: 'var(--text-muted)',
-            letterSpacing: '1px',
-          }}
-        >
-          SCROLL
-        </span>
       </motion.div>
     </section>
   )

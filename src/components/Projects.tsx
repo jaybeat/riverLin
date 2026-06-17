@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { ExternalLink, Star, ArrowRight } from 'lucide-react'
+import { ExternalLink, Star, ArrowUpRight } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { projects, projectCategories, type ProjectCategory } from '../data/projects'
 
@@ -9,19 +9,19 @@ const sectionVariants = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.1,
+      staggerChildren: 0.06,
+      delayChildren: 0.05,
     },
   },
 }
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 24 },
+  hidden: { opacity: 0, y: 12 },
   visible: {
     opacity: 1,
     y: 0,
     transition: {
-      duration: 0.6,
+      duration: 0.45,
       ease: [0.2, 0.8, 0.2, 1] as const,
     },
   },
@@ -37,42 +37,29 @@ export default function Projects() {
     <section
       id="projects"
       style={{
-        padding: '120px 24px',
-        maxWidth: '1000px',
+        padding: '56px 24px',
+        maxWidth: '720px',
         margin: '0 auto',
       }}
     >
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 16 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: '-80px' }}
-        transition={{ duration: 0.6 }}
-        style={{ marginBottom: '60px' }}
+        viewport={{ once: true, margin: '-60px' }}
+        transition={{ duration: 0.5 }}
+        style={{ marginBottom: '20px' }}
       >
         <p
           style={{
             fontFamily: 'var(--font-mono)',
-            fontSize: '12px',
+            fontSize: '13px',
             color: 'var(--text-muted)',
-            letterSpacing: '1.5px',
+            letterSpacing: '1px',
             textTransform: 'uppercase',
-            marginBottom: '12px',
           }}
         >
-          Projects
+          Projects · 项目
         </p>
-        <h2
-          style={{
-            fontFamily: 'var(--font-heading)',
-            fontSize: 'clamp(28px, 4vw, 40px)',
-            fontWeight: 600,
-            letterSpacing: '-1px',
-            lineHeight: 1.2,
-            color: 'var(--text-primary)',
-          }}
-        >
-          项目
-        </h2>
       </motion.div>
 
       <div
@@ -81,7 +68,7 @@ export default function Projects() {
           display: 'flex',
           flexWrap: 'wrap',
           gap: '8px',
-          marginBottom: '32px',
+          marginBottom: '20px',
         }}
       >
         {projectCategories.map((category) => {
@@ -97,7 +84,7 @@ export default function Projects() {
                 fontSize: '13px',
                 color: isActive ? 'var(--text-primary)' : 'var(--text-muted)',
                 background: isActive ? 'var(--bg-secondary)' : 'transparent',
-                padding: '8px 16px',
+                padding: '7px 16px',
                 borderRadius: '20px',
                 border: isActive
                   ? '1px solid var(--text-muted)'
@@ -117,219 +104,120 @@ export default function Projects() {
         variants={sectionVariants}
         initial="hidden"
         animate="visible"
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-          gap: '20px',
-        }}
+        style={{ borderTop: '1px solid var(--border)' }}
       >
-        {visibleProjects.map((project) => (
-          <motion.div
-            key={project.id}
-            variants={itemVariants}
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gridColumn: project.featured ? '1 / -1' : undefined,
-            }}
-          >
-            {project.featured ? (
+        {visibleProjects.map((project) => {
+          const isInternal = Boolean(project.featured)
+          const Arrow = isInternal ? ArrowUpRight : ExternalLink
+          const handleClick = () => {
+            if (isInternal) navigate(`/project/${project.id}`)
+            else window.open(project.href, '_blank', 'noopener,noreferrer')
+          }
+          return (
+            <motion.div
+              key={project.id}
+              variants={itemVariants}
+              onClick={handleClick}
+              style={{
+                display: 'block',
+                padding: '16px 0',
+                borderBottom: '1px solid var(--border)',
+                cursor: 'pointer',
+              }}
+              onMouseEnter={(e) => {
+                const t = e.currentTarget.querySelector('h3') as HTMLElement | null
+                if (t) t.style.color = 'var(--text-primary)'
+                const a = e.currentTarget.querySelector('.row-arrow') as HTMLElement | null
+                if (a) a.style.opacity = '1'
+              }}
+              onMouseLeave={(e) => {
+                const t = e.currentTarget.querySelector('h3') as HTMLElement | null
+                if (t) t.style.color = 'var(--text-secondary)'
+                const a = e.currentTarget.querySelector('.row-arrow') as HTMLElement | null
+                if (a) a.style.opacity = '0'
+              }}
+            >
               <div
-                onClick={() => navigate(`/project/${project.id}`)}
                 style={{
                   display: 'flex',
-                  flexDirection: 'column',
-                  padding: '36px',
-                  background: 'var(--bg-secondary)',
-                  borderRadius: '20px',
-                  border: '1.5px solid var(--text-muted)',
-                  boxShadow: 'var(--shadow)',
-                  transition: 'all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1)',
-                  cursor: 'pointer',
-                  height: '100%',
-                  position: 'relative',
-                }}
-                onMouseEnter={(e) => {
-                  const el = e.currentTarget
-                  el.style.transform = 'translateY(-4px)'
-                  el.style.boxShadow = 'var(--shadow-hover)'
-                }}
-                onMouseLeave={(e) => {
-                  const el = e.currentTarget
-                  el.style.transform = 'translateY(0)'
-                  el.style.boxShadow = 'var(--shadow)'
+                  justifyContent: 'space-between',
+                  alignItems: 'baseline',
+                  gap: '16px',
                 }}
               >
-                <div
+                <h3
                   style={{
-                    position: 'absolute',
-                    top: '16px',
-                    right: '16px',
+                    fontSize: '16px',
+                    fontWeight: 500,
+                    lineHeight: 1.5,
+                    color: 'var(--text-secondary)',
+                    transition: 'color 0.25s ease',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '4px',
-                    fontFamily: 'var(--font-mono)',
-                    fontSize: '11px',
-                    color: 'var(--text-muted)',
-                    letterSpacing: '0.5px',
+                    gap: '8px',
+                    minWidth: 0,
                   }}
                 >
-                  <Star size={12} strokeWidth={1.5} />
-                  FEATURED
-                </div>
-
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'flex-start',
-                    marginBottom: '16px',
-                  }}
-                >
-                  <h3
+                  <span
                     style={{
-                      fontSize: '20px',
-                      fontWeight: 600,
-                      lineHeight: 1.4,
-                      color: 'var(--text-primary)',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
                     }}
                   >
                     {project.title}
-                  </h3>
-                  <ArrowRight
-                    size={18}
+                  </span>
+                  {project.featured && (
+                    <Star
+                      size={12}
+                      strokeWidth={1.5}
+                      style={{ color: 'var(--text-muted)', flexShrink: 0 }}
+                    />
+                  )}
+                  <Arrow
+                    className="row-arrow"
+                    size={15}
                     strokeWidth={1.5}
                     style={{
                       color: 'var(--text-muted)',
                       flexShrink: 0,
-                      marginTop: '4px',
+                      opacity: 0,
+                      transition: 'opacity 0.25s ease',
                     }}
                   />
-                </div>
-
-                <p
+                </h3>
+                <span
                   style={{
-                    fontSize: '14px',
-                    lineHeight: 1.65,
-                    color: 'var(--text-secondary)',
-                    marginBottom: '20px',
-                    flex: 1,
-                    maxWidth: '640px',
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '12px',
+                    color: 'var(--text-muted)',
+                    flexShrink: 0,
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    maxWidth: '40%',
                   }}
                 >
-                  {project.description}
-                </p>
-
-                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                  {project.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      style={{
-                        fontFamily: 'var(--font-mono)',
-                        fontSize: '11px',
-                        color: 'var(--text-secondary)',
-                        background: 'var(--bg-primary)',
-                        padding: '5px 12px',
-                        borderRadius: '20px',
-                        border: '1px solid var(--border)',
-                      }}
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
+                  {project.tags.slice(0, 3).join(' · ')}
+                </span>
               </div>
-            ) : (
-              <motion.a
-                href={project.href}
-                target="_blank"
-                rel="noopener noreferrer"
+
+              <p
                 style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  padding: '32px',
-                  background: 'var(--bg-secondary)',
-                  borderRadius: '20px',
-                  border: '1px solid var(--border)',
-                  boxShadow: 'var(--shadow)',
-                  transition: 'all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1)',
-                  cursor: 'pointer',
-                  height: '100%',
-                }}
-                onMouseEnter={(e) => {
-                  const el = e.currentTarget
-                  el.style.transform = 'translateY(-4px)'
-                  el.style.boxShadow = 'var(--shadow-hover)'
-                }}
-                onMouseLeave={(e) => {
-                  const el = e.currentTarget
-                  el.style.transform = 'translateY(0)'
-                  el.style.boxShadow = 'var(--shadow)'
+                  fontSize: '13px',
+                  lineHeight: 1.6,
+                  color: 'var(--text-muted)',
+                  marginTop: '4px',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
                 }}
               >
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'flex-start',
-                    marginBottom: '16px',
-                  }}
-                >
-                  <h3
-                    style={{
-                      fontSize: '18px',
-                      fontWeight: 600,
-                      lineHeight: 1.4,
-                      color: 'var(--text-primary)',
-                    }}
-                  >
-                    {project.title}
-                  </h3>
-                  <ExternalLink
-                    size={16}
-                    strokeWidth={1.5}
-                    style={{
-                      color: 'var(--text-muted)',
-                      flexShrink: 0,
-                      marginTop: '4px',
-                    }}
-                  />
-                </div>
-
-                <p
-                  style={{
-                    fontSize: '14px',
-                    lineHeight: 1.65,
-                    color: 'var(--text-secondary)',
-                    marginBottom: '20px',
-                    flex: 1,
-                  }}
-                >
-                  {project.description}
-                </p>
-
-                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                  {project.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      style={{
-                        fontFamily: 'var(--font-mono)',
-                        fontSize: '11px',
-                        color: 'var(--text-secondary)',
-                        background: 'var(--bg-primary)',
-                        padding: '5px 12px',
-                        borderRadius: '20px',
-                        border: '1px solid var(--border)',
-                      }}
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </motion.a>
-            )}
-          </motion.div>
-        ))}
+                {project.description}
+              </p>
+            </motion.div>
+          )
+        })}
       </motion.div>
     </section>
   )

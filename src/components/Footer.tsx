@@ -10,7 +10,7 @@ export default function Footer() {
     <footer
       id="footer"
       style={{
-        padding: '80px 24px 40px',
+        padding: '48px 24px 32px',
         borderTop: '1px solid var(--border)',
         textAlign: 'center',
       }}
