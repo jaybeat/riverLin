@@ -74,6 +74,8 @@ export interface Project {
   href: string
   category: ProjectCategory
   featured?: boolean
+  /** 标记为学生作品（课程实践产出），渲染「学生项目」徽章 */
+  student?: boolean
   detail?: ProjectDetailData
 }
 
@@ -390,6 +392,93 @@ export const projects: Project[] = [
         { name: '无缝播放', type: 'script', desc: 'GaplessPlayer / AudioWorklet 队列实现零间隙音频播放' },
       ],
       githubUrl: 'https://github.com/jaybeat/justSpeak',
+    },
+  },
+  {
+    id: 'japan-otaku-map',
+    title: '日本动漫店铺地图',
+    description:
+      '为中国动漫爱好者打造的日本巡礼地图，收录 176 家动漫店铺、按 7 大连锁品牌分色，集成 DeepSeek AI 旅行助手与全文搜索、地区筛选。',
+    tags: ['React', 'TypeScript', 'Vite', 'MapLibre GL', 'Zustand', 'DeepSeek'],
+    href: 'https://github.com/9dk9jptv8h-hue/japan-otaku-map',
+    category: 'practice',
+    student: true,
+    detail: {
+      detailDescription:
+        '日本动漫店铺地图（Japan Otaku Map）是一款面向中国动漫爱好者的日本巡礼地图。它用 MapLibre GL 渲染 OpenFreeMap 矢量瓦片，标注覆盖北海道到九州的 176 家动漫店铺，按 Animate、Melonbooks、Mandarake、Suruga-ya、GAMERS、Lashinbang、K-Books 七大连锁分色显示；支持按名称/描述/标签/地址全文搜索，按地区与品类筛选，并按评分、名称、更新时间、热度排序。内置一个由 DeepSeek 驱动、经 Cloudflare Worker 代理的 AI 旅行顾问，熟悉全部 176 家店铺，可给出巡礼路线建议。桌面端用侧栏、移动端用抽屉的响应式布局，并通过 GitHub Actions 自动构建可同步数据的 Android APK。',
+      highlights: [
+        'MapLibre GL 矢量瓦片地图（OpenFreeMap CDN）',
+        '176 家动漫店铺，按 7 大连锁品牌分色',
+        '全文搜索 + 地区/品类筛选 + 多维排序',
+        'DeepSeek AI 旅行顾问（Cloudflare Worker 代理）',
+        '桌面侧栏 / 移动抽屉响应式布局',
+        'GitHub Actions 自动构建 Android APK',
+      ],
+      appUrl: 'https://9dk9jptv8h-hue.github.io/japan-otaku-map/',
+      githubUrl: 'https://github.com/9dk9jptv8h-hue/japan-otaku-map',
+      singleColumnScreenshots: true,
+      screenshots: [
+        {
+          src: '/images/japan-otaku-map/welcome-screen.png',
+          caption: '欢迎页：介绍这张面向中国动漫爱好者的日本巡礼地图与玩法',
+        },
+        {
+          src: '/images/japan-otaku-map/map-interface.png',
+          caption: '地图主界面：176 家店铺按连锁品牌分色标注，侧栏可搜索、筛选与排序',
+        },
+      ],
+    },
+  },
+  {
+    id: 'miku-desktop-pet',
+    title: 'AI 桌面宠物',
+    description:
+      '常驻桌面右侧的悬浮窗助手，以多项目卡片实时展示进度、状态与子任务，支持系统托盘、里程碑提醒、多主题与开机自启。',
+    tags: ['Python', 'Tkinter', 'CustomTkinter', 'pystray', 'PyInstaller'],
+    href: 'https://github.com/tlyyxjz/miku-desktop-pet',
+    category: 'practice',
+    student: true,
+    detail: {
+      detailDescription:
+        'AI 桌面宠物是一个常驻桌面右侧的悬浮窗仪表盘，用多张项目卡片实时展示各项目的进度条、状态与子任务清单。窗口置顶且半透明，不抢焦点、不遮挡 Alt+Tab；进度更新带缓动动画。它集成系统托盘（右键可显示/隐藏/刷新/设置/退出），提供图形化设置面板调节主题、透明度、字号与刷新间隔，内置 Catppuccin、Nord、Dracula、Gruvbox 等五套配色，并在进度跨越 25%/50%/75%/100% 或状态变更时弹出提醒。支持开机自启、窗口位置记忆，数据损坏时回退到缓存配置。',
+      highlights: [
+        '置顶半透明悬浮窗，不抢焦点、不挡 Alt+Tab',
+        '多项目卡片：进度条 / 状态 / 子任务清单',
+        '系统托盘菜单与图形化设置面板',
+        '五套配色主题（Catppuccin / Nord / Dracula / Gruvbox）',
+        '里程碑（25/50/75/100%）与状态变更提醒',
+        '开机自启、窗口位置记忆、数据容错',
+      ],
+      githubUrl: 'https://github.com/tlyyxjz/miku-desktop-pet',
+    },
+  },
+  {
+    id: 'tarot-daily',
+    title: 'AI 占卜师',
+    description:
+      '网页版每日塔罗占卜应用，提供每日抽牌解读、塔罗百科、历史记录与 AI 解读，部署于 Netlify / Vercel。',
+    tags: ['JavaScript', 'HTML', 'CSS', 'DeepSeek', 'Vercel'],
+    href: 'https://github.com/Miaoqi777/tarot-daily',
+    category: 'practice',
+    student: true,
+    detail: {
+      detailDescription:
+        'AI 占卜师是一款网页版每日塔罗占卜应用。用户每日抽牌后，由 DeepSeek（deepseek-chat）模型生成个性化的牌意解读；解读请求经 Serverless 函数（Vercel Edge Function）代理，密钥保存在服务端，并设有每日预算上限以防滥用，额度耗尽时返回提示。除每日抽牌外，还提供塔罗百科查询牌义、历史记录回看过往牌阵。纯前端实现，部署于 Netlify / Vercel。',
+      highlights: [
+        '每日抽牌 + DeepSeek 个性化牌意解读',
+        'Serverless 代理隐藏密钥，并设每日预算上限',
+        '塔罗百科：牌义查询',
+        '历史记录：回看过往牌阵',
+        '纯前端 + Netlify / Vercel 部署',
+      ],
+      githubUrl: 'https://github.com/Miaoqi777/tarot-daily',
+      singleColumnScreenshots: true,
+      screenshots: [
+        {
+          src: '/images/tarot-daily/spread.png',
+          caption: '事业运势·三张牌阵：选定领域与牌阵后抽牌，逐张给出当前状态、机遇与挑战的解读，可切换简洁/详细并开启 AI 智能深度解读',
+        },
+      ],
     },
   },
 ]

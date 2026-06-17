@@ -24,7 +24,6 @@ const itemVariants = {
 }
 
 const links = [
-  { label: 'GitHub', href: 'https://github.com/jaybeat' },
   { label: '公众号', href: 'https://mp.weixin.qq.com/s/ZZXw3tdWwNJGSr1pTD7HOA' },
   { label: 'Mail', href: 'mailto:hello@riverlin.me' },
 ]
@@ -91,8 +90,8 @@ export default function Hero() {
             marginBottom: '24px',
           }}
         >
-          我相信知识不是死记硬背的清单，而是在解决问题中生长的活系统。在 AI
-          吞噬标准答案的时代，我做工具、写文章，帮人重走知识演化的路。
+          AI 能替我们做越来越多的事，却替不了我们去理解、去品味。真正的创新，恰恰生长在「你的作品」与「理想的样子」之间那道不断被缩小的差距里。所以我想做的
+          AI + 学习产品，不教人背下标准答案，而是帮学习者长出深度理解与品味迭代的能力。
         </motion.p>
 
         <motion.div

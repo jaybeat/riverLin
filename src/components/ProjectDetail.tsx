@@ -207,7 +207,7 @@ export default function ProjectDetail() {
               marginBottom: '16px',
             }}
           >
-            Featured Project
+            {project.student ? 'Student Project' : 'Featured Project'}
           </p>
           <h1
             style={{

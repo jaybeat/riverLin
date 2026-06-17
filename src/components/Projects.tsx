@@ -80,8 +80,9 @@ export default function Projects() {
               aria-selected={isActive}
               onClick={() => setActiveCategory(category.key)}
               style={{
-                fontFamily: 'var(--font-mono)',
+                fontFamily: 'var(--font-sans)',
                 fontSize: '13px',
+                fontWeight: 500,
                 color: isActive ? 'var(--text-primary)' : 'var(--text-muted)',
                 background: isActive ? 'var(--bg-secondary)' : 'transparent',
                 padding: '7px 16px',
@@ -107,7 +108,7 @@ export default function Projects() {
         style={{ borderTop: '1px solid var(--border)' }}
       >
         {visibleProjects.map((project) => {
-          const isInternal = Boolean(project.featured)
+          const isInternal = Boolean(project.detail)
           const Arrow = isInternal ? ArrowUpRight : ExternalLink
           const handleClick = () => {
             if (isInternal) navigate(`/project/${project.id}`)
@@ -173,6 +174,23 @@ export default function Projects() {
                       strokeWidth={1.5}
                       style={{ color: 'var(--text-muted)', flexShrink: 0 }}
                     />
+                  )}
+                  {project.student && (
+                    <span
+                      style={{
+                        fontFamily: 'var(--font-mono)',
+                        fontSize: '10px',
+                        lineHeight: 1.4,
+                        color: 'var(--text-muted)',
+                        border: '1px solid var(--border)',
+                        borderRadius: '10px',
+                        padding: '1px 7px',
+                        flexShrink: 0,
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      学生项目
+                    </span>
                   )}
                   <Arrow
                     className="row-arrow"
