@@ -188,6 +188,49 @@ export const projects: Project[] = [
     },
   },
   {
+    id: 'ai-teach-video',
+    title: 'AI Teach Video',
+    description:
+      '把中文计算机文章自动转成 16:9 横屏 Manim 讲解短视频的流水线。共享引擎 + 每集零件，TTS 与动画按真实时间轴两次对齐，支持显示/朗读双形、画质档位、布局自检与 Claude Code agent 工作流。',
+    tags: ['Manim', 'Python', 'TTS', 'FFmpeg', 'Claude Code', 'Agent Pipeline'],
+    href: 'https://github.com/jaybeat/ai_teach_video',
+    category: 'pedagogy',
+    featured: true,
+    detail: {
+      detailDescription:
+        'AI Teach Video 是一个把中文计算机文章自动转成 16:9 横屏讲解短视频的 Manim 工程。它采用「共享引擎 + 每集零件」结构：引擎（dsvkit.py、TTS、build.sh）全系列复用，每集只改旁白（segments.py）和动画（video.py）。配音与动画通过「真实时间轴」两次对齐：先按 TTS 时长渲染动画，再按动画真实时间轴重建对齐音轨，保证音画同步。工程还沉淀了分镜设计师、内容评审师、动画设计师三个 Claude Code subagent，以及 /new-episode 编排技能和 eval 回归评测体系。仓库当前为私有，如需访问请联系我。',
+      highlights: [
+        '共享引擎 + 每集零件：引擎复用，每集只换 segments.py 与 video.py',
+        '两段式真实时间轴 A/V 同步：TTS 量时长 → Manim 渲染 → 重建对齐音轨 → mux',
+        '显示/朗读双形标记 [[显示//朗读]]：公式与多音字各走各的通道',
+        '画质档位 ql/qm/qh：480p15 快验 / 720p30 默认 / 1080p60 成片',
+        '布局自检：渲染期检测出框与压字幕带，强制修复',
+        'CTA 配音缓存：标准片尾只合成一次，全系列复用',
+        'Claude Code agent 工作流：分镜 → 留存评审 → 动画 → 构建 → 评测回填',
+        '公众号图文复用：/wechat-article 把已出片视频转成自包含 HTML',
+      ],
+      demoVideo: {
+        src: '/videos/ai-teach-video/ep00-overview.mp4',
+        orientation: 'landscape',
+      },
+      pipelineSteps: [
+        { name: '文章改写与分镜', type: 'llm', desc: 'storyboard-designer agent 把文章改写成 storyboard.md 与 segments.py，一句旁白 = 一个动画 beat' },
+        { name: '留存预检', type: 'llm', desc: 'content-reviewer agent 按 RETENTION_RUBRIC.md 逐段预测 R1–R7 风险，产出 review.md' },
+        { name: 'TTS 配音与量时长', type: 'script', desc: 'edge-tts / piper-tts 逐段合成中文配音，写入 durations.json' },
+        { name: 'Manim 动画渲染', type: 'both', desc: 'animation-designer agent 产出 video.py；Manim 按 durations.json 撑时长并写出 seg_times.json' },
+        { name: '真实时间轴对齐音轨', type: 'script', desc: 'rebuild_audio.py 按 seg_times.json 把每段配音精确铺到对应画面起始时刻' },
+        { name: '合并出片', type: 'script', desc: 'ffmpeg 合并视频与对齐音轨为 output.mp4' },
+        { name: '离线自检与抽帧', type: 'script', desc: '抽 beat 中帧拼联系表，目检同步与布局' },
+        { name: '评测回填', type: 'both', desc: 'eval 跑 content-reviewer 黄金用例回归；发布后回填真实留存数据' },
+      ],
+      githubUrl: 'https://github.com/jaybeat/ai_teach_video',
+      extraCta: {
+        label: '查看 /new-episode Skill',
+        url: 'https://github.com/jaybeat/ai_teach_video/tree/main/.claude/skills/new-episode',
+      },
+    },
+  },
+  {
     id: 'spiral-explainer-video',
     title: 'Spiral Explainer Video',
     description:
