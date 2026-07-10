@@ -336,32 +336,43 @@ function FeaturedSpotlight({ project }: { project: Project }) {
         {project.description}
       </motion.p>
 
-      {detail.challenges && (
-        <motion.div
+      {detail.highlights && (
+        <motion.ul
           variants={itemVariants}
           style={{
+            listStyle: 'none',
+            margin: '0 0 24px',
+            padding: 0,
             display: 'flex',
-            flexWrap: 'wrap',
-            gap: '8px',
-            marginBottom: '24px',
+            flexDirection: 'column',
+            gap: '10px',
           }}
         >
-          {detail.challenges.map((c) => (
-            <span
-              key={c.problem}
+          {detail.highlights.map((h) => (
+            <li
+              key={h}
               style={{
-                fontSize: '13px',
+                display: 'flex',
+                gap: '10px',
+                fontSize: '14px',
+                lineHeight: 1.65,
                 color: 'var(--text-secondary)',
-                background: 'var(--bg-secondary)',
-                padding: '7px 16px',
-                borderRadius: '20px',
-                border: '1px solid var(--border)',
               }}
             >
-              {c.problem}
-            </span>
+              <span
+                style={{
+                  width: '5px',
+                  height: '5px',
+                  borderRadius: '50%',
+                  background: 'var(--text-muted)',
+                  flexShrink: 0,
+                  marginTop: '8px',
+                }}
+              />
+              <span style={{ minWidth: 0 }}>{h}</span>
+            </li>
           ))}
-        </motion.div>
+        </motion.ul>
       )}
 
       {images.length > 0 ? (
@@ -739,8 +750,8 @@ export default function Projects() {
       }}
     >
       {spotlights.length > 0 && (
-        <>
-          <SectionLabel zh="如何搭建 AI Agent 产品" en="How to Build an AI Agent Product" />
+        <div id="product" style={{ scrollMarginTop: '72px' }}>
+          <SectionLabel zh="AI Agent 产品" en="AI Agent Products" />
           {spotlights.map((project, idx) => (
             <div
               key={project.id}
@@ -757,11 +768,11 @@ export default function Projects() {
               <FeaturedSpotlight project={project} />
             </div>
           ))}
-        </>
+        </div>
       )}
 
-      <div style={{ marginTop: spotlights.length > 0 ? '72px' : 0 }}>
-        <SectionLabel zh="如何教一门 AI Agent 课程" en="How to Teach an AI Agent Course" />
+      <div id="course" style={{ marginTop: spotlights.length > 0 ? '72px' : 0, scrollMarginTop: '72px' }}>
+        <SectionLabel zh="AI Agent 课程设计" en="AI Agent Course Design" />
         <motion.p
           initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}

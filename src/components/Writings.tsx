@@ -164,6 +164,7 @@ export default function Writings() {
         padding: '56px 24px',
         maxWidth: '720px',
         margin: '0 auto',
+        scrollMarginTop: '72px',
       }}
     >
       <motion.div
@@ -183,7 +184,7 @@ export default function Writings() {
             marginBottom: '8px',
           }}
         >
-          How to Learn a Field's Framework Fast
+          A System for Learning Fast
         </p>
         <h2
           style={{
@@ -195,7 +196,7 @@ export default function Writings() {
             color: 'var(--text-primary)',
           }}
         >
-          如何快速学习一个领域的框架
+          快速学习的系统方法
         </h2>
       </motion.div>
 

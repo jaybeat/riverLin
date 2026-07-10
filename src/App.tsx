@@ -6,6 +6,7 @@ import Hero from './components/Hero'
 import Projects from './components/Projects'
 import Writings from './components/Writings'
 import Footer from './components/Footer'
+import SideToc from './components/SideToc'
 
 // 详情页按路由懒加载：把 react-markdown 等重依赖移出首页初始包
 const ProjectDetail = lazy(() => import('./components/ProjectDetail'))
@@ -21,6 +22,7 @@ function HomePage() {
       transition={{ duration: 0.3 }}
     >
       <Navbar />
+      <SideToc />
       <Hero />
       <Projects />
       <Writings />

@@ -222,7 +222,7 @@ export const projects: Project[] = [
     id: 'deconstruct',
     title: '解构 · AI 灵感库',
     description:
-      '人的学习与成长，源于读到优质信息——把它拆解、沉淀，再用进自己的创作。解构就是这样一个 AI 灵感库：帮你把刷到的好内容一键收藏，替你拆解其中的门道、沉淀成可复用的灵感，让每一次输入都成为下一次创作的养料。',
+      '解构是一个本地化的个人 AI 灵感库，解决「好内容刷了就忘、学不到门道、创作又从零起步」的问题——把你收藏的优质内容自动拆解、沉淀，转成下一次创作可复用的养料。',
     tags: ['Claude Code', 'Express', 'React', 'Whisper', 'WHWM', '灵感库'],
     href: 'https://github.com/jaybeat/deconstruct',
     category: 'deconstruction',
@@ -232,9 +232,10 @@ export const projects: Project[] = [
       detailDescription:
         '人的学习与成长，源于读到优质信息——把它拆解、沉淀，再用进自己的创作。解构就是这样一个 AI 灵感库：帮你把刷到的好内容一键收藏，替你拆解其中的门道、沉淀成可复用的灵感，让每一次输入都成为下一次创作的养料。它是一个本地化的个人 AI 灵感库，口号「解构别人，写出自己」，跑通 拆解 → 沉淀 → 创作 的闭环。① 阅读·拆解：通过微信把视频号 / B站 / YouTube 的分享链接发来（或在内容库点「＋」），后端经 Cloudflare Worker 解析、yt-dlp 下载、Whisper 转写落库，再用 whwm-reading-analysis 按 WHWM 四模块（What / How / Why / Meaningful）把内容拆到骨架级——How 是重中之重、Why 按古典三艺列机制清单；还可按需做拉片、仿写、选题三种解构。② 组件库·沉淀：writing-components 把这些分析里「表达方式」的启发提炼成可按写作环节检索的组件卡，并生成作者签名配方，成为可复用的第二大脑。③ 写作·创作：whwm-writer 五角色引擎（选题→调研→结构→写稿→审稿）用组件库驱动，产出中心明确的新文章 / 书。整个灵感库以 Markdown 为唯一数据源，由本地 Express + React 应用索引、浏览、搜索并驱动各条流水线；分析质量由双层 evals（结构脚本 + LLM 裁判 rubric）回归把关。仓库当前为私有，如需访问请联系我。',
       highlights: [
-        '三支柱闭环：阅读(拆解) → 组件库(沉淀) → 写作(创作)，把「消费好内容」变成「产出自己作品」',
-        '微信一键采集：视频号 / B站 / YouTube 分享链接 → 自动下载 + Whisper 转写落库、热更新索引',
-        '本地 Express + React 应用：内容库三栏浏览 / 中文分词全文搜索 / 流水线队列，Markdown 为唯一数据源',
+        '一键采集：微信发来视频号 / B站 / YouTube 链接，自动下载并 Whisper 转写落库',
+        '深度拆解：按 WHWM 四模块把内容拆到骨架级，How 拆手法、Why 列机制清单',
+        '沉淀为组件：把表达启发做成可按写作环节检索的组件卡 + 作者签名配方',
+        '组件驱动创作：whwm-writer 五角色引擎用组件库产出中心明确的新文章 / 书',
       ],
       showcaseImages: [
         {
@@ -390,7 +391,7 @@ export const projects: Project[] = [
     id: 'ai-teach-video',
     title: '视频创作 Agent',
     description:
-      '把中文技术文章自动做成讲解短视频的多 Agent 流水线：分镜/评审/动画三个 subagent 由 /new-episode 编排、eval 回归，逐一解决音画同步、风格一致、公式与多音字朗读、动画遮挡等工程难题。',
+      '视频创作 Agent 是一套把中文技术文章自动做成讲解短视频的多 Agent 流水线，解决「一个人做讲解视频——分镜、配音、动画、音画同步——样样耗时」的问题。',
     tags: ['Manim', 'Python', 'TTS', 'FFmpeg', 'Claude Code', 'Agent Pipeline'],
     href: 'https://github.com/jaybeat/ai_teach_video',
     category: 'pedagogy',
@@ -400,9 +401,10 @@ export const projects: Project[] = [
       detailDescription:
         '视频创作 Agent 是一套把中文技术文章自动做成讲解短视频的多 Agent 流水线。三个 Claude Code subagent 各司其职——分镜设计师把文章改写成逐句旁白与动画 beat，内容评审师按留存清单预检每一段，动画设计师产出 Manim 动画；由 /new-episode 技能把三者编排成一条自动流水线，并用 eval 对内容评审的黄金用例做回归、发布后回填真实留存数据。架构上采用「共享引擎 + 每集零件」：引擎（dsvkit.py、TTS、build.sh）全系列复用，每集只改旁白与动画。它逐一啃下了视频制作各环节最难的工程问题（见下方「解决的典型问题」）。仓库当前为私有，如需访问请联系我。',
       highlights: [
-        '共享引擎 + 每集零件：引擎复用，每集只换 segments.py 与 video.py',
-        '全流程 Claude Code agent 编排：分镜 → 留存评审 → 动画 → 构建 → 评测回填',
-        '公众号图文复用：/wechat-article 把已出片视频转成自包含 HTML',
+        '三 Agent 流水线：分镜设计 → 留存评审 → Manim 动画，由 /new-episode 一键编排',
+        '共享引擎 + 每集零件：引擎全系列复用，每集只换旁白与动画',
+        '攻克工程难题：音画同步、系列风格一致、公式与多音字朗读、动画不遮挡',
+        '一稿多用：/wechat-article 把已出片视频转成自包含 HTML 图文',
       ],
       agentsCaption:
         '三个 Claude Code subagent 各司其职，由 /new-episode 技能编排成一条自动流水线；eval 对内容评审的黄金用例做回归，发布后回填真实留存数据。',
