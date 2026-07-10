@@ -158,19 +158,19 @@ export const projects: Project[] = [
       singleColumnScreenshots: true,
       screenshots: [
         {
-          src: '/images/evo/screenshot-1.png',
+          src: '/images/evo/screenshot-1.webp',
           caption: '主题首页：每个主题沿"核心机制 → 演化变体"组织，如二叉搜索树从"快速查找"出发',
         },
         {
-          src: '/images/evo/screenshot-2.png',
+          src: '/images/evo/screenshot-2.webp',
           caption: '问题驱动的课时：先感受线性扫描逐个比对的笨拙，再一步步逼出更优解法',
         },
         {
-          src: '/images/evo/screenshot-3.png',
+          src: '/images/evo/screenshot-3.webp',
           caption: '演化出二分查找：数据排好序后，每次对半排除，效率实现飞跃',
         },
         {
-          src: '/images/evo/screenshot-4.png',
+          src: '/images/evo/screenshot-4.webp',
           caption: '沿演化路径推进：把有序数组从中间"拎起来"，自然演化出二叉搜索树',
         },
       ],
@@ -239,19 +239,25 @@ export const projects: Project[] = [
       ],
       showcaseImages: [
         {
-          src: '/images/deconstruct/wechat.png',
+          src: '/images/deconstruct/wechat.webp',
           alt: '微信发链接一键采集',
           orientation: 'portrait',
           caption: '微信发来视频号 / B站 / YouTube 链接，自动采集进阅读库',
         },
         {
-          src: '/images/deconstruct/reading.png',
+          src: '/images/deconstruct/reading.webp',
           alt: '阅读·拆解界面',
           orientation: 'landscape',
           caption: '阅读·拆解：字幕逐句对照 + WH速览 / 仿写 / 选题分析',
         },
         {
-          src: '/images/deconstruct/writing.png',
+          src: '/images/deconstruct/components.webp',
+          alt: '组件库·沉淀界面',
+          orientation: 'landscape',
+          caption: '组件库·沉淀：把表达启发提炼成可按写作环节检索的组件卡 + 作者签名配方',
+        },
+        {
+          src: '/images/deconstruct/writing.webp',
           alt: '写作·创作流水线',
           orientation: 'landscape',
           caption: '写作·创作：立项 → 立意 → 选材 → 布局 → 细化 → 成稿 六阶段',
@@ -457,9 +463,9 @@ export const projects: Project[] = [
         },
       ],
       // 抖音「林小川说学习」视频作品效果截图。请把截图保存到下面这个路径：
-      // public/images/ai-teach-video/douyin-showcase.png
+      // public/images/ai-teach-video/douyin-showcase.webp
       showcaseImage: {
-        src: '/images/ai-teach-video/douyin-showcase.png',
+        src: '/images/ai-teach-video/douyin-showcase.webp',
         alt: '抖音「林小川说学习」视频作品效果展示',
       },
       pipelineSteps: [
@@ -679,19 +685,19 @@ export const projects: Project[] = [
       githubUrl: 'https://github.com/jaybeat/Fragments',
       screenshots: [
         {
-          src: '/images/fragments/screenshot-1.png',
+          src: '/images/fragments/screenshot-1.webp',
           caption: '首页浏览不同人物的精选片段，按产品与打磨、组织与公司演化等领域分类展示',
         },
         {
-          src: '/images/fragments/screenshot-2.png',
+          src: '/images/fragments/screenshot-2.webp',
           caption: '人物详情页按主题聚类，如巴菲特的"决策与判断"，一览核心思考时刻',
         },
         {
-          src: '/images/fragments/screenshot-3.png',
+          src: '/images/fragments/screenshot-3.webp',
           caption: '沉浸式播放界面支持双语对照、时间戳跳转与章节导航，还原真人原声语境',
         },
         {
-          src: '/images/fragments/screenshot-4.png',
+          src: '/images/fragments/screenshot-4.webp',
           caption: '新增收藏功能：粘贴 YouTube 链接，自动提取转录并切分高光片段',
         },
       ],
@@ -721,11 +727,11 @@ export const projects: Project[] = [
       singleColumnScreenshots: true,
       screenshots: [
         {
-          src: '/images/game-translation/overlay.png',
+          src: '/images/game-translation/overlay.webp',
           caption: '游戏内实时汉化：识别原文并在画面上叠加中英对照译文',
         },
         {
-          src: '/images/game-translation/tool-ui.png',
+          src: '/images/game-translation/tool-ui.webp',
           caption: '工具界面：固定框选模式框定屏幕区域，选定游戏窗口后文字变化即自动翻译',
         },
       ],
@@ -740,7 +746,7 @@ export const projects: Project[] = [
     href: 'https://github.com/9dk9jptv8h-hue/japan-otaku-map',
     category: 'practice',
     student: true,
-    cover: '/images/japan-otaku-map/map-cover.png',
+    cover: '/images/japan-otaku-map/map-cover.webp',
     detail: {
       detailDescription:
         '日本动漫店铺地图（Japan Otaku Map）是一款面向中国动漫爱好者的日本巡礼地图。它用 MapLibre GL 渲染 OpenFreeMap 矢量瓦片，标注覆盖北海道到九州的 176 家动漫店铺，按 Animate、Melonbooks、Mandarake、Suruga-ya、GAMERS、Lashinbang、K-Books 七大连锁分色显示；支持按名称/描述/标签/地址全文搜索，按地区与品类筛选，并按评分、名称、更新时间、热度排序。内置一个由 DeepSeek 驱动、经 Cloudflare Worker 代理的 AI 旅行顾问，熟悉全部 176 家店铺，可给出巡礼路线建议。桌面端用侧栏、移动端用抽屉的响应式布局，并通过 GitHub Actions 自动构建可同步数据的 Android APK。',
@@ -757,11 +763,11 @@ export const projects: Project[] = [
       singleColumnScreenshots: true,
       screenshots: [
         {
-          src: '/images/japan-otaku-map/welcome-screen.png',
+          src: '/images/japan-otaku-map/welcome-screen.webp',
           caption: '欢迎页：介绍这张面向中国动漫爱好者的日本巡礼地图与玩法',
         },
         {
-          src: '/images/japan-otaku-map/map-cover.png',
+          src: '/images/japan-otaku-map/map-cover.webp',
           caption: '地图主界面：176 家店铺按连锁品牌分色标注，侧栏可搜索、筛选与排序',
         },
       ],
@@ -814,11 +820,11 @@ export const projects: Project[] = [
       singleColumnScreenshots: true,
       screenshots: [
         {
-          src: '/images/web-ai-notes/side-panel.png',
+          src: '/images/web-ai-notes/side-panel.webp',
           caption: '侧边栏「网页笔记助手」：在 YouTube 视频旁提取字幕生成摘要，按分类保存笔记并可导出 Markdown',
         },
         {
-          src: '/images/web-ai-notes/architecture.png',
+          src: '/images/web-ai-notes/architecture.webp',
           caption: 'MV3 架构：Side Panel UI ↔ Service Worker，经 Content Script 读页面、调 LLM API、用 chrome.storage.local 存储',
         },
       ],
@@ -833,7 +839,7 @@ export const projects: Project[] = [
     href: 'https://github.com/Elvire77/WordSnap',
     category: 'practice',
     student: true,
-    cover: '/images/wordsnap/home.png',
+    cover: '/images/wordsnap/home.webp',
     detail: {
       detailDescription:
         'WordSnap（拍照学单词）是一款移动优先的英语学习 Web 应用，主打「看到即学习」：用户拍照或从相册选图，MiniMax M3 多模态视觉模型识别画面主体并返回英文名词，点击单词进入详情，系统按「本地离线词典 → MiniMax → Free Dictionary → 硬编码兜底」四层级联获取音标、中英释义与例句（例句经 MyMemory 翻译为中文），并用浏览器 SpeechSynthesis 朗读单词与例句。用户可建多个收藏本管理单词；数据采用「本地优先 + 云端增强」策略：默认存 localStorage 离线可用，邮箱登录后经 syncService 与 Supabase（Auth + PostgreSQL，RLS 行级隔离）双向合并同步，跨设备一致，并提供无需注册的游客模式。前端 React 18 + Vite 5 + Tailwind + Zustand，部署于 Vercel。',
@@ -850,15 +856,15 @@ export const projects: Project[] = [
       singleColumnScreenshots: true,
       screenshots: [
         {
-          src: '/images/wordsnap/recognition.png',
+          src: '/images/wordsnap/recognition.webp',
           caption: '拍照取词：识别上传图片主体，返回英文单词卡片（Glass Mug），可一键收藏',
         },
         {
-          src: '/images/wordsnap/word-detail.png',
+          src: '/images/wordsnap/word-detail.webp',
           caption: '单词详情：音标、中英释义、三条例句与中文翻译，支持单词/例句语音朗读',
         },
         {
-          src: '/images/wordsnap/collections.png',
+          src: '/images/wordsnap/collections.webp',
           caption: '我的收藏：多个收藏本分组管理已学单词，支持新建与删除',
         },
       ],
@@ -887,7 +893,7 @@ export const projects: Project[] = [
       singleColumnScreenshots: true,
       screenshots: [
         {
-          src: '/images/tarot-daily/spread.png',
+          src: '/images/tarot-daily/spread.webp',
           caption: '事业运势·三张牌阵：选定领域与牌阵后抽牌，逐张给出当前状态、机遇与挑战的解读，可切换简洁/详细并开启 AI 智能深度解读',
         },
       ],
@@ -918,11 +924,11 @@ export const projects: Project[] = [
       singleColumnScreenshots: true,
       screenshots: [
         {
-          src: '/images/voicechat/home.png',
+          src: '/images/voicechat/home.webp',
           caption: '首页：输入昵称即可创建或加入房间（6 位房间码），下方「最近加入的房间」快速回访，全程无需注册',
         },
         {
-          src: '/images/voicechat/room.png',
+          src: '/images/voicechat/room.webp',
           caption: '房间内：右侧成员列表实时显示在线成员与「说话中」状态，支持屏幕共享，底部一键切换麦克风、扬声器与屏幕共享',
         },
       ],
