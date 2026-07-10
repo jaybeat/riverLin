@@ -62,11 +62,24 @@ export default function Hero() {
             letterSpacing: '-2px',
             lineHeight: 1.05,
             color: 'var(--text-primary)',
+            marginBottom: '6px',
+          }}
+        >
+          林川杰
+        </motion.h1>
+
+        <motion.p
+          variants={itemVariants}
+          style={{
+            fontFamily: 'var(--font-mono)',
+            fontSize: '14px',
+            color: 'var(--text-muted)',
+            letterSpacing: '1px',
             marginBottom: '14px',
           }}
         >
           RiverLin
-        </motion.h1>
+        </motion.p>
 
         <motion.p
           variants={itemVariants}
@@ -77,7 +90,7 @@ export default function Hero() {
             marginBottom: '14px',
           }}
         >
-          AI 产品经理 · Agent 工程师 · 探索学习的本质
+          AI 产品经理 · Agent 工程师 · 探索学习与创造的本质
         </motion.p>
 
         <motion.p
@@ -90,8 +103,8 @@ export default function Hero() {
             marginBottom: '24px',
           }}
         >
-          AI 能替我们做越来越多的事，却替不了我们去理解、去品味。真正的创新，恰恰生长在「你的作品」与「理想的样子」之间那道不断被缩小的差距里。所以我想做的
-          AI + 学习产品，不教人背下标准答案，而是帮学习者长出深度理解与品味迭代的能力。
+          我擅长两件事：把 AI Agent 从想法造成真正能用的产品，也把复杂的东西拆开、讲到别人能上手。现在我想把它们合成一件事——让
+          AI 带我们透视现象背后的规律，把好作品拆成可复用的方法，让每一次理解都沉淀下来，长成持续创新与创造的能力。不是背下标准答案，而是一套越用越厚的成长积累。
         </motion.p>
 
         <motion.div

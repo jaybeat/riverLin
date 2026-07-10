@@ -1077,7 +1077,7 @@ export const articles: Article[] = [
   },
   {
     id: 'five-levels-of-knowledge',
-    title: '知识的五个层次：为什么你越努力，反而越学不会？',
+    title: '知识的五个层次',
     date: '2026.02.05',
     author: '林小川说学习',
     album: '学习的底层原理',
@@ -1093,7 +1093,7 @@ export const articles: Article[] = [
   },
   {
     id: 'knowledge-structure-meta-cognition',
-    title: '揭秘学霸的"元认知"：拥有终生受益的学习力',
+    title: '知识的结构：从基本问题中一步步演化',
     date: '2025.12.27',
     author: '林小川说学习',
     album: '【精简版】学习的底层原理',
@@ -1110,7 +1110,7 @@ export const articles: Article[] = [
   },
   {
     id: 'system-view-of-learning',
-    title: '揭秘学霸的"系统观"：拥有终生受益的学习力',
+    title: '知识的系统：把一个学科的概念构建为系统',
     date: '2026.01.30',
     author: '林小川说学习',
     album: '学习的底层原理',

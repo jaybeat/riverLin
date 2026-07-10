@@ -711,16 +711,41 @@ function CourseSyllabus() {
                         transition={{ duration: 0.28, ease: [0.2, 0.8, 0.2, 1] }}
                         style={{ overflow: 'hidden' }}
                       >
-                        <p
-                          style={{
-                            fontSize: '13px',
-                            lineHeight: 1.7,
-                            color: 'var(--text-muted)',
-                            padding: '0 26px 14px',
-                          }}
-                        >
-                          {lesson.desc}
-                        </p>
+                        <div style={{ padding: '0 26px 14px' }}>
+                          <p
+                            style={{
+                              fontSize: '13px',
+                              lineHeight: 1.7,
+                              color: 'var(--text-muted)',
+                            }}
+                          >
+                            {lesson.desc}
+                          </p>
+                          <p
+                            style={{
+                              display: 'flex',
+                              gap: '8px',
+                              alignItems: 'baseline',
+                              fontSize: '13px',
+                              lineHeight: 1.6,
+                              color: 'var(--text-secondary)',
+                              marginTop: '8px',
+                            }}
+                          >
+                            <span
+                              style={{
+                                fontFamily: 'var(--font-mono)',
+                                fontSize: '11px',
+                                color: 'var(--text-muted)',
+                                letterSpacing: '1px',
+                                flexShrink: 0,
+                              }}
+                            >
+                              任务
+                            </span>
+                            {lesson.task}
+                          </p>
+                        </div>
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -737,7 +762,7 @@ function CourseSyllabus() {
 export default function Projects() {
   const spotlights = projects.filter((p) => p.spotlight)
   const otherProjects = projects.filter((p) => !p.spotlight)
-  const courseProjects = otherProjects.filter((p) => !p.student)
+  const moreProjects = otherProjects.filter((p) => !p.student)
   const studentProjects = otherProjects.filter((p) => p.student)
 
   return (
@@ -768,6 +793,7 @@ export default function Projects() {
               <FeaturedSpotlight project={project} />
             </div>
           ))}
+          <ProjectScrollRow title="更多 Agent 实践项目" items={moreProjects} />
         </div>
       )}
 
@@ -793,7 +819,6 @@ export default function Projects() {
 
         <CourseSyllabus />
 
-        <ProjectScrollRow title="课程讲解项目" items={courseProjects} />
         <ProjectScrollRow title="学生项目" items={studentProjects} />
       </div>
     </section>
