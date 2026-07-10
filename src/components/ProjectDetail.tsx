@@ -8,6 +8,7 @@ import {
   FileText,
 } from 'lucide-react'
 import { getProjectById } from '../data/projects'
+import ShowcaseGallery from './ShowcaseGallery'
 
 const pageVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -322,6 +323,20 @@ export default function ProjectDetail() {
                 />
               </div>
             )}
+            {(() => {
+              const imgs =
+                detail.showcaseImages ??
+                (detail.showcaseImage ? [detail.showcaseImage] : [])
+              return imgs.length > 0 ? (
+                <div style={{ marginBottom: '28px' }}>
+                  <ShowcaseGallery
+                    images={imgs}
+                    showCaptions
+                    fallbackAlt={project.title}
+                  />
+                </div>
+              ) : null
+            })()}
             <div
               style={{
                 display: 'flex',
@@ -614,6 +629,153 @@ export default function ProjectDetail() {
           </motion.div>
         )}
 
+        {/* 多 Agent 编排 */}
+        {detail?.agents && (
+          <motion.div
+            variants={sectionVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-80px' }}
+          >
+            <h2
+              style={{
+                fontFamily: 'var(--font-heading)',
+                fontSize: '24px',
+                fontWeight: 600,
+                color: 'var(--text-primary)',
+                marginBottom: '8px',
+                letterSpacing: '-0.5px',
+              }}
+            >
+              {detail.agentsTitle || '多 Agent 编排'}
+            </h2>
+            {detail.agentsCaption && (
+              <p
+                style={{
+                  fontSize: '14px',
+                  lineHeight: 1.6,
+                  color: 'var(--text-muted)',
+                  marginBottom: '24px',
+                }}
+              >
+                {detail.agentsCaption}
+              </p>
+            )}
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
+                gap: '16px',
+              }}
+            >
+              {detail.agents.map((agent) => (
+                <div
+                  key={agent.name}
+                  style={{
+                    background: 'var(--bg-secondary)',
+                    borderRadius: '16px',
+                    border: '1px solid var(--border)',
+                    padding: '20px',
+                  }}
+                >
+                  <h3
+                    style={{
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: '14px',
+                      fontWeight: 600,
+                      color: 'var(--text-primary)',
+                      marginBottom: '10px',
+                      lineHeight: 1.4,
+                    }}
+                  >
+                    {agent.name}
+                  </h3>
+                  <p
+                    style={{
+                      fontSize: '13.5px',
+                      lineHeight: 1.65,
+                      color: 'var(--text-secondary)',
+                    }}
+                  >
+                    {agent.role}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+
+        {/* 解决的典型问题 */}
+        {detail?.challenges && (
+          <motion.div
+            variants={sectionVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-80px' }}
+          >
+            <h2
+              style={{
+                fontFamily: 'var(--font-heading)',
+                fontSize: '24px',
+                fontWeight: 600,
+                color: 'var(--text-primary)',
+                marginBottom: '8px',
+                letterSpacing: '-0.5px',
+              }}
+            >
+              解决的典型问题
+            </h2>
+            <p
+              style={{
+                fontSize: '14px',
+                lineHeight: 1.6,
+                color: 'var(--text-muted)',
+                marginBottom: '24px',
+              }}
+            >
+              视频制作各环节最难啃的工程问题，逐一给出解法。
+            </p>
+            <div
+              style={{
+                borderTop: '1px solid var(--border)',
+              }}
+            >
+              {detail.challenges.map((c) => (
+                <div
+                  key={c.problem}
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'minmax(120px, 150px) 1fr',
+                    gap: '16px 24px',
+                    padding: '16px 0',
+                    borderBottom: '1px solid var(--border)',
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: '15px',
+                      fontWeight: 600,
+                      lineHeight: 1.5,
+                      color: 'var(--text-primary)',
+                    }}
+                  >
+                    {c.problem}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: '14px',
+                      lineHeight: 1.7,
+                      color: 'var(--text-secondary)',
+                    }}
+                  >
+                    {c.solution}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+
         {/* 处理流水线 */}
         {detail?.pipelineSteps && (
           <motion.div
@@ -754,6 +916,118 @@ export default function ProjectDetail() {
                 </div>
               ))}
             </div>
+          </motion.div>
+        )}
+
+        {/* 写作·创作 深入板块 */}
+        {detail?.writingPillar && (
+          <motion.div
+            variants={sectionVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-80px' }}
+          >
+            <h2
+              style={{
+                fontFamily: 'var(--font-heading)',
+                fontSize: '24px',
+                fontWeight: 600,
+                color: 'var(--text-primary)',
+                marginBottom: '8px',
+                letterSpacing: '-0.5px',
+              }}
+            >
+              {detail.writingPillar.title}
+            </h2>
+            {detail.writingPillar.caption && (
+              <p
+                style={{
+                  fontSize: '14px',
+                  lineHeight: 1.6,
+                  color: 'var(--text-muted)',
+                  marginBottom: '24px',
+                }}
+              >
+                {detail.writingPillar.caption}
+              </p>
+            )}
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
+                gap: '16px',
+              }}
+            >
+              {detail.writingPillar.roles.map((role) => (
+                <div
+                  key={role.name}
+                  style={{
+                    background: 'var(--bg-secondary)',
+                    borderRadius: '16px',
+                    border: '1px solid var(--border)',
+                    padding: '20px',
+                  }}
+                >
+                  <h3
+                    style={{
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: '14px',
+                      fontWeight: 600,
+                      color: 'var(--text-primary)',
+                      marginBottom: '10px',
+                      lineHeight: 1.4,
+                    }}
+                  >
+                    {role.name}
+                  </h3>
+                  <p
+                    style={{
+                      fontSize: '13.5px',
+                      lineHeight: 1.65,
+                      color: 'var(--text-secondary)',
+                    }}
+                  >
+                    {role.role}
+                  </p>
+                </div>
+              ))}
+            </div>
+            {detail.writingPillar.challenges && (
+              <div style={{ marginTop: '32px', borderTop: '1px solid var(--border)' }}>
+                {detail.writingPillar.challenges.map((c) => (
+                  <div
+                    key={c.problem}
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'minmax(120px, 150px) 1fr',
+                      gap: '16px 24px',
+                      padding: '16px 0',
+                      borderBottom: '1px solid var(--border)',
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontSize: '15px',
+                        fontWeight: 600,
+                        lineHeight: 1.5,
+                        color: 'var(--text-primary)',
+                      }}
+                    >
+                      {c.problem}
+                    </span>
+                    <span
+                      style={{
+                        fontSize: '14px',
+                        lineHeight: 1.7,
+                        color: 'var(--text-secondary)',
+                      }}
+                    >
+                      {c.solution}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
           </motion.div>
         )}
 

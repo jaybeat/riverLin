@@ -171,19 +171,32 @@ export default function Writings() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-60px' }}
         transition={{ duration: 0.5 }}
-        style={{ marginBottom: '20px' }}
+        style={{ marginBottom: '28px' }}
       >
         <p
           style={{
             fontFamily: 'var(--font-mono)',
-            fontSize: '13px',
+            fontSize: '12px',
             color: 'var(--text-muted)',
-            letterSpacing: '1px',
+            letterSpacing: '1.5px',
             textTransform: 'uppercase',
+            marginBottom: '8px',
           }}
         >
-          Writings · 文章
+          How to Learn a Field's Framework Fast
         </p>
+        <h2
+          style={{
+            fontFamily: 'var(--font-heading)',
+            fontSize: 'clamp(26px, 4.5vw, 34px)',
+            fontWeight: 700,
+            letterSpacing: '-0.5px',
+            lineHeight: 1.15,
+            color: 'var(--text-primary)',
+          }}
+        >
+          如何快速学习一个领域的框架
+        </h2>
       </motion.div>
 
       <div
