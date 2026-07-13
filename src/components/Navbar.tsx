@@ -2,10 +2,8 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 
 const navItems = [
-  { label: '首页', href: '#hero' },
   { label: '文章', href: '#writings' },
   { label: '项目', href: '#projects' },
-  { label: '关于', href: '#footer' },
 ]
 
 export default function Navbar() {
