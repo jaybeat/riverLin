@@ -226,6 +226,150 @@ export const projects: Project[] = [
     },
   },
   {
+    id: 'video-to-guide',
+    title: '视频变图文',
+    description:
+      '将长视频转换为章节化、可交互的配套指南网页，支持浮动视频播放器与时间戳跳转',
+    tags: ['Python', 'LLM Pipeline', 'Claude Skill', 'HTML Generator'],
+    href: 'https://github.com/jaybeat/video_to_guide',
+    category: 'deconstruction',
+    featured: true,
+    cover: '/images/video-to-guide/guide-preview.webp',
+    detail: {
+      detailDescription:
+        '这是一个 Claude Skill，能够将 YouTube 上的长视频（通常是 1-3 小时的技术讲座或教程）转换为结构化的配套指南网页。生成的页面读起来像书章一样流畅，同时完整保留代码和公式，每个章节都配有原视频的时间戳，点击即可跳转播放。',
+      showcaseImage: {
+        src: '/images/video-to-guide/guide-preview.webp',
+        alt: '生成的 Build GPT 伴读指南：左侧章节目录 + 右侧图文正文',
+        caption:
+          '生成的配套指南网页：左侧章节导航，右侧书章式图文正文，保留代码、公式与关键帧',
+      },
+      highlights: [
+        '7 阶段自动化流水线',
+        '两遍结构识别',
+        '断点续传',
+        '中英双语输出',
+        '代码与公式完整保留',
+      ],
+      pipelineSteps: [
+        { name: '下载预处理', type: 'script', desc: '提取字幕、分块、生成初始数据' },
+        { name: '两遍结构识别', type: 'llm', desc: '粗粒度主题 → 细粒度章节划分' },
+        { name: '章节重写', type: 'llm', desc: '并行子代理将口语转为书面表达' },
+        { name: '帧提取插入', type: 'both', desc: '自动提取并插入教学关键帧' },
+        { name: '诊断打磨', type: 'both', desc: '脚本诊断 + 定向 LLM 修复' },
+        { name: '翻译输出', type: 'llm', desc: '中文翻译（源中文则跳过）' },
+        { name: '导出 HTML', type: 'script', desc: '生成带浮动播放器的指南页' },
+      ],
+      example: {
+        title: 'Build GPT 配套指南',
+        desc: '基于 Andrej Karpathy "Let\'s build GPT" 视频生成的中文配套指南，完整覆盖了从零构建 GPT 模型的全过程。',
+        src: '/workspace/build_gpt/guide.zh.html',
+        githubSrc:
+          'https://github.com/jaybeat/video_to_guide/blob/main/workspace/build_gpt/guide.zh.html',
+      },
+      githubUrl: 'https://github.com/jaybeat/video_to_guide',
+      extraCta: {
+        label: '查看 SKILL.md',
+        url: 'https://github.com/jaybeat/video_to_guide/tree/main/.claude/skills/video-to-companion-guide',
+      },
+    },
+  },
+  {
+    id: 'concept-map-builder',
+    title: '概念地图设计器',
+    description:
+      '从一个焦点问题出发，用 Novak 六步法逐步构建概念图的 Claude Skill。写成 Graphviz DOT 源、用 dot 渲染并注入柔光，输出一张自包含的暗色发光 .svg，再由 evaluator 子代理按八项标准评估并迭代修订。',
+    tags: ['Claude Skill', 'Graphviz', 'DOT', 'SVG', 'Subagent'],
+    href: 'https://github.com/jaybeat/concept-map-builder',
+    category: 'deconstruction',
+    featured: true,
+    detail: {
+      detailDescription:
+        'Concept Map Builder 是一个 Claude Skill，把一块知识系统地图形化为概念图。它遵循认知科学家 Novak 的六步法：先在顶部确立一个强调"关系"而非"定义"的焦点问题，再自由头脑风暴概念、从抽象到具体做层级排序、搭建无标签骨架、为每条连线补上方向性的命题标签，最后加入跨分支交叉链接与具体实例。整张图写成 Graphviz DOT 源、用 dot 渲染并注入柔光，成为一张无需外部 CSS 或运行时、打开即可浏览的自包含暗色发光 SVG。完成后由一个独立的 evaluator 子代理按八项标准评估其主观质量，并据此按优先级迭代修订（2–3 轮收敛）。',
+      highlights: [
+        'Novak 六步法构建概念图',
+        '焦点问题驱动，拒绝知识点堆砌',
+        'Graphviz DOT 渲染 + 柔光注入',
+        '自包含暗色发光 SVG，打开即览',
+        'evaluator 子代理按八项标准评估',
+        '迭代收敛（最多 2–3 轮修订）',
+      ],
+      pipelineSteps: [
+        { name: '确立焦点问题', type: 'both', desc: '把宽泛主题收窄为强调关系的焦点问题；模糊则给出 2–4 个候选供选择' },
+        { name: '概念头脑风暴', type: 'llm', desc: '自由列出相关概念放入"停车场"，先不连线' },
+        { name: '层级排序', type: 'llm', desc: '从抽象到具体排序，保留 15–25 个核心概念' },
+        { name: '骨架搭建', type: 'both', desc: '写成 Graphviz DOT，dot 渲染为节点与无标签连线' },
+        { name: '关系标注与交叉链接', type: 'llm', desc: '为每条连线补上方向性命题标签，加入跨分支交叉链接与实例' },
+        { name: '柔光渲染', type: 'script', desc: '注入柔光，输出自包含的暗色发光 SVG' },
+        { name: '评估与修订', type: 'both', desc: 'evaluator 子代理按八项标准评估，按优先级迭代修订' },
+      ],
+      githubUrl: 'https://github.com/jaybeat/concept-map-builder',
+      singleColumnScreenshots: true,
+      screenshots: [
+        {
+          src: '/images/concept-map-builder/concept-map-data-structures-competency.svg',
+          caption: '焦点问题"数据结构培养学生具备什么？"——把核心目标外显为可锻炼的多项胜任力',
+        },
+        {
+          src: '/images/concept-map-builder/concept-map-hashtable-amortized-o1-alt.svg',
+          caption: '焦点问题"哈希表凭什么做到均摊 O(1)？"——把 O(1) 基底、哈希映射与摊还分析串成命题',
+        },
+      ],
+      extraCta: {
+        label: '查看 SKILL.md',
+        url: 'https://github.com/jaybeat/concept-map-builder/tree/master/.claude/skills/concept-map-builder',
+      },
+    },
+  },
+  {
+    id: 'fragments',
+    title: '大师金句',
+    description:
+      '从演讲和访谈中提取大师们的核心思考时刻，聚焦产品、商业、组织与个人成长话题的沉浸式音频产品。支持真人原声、领域分段、源视频溯源与暗色/暖色双主题。',
+    tags: ['React', 'TypeScript', 'Python', 'Gemini', 'Audio'],
+    href: 'https://github.com/jaybeat/Fragments',
+    category: 'deconstruction',
+    featured: true,
+    detail: {
+      detailDescription:
+        'Fragments 是一个音频产品，专注于从乔布斯、芒格、马斯克、巴菲特等 notable figures 的演讲和访谈中，提取关于产品、商业、组织和个人成长的核心思考时刻。每一段都是真人原话，不经过 AI 生成或模仿，可追溯至原始视频与具体时间点。',
+      highlights: [
+        '真人原声片段',
+        '领域自动分段',
+        '源视频溯源',
+        '暗色/暖色双主题',
+        '沉浸式播放体验',
+      ],
+      pipelineSteps: [
+        { name: 'YouTube 下载与语音识别', type: 'script', desc: '提取音频、生成原始字幕与时间轴' },
+        { name: '语义分割', type: 'llm', desc: 'Gemini 识别核心思考时刻与关键片段边界' },
+        { name: '主题聚类', type: 'both', desc: 'sentence-transformers 按产品、商业、组织等维度聚类组织片段' },
+        { name: '人工校验与精修', type: 'llm', desc: '校准时间戳、优化分段边界、确保上下文完整' },
+        { name: 'React 前端渲染', type: 'script', desc: '构建沉浸式音频播放界面，支持双主题切换' },
+      ],
+      appUrl: '/fragments',
+      githubUrl: 'https://github.com/jaybeat/Fragments',
+      screenshots: [
+        {
+          src: '/images/fragments/screenshot-1.webp',
+          caption: '首页浏览不同人物的精选片段，按产品与打磨、组织与公司演化等领域分类展示',
+        },
+        {
+          src: '/images/fragments/screenshot-2.webp',
+          caption: '人物详情页按主题聚类，如巴菲特的"决策与判断"，一览核心思考时刻',
+        },
+        {
+          src: '/images/fragments/screenshot-3.webp',
+          caption: '沉浸式播放界面支持双语对照、时间戳跳转与章节导航，还原真人原声语境',
+        },
+        {
+          src: '/images/fragments/screenshot-4.webp',
+          caption: '新增收藏功能：粘贴 YouTube 链接，自动提取转录并切分高光片段',
+        },
+      ],
+    },
+  },
+  {
     id: 'evo',
     title: 'EvoLearn',
     description:
@@ -271,48 +415,6 @@ export const projects: Project[] = [
           caption: '沿演化路径推进：把有序数组从中间"拎起来"，自然演化出二叉搜索树',
         },
       ],
-    },
-  },
-  {
-    id: 'video-to-guide',
-    title: 'Video to Guide',
-    description:
-      '将长视频转换为章节化、可交互的配套指南网页，支持浮动视频播放器与时间戳跳转',
-    tags: ['Python', 'LLM Pipeline', 'Claude Skill', 'HTML Generator'],
-    href: 'https://github.com/jaybeat/video_to_guide',
-    category: 'deconstruction',
-    featured: true,
-    detail: {
-      detailDescription:
-        '这是一个 Claude Skill，能够将 YouTube 上的长视频（通常是 1-3 小时的技术讲座或教程）转换为结构化的配套指南网页。生成的页面读起来像书章一样流畅，同时完整保留代码和公式，每个章节都配有原视频的时间戳，点击即可跳转播放。',
-      highlights: [
-        '7 阶段自动化流水线',
-        '两遍结构识别',
-        '断点续传',
-        '中英双语输出',
-        '代码与公式完整保留',
-      ],
-      pipelineSteps: [
-        { name: '下载预处理', type: 'script', desc: '提取字幕、分块、生成初始数据' },
-        { name: '两遍结构识别', type: 'llm', desc: '粗粒度主题 → 细粒度章节划分' },
-        { name: '章节重写', type: 'llm', desc: '并行子代理将口语转为书面表达' },
-        { name: '帧提取插入', type: 'both', desc: '自动提取并插入教学关键帧' },
-        { name: '诊断打磨', type: 'both', desc: '脚本诊断 + 定向 LLM 修复' },
-        { name: '翻译输出', type: 'llm', desc: '中文翻译（源中文则跳过）' },
-        { name: '导出 HTML', type: 'script', desc: '生成带浮动播放器的指南页' },
-      ],
-      example: {
-        title: 'Build GPT 配套指南',
-        desc: '基于 Andrej Karpathy "Let\'s build GPT" 视频生成的中文配套指南，完整覆盖了从零构建 GPT 模型的全过程。',
-        src: '/workspace/build_gpt/guide.zh.html',
-        githubSrc:
-          'https://github.com/jaybeat/video_to_guide/blob/main/workspace/build_gpt/guide.zh.html',
-      },
-      githubUrl: 'https://github.com/jaybeat/video_to_guide',
-      extraCta: {
-        label: '查看 SKILL.md',
-        url: 'https://github.com/jaybeat/video_to_guide/tree/main/.claude/skills/video-to-companion-guide',
-      },
     },
   },
   {
@@ -583,53 +685,6 @@ export const projects: Project[] = [
     },
   },
   {
-    id: 'concept-map-builder',
-    title: 'Concept Map Builder',
-    description:
-      '从一个焦点问题出发，用 Novak 六步法逐步构建概念图的 Claude Skill。写成 Graphviz DOT 源、用 dot 渲染并注入柔光，输出一张自包含的暗色发光 .svg，再由 evaluator 子代理按八项标准评估并迭代修订。',
-    tags: ['Claude Skill', 'Graphviz', 'DOT', 'SVG', 'Subagent'],
-    href: 'https://github.com/jaybeat/concept-map-builder',
-    category: 'deconstruction',
-    featured: true,
-    detail: {
-      detailDescription:
-        'Concept Map Builder 是一个 Claude Skill，把一块知识系统地图形化为概念图。它遵循认知科学家 Novak 的六步法：先在顶部确立一个强调"关系"而非"定义"的焦点问题，再自由头脑风暴概念、从抽象到具体做层级排序、搭建无标签骨架、为每条连线补上方向性的命题标签，最后加入跨分支交叉链接与具体实例。整张图写成 Graphviz DOT 源、用 dot 渲染并注入柔光，成为一张无需外部 CSS 或运行时、打开即可浏览的自包含暗色发光 SVG。完成后由一个独立的 evaluator 子代理按八项标准评估其主观质量，并据此按优先级迭代修订（2–3 轮收敛）。',
-      highlights: [
-        'Novak 六步法构建概念图',
-        '焦点问题驱动，拒绝知识点堆砌',
-        'Graphviz DOT 渲染 + 柔光注入',
-        '自包含暗色发光 SVG，打开即览',
-        'evaluator 子代理按八项标准评估',
-        '迭代收敛（最多 2–3 轮修订）',
-      ],
-      pipelineSteps: [
-        { name: '确立焦点问题', type: 'both', desc: '把宽泛主题收窄为强调关系的焦点问题；模糊则给出 2–4 个候选供选择' },
-        { name: '概念头脑风暴', type: 'llm', desc: '自由列出相关概念放入"停车场"，先不连线' },
-        { name: '层级排序', type: 'llm', desc: '从抽象到具体排序，保留 15–25 个核心概念' },
-        { name: '骨架搭建', type: 'both', desc: '写成 Graphviz DOT，dot 渲染为节点与无标签连线' },
-        { name: '关系标注与交叉链接', type: 'llm', desc: '为每条连线补上方向性命题标签，加入跨分支交叉链接与实例' },
-        { name: '柔光渲染', type: 'script', desc: '注入柔光，输出自包含的暗色发光 SVG' },
-        { name: '评估与修订', type: 'both', desc: 'evaluator 子代理按八项标准评估，按优先级迭代修订' },
-      ],
-      githubUrl: 'https://github.com/jaybeat/concept-map-builder',
-      singleColumnScreenshots: true,
-      screenshots: [
-        {
-          src: '/images/concept-map-builder/concept-map-data-structures-competency.svg',
-          caption: '焦点问题"数据结构培养学生具备什么？"——把核心目标外显为可锻炼的多项胜任力',
-        },
-        {
-          src: '/images/concept-map-builder/concept-map-hashtable-amortized-o1-alt.svg',
-          caption: '焦点问题"哈希表凭什么做到均摊 O(1)？"——把 O(1) 基底、哈希映射与摊还分析串成命题',
-        },
-      ],
-      extraCta: {
-        label: '查看 SKILL.md',
-        url: 'https://github.com/jaybeat/concept-map-builder/tree/master/.claude/skills/concept-map-builder',
-      },
-    },
-  },
-  {
     id: 'justspeak',
     title: 'justSpeak',
     description:
@@ -750,54 +805,6 @@ export const projects: Project[] = [
         label: '查看 SKILL.md',
         url: 'https://github.com/jaybeat/spiral-explainer-video/tree/main/.claude/skills/spiral-explainer-video',
       },
-    },
-  },
-  {
-    id: 'fragments',
-    title: 'Fragments',
-    description:
-      '从演讲和访谈中提取大师们的核心思考时刻，聚焦产品、商业、组织与个人成长话题的沉浸式音频产品。支持真人原声、领域分段、源视频溯源与暗色/暖色双主题。',
-    tags: ['React', 'TypeScript', 'Python', 'Gemini', 'Audio'],
-    href: 'https://github.com/jaybeat/Fragments',
-    category: 'deconstruction',
-    featured: true,
-    detail: {
-      detailDescription:
-        'Fragments 是一个音频产品，专注于从乔布斯、芒格、马斯克、巴菲特等 notable figures 的演讲和访谈中，提取关于产品、商业、组织和个人成长的核心思考时刻。每一段都是真人原话，不经过 AI 生成或模仿，可追溯至原始视频与具体时间点。',
-      highlights: [
-        '真人原声片段',
-        '领域自动分段',
-        '源视频溯源',
-        '暗色/暖色双主题',
-        '沉浸式播放体验',
-      ],
-      pipelineSteps: [
-        { name: 'YouTube 下载与语音识别', type: 'script', desc: '提取音频、生成原始字幕与时间轴' },
-        { name: '语义分割', type: 'llm', desc: 'Gemini 识别核心思考时刻与关键片段边界' },
-        { name: '主题聚类', type: 'both', desc: 'sentence-transformers 按产品、商业、组织等维度聚类组织片段' },
-        { name: '人工校验与精修', type: 'llm', desc: '校准时间戳、优化分段边界、确保上下文完整' },
-        { name: 'React 前端渲染', type: 'script', desc: '构建沉浸式音频播放界面，支持双主题切换' },
-      ],
-      appUrl: '/fragments',
-      githubUrl: 'https://github.com/jaybeat/Fragments',
-      screenshots: [
-        {
-          src: '/images/fragments/screenshot-1.webp',
-          caption: '首页浏览不同人物的精选片段，按产品与打磨、组织与公司演化等领域分类展示',
-        },
-        {
-          src: '/images/fragments/screenshot-2.webp',
-          caption: '人物详情页按主题聚类，如巴菲特的"决策与判断"，一览核心思考时刻',
-        },
-        {
-          src: '/images/fragments/screenshot-3.webp',
-          caption: '沉浸式播放界面支持双语对照、时间戳跳转与章节导航，还原真人原声语境',
-        },
-        {
-          src: '/images/fragments/screenshot-4.webp',
-          caption: '新增收藏功能：粘贴 YouTube 链接，自动提取转录并切分高光片段',
-        },
-      ],
     },
   },
   {

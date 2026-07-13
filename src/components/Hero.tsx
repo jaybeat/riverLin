@@ -25,7 +25,7 @@ const itemVariants = {
 
 const links = [
   { label: '公众号', href: 'https://mp.weixin.qq.com/s/ZZXw3tdWwNJGSr1pTD7HOA' },
-  { label: 'Mail', href: 'mailto:hello@riverlin.me' },
+  { label: 'Mail', href: 'mailto:jaybeatlin1028@163.com' },
 ]
 
 export default function Hero() {
