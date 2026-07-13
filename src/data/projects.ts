@@ -82,6 +82,8 @@ export interface ProjectDetailData {
   agentsCaption?: string
   agents?: AgentRole[]
   challenges?: Challenge[]
+  /** 「解决的典型问题」section 说明文案，缺省为视频制作版文案 */
+  challengesCaption?: string
   /** 深入板块：某支柱的角色引擎 + 典型问题（如解构里的「写作·创作 五角色引擎」） */
   writingPillar?: {
     title: string
@@ -91,7 +93,7 @@ export interface ProjectDetailData {
   }
   pipelineSteps?: PipelineStep[]
   example?: Example
-  githubUrl: string
+  githubUrl?: string
   appUrl?: string
   screenshots?: Screenshot[]
   /** Render screenshots one-per-row instead of the default multi-column grid */
@@ -128,6 +130,101 @@ export const projectCategories: { key: ProjectCategory; label: string }[] = [
 ]
 
 export const projects: Project[] = [
+  {
+    id: 'exam-grader',
+    title: '试卷批改 Agent',
+    description:
+      '把整班手写试卷拍照后批量自动批改的 Claude Code 技能：视觉识别每份作答、对照参考答案判分、错题旁用红笔写出正确答案，生成每人一份带 ✓/✗ 与得分表的 Word，并合并为全班 Excel 成绩表。规划中：按知识板块输出每个学生的掌握与薄弱点分析。',
+    tags: ['Claude Code', 'Subagents', 'Vision OCR', 'python-docx', 'openpyxl'],
+    href: '/project/exam-grader',
+    category: 'pedagogy',
+    featured: true,
+    detail: {
+      detailDescription:
+        '试卷批改 Agent 是一个项目内置的 Claude Code 技能（exam-grader），把一整班的手写试卷照片（一张照片 = 一名学生，可正背面分文件夹、可跨页两页）连同一份参考答案，批量批改成每人一份的 Word。它先把参考答案读成一份结构化的判分准绳 ref_rubric.md（答案 key / 每题分值 / 等价规则 / 主观题细则）作为唯一标准；再由主编排 Agent 为每名学生开一个 general-purpose 子代理、每批约 5 个并行推进：子代理用视觉 Read 看图识别学号姓名与逐题作答（潦草处先 crop_zoom 裁剪放大再读），填入 DATA 跑 grade_docx.py，自动判客观题、按细则给主观题分，在错题旁用红字写出正确答案，并生成分板块得分与总分表。全部批完后 build_gradebook.py 从各份 docx 里回读分数，合并成含平均 / 最高 / 最低的 Excel 成绩表。学科与语言无关（数学、物理、数据结构、语文皆可，输出语言跟随试卷）。此为教师本人批改自己班级试卷的合法工作流。',
+      highlights: [
+        '一图一人批量批改：客观题按归一化比较自动判分，主观题按细则给分（支持半分）',
+        '红笔纠错成卷：错题旁用红字写出正确答案，生成每人一份带 ✓/✗ 与分板块得分表的 Word',
+        '攻克手写与身份难题：模糊笔迹裁剪放大重读，背面无学号按拍摄顺序与正面位置配对',
+        '带图号防重名：文件名一律 IMG<图号>_<学号>，并行批改互不覆盖，也便于按拍摄顺序登分',
+        '一键成绩表：从批改 docx 回读分数，合并为含平均 / 最高 / 最低的全班 Excel 成绩表',
+        '学科与语言无关：数学 / 物理 / 数据结构等皆可，输出语言跟随试卷',
+        '（规划中）知识板块分析：按板块输出每个学生的掌握点与薄弱点诊断',
+      ],
+      agentsTitle: '多 Agent 编排：分批并行批改',
+      agentsCaption:
+        '主编排 Agent 只做协调——建判分准绳、准备共享模板、算好每张的学号 + 图号 + file_suffix、分批派发、收集回传、最后汇总核对；真正的批改由每名学生一个子代理并行完成，每批约 5 个、按图号升序推进。',
+      agents: [
+        {
+          name: '主编排 Agent',
+          role: '读参考答案建 ref_rubric.md，复制 grade_docx.py 为共享模板，清点照片、定身份、算好每张的图号 + 学号 + file_suffix，分批派发子代理并汇总核对',
+        },
+        {
+          name: '批改子代理（每生一个）',
+          role: '读 rubric + 模板，用视觉 Read 看图识别作答（潦草处 crop_zoom 放大），填 DATA 跑脚本生成带红笔纠错与得分表的 Word，自检 SAVED / 红字数 / 总分，回传一行成绩',
+        },
+        {
+          name: '成绩汇总',
+          role: 'build_gradebook.py 扫描全部批改 docx、回读各部分与总分，合并为含平均 / 最高 / 最低、缺分高亮的 Excel 成绩表',
+        },
+      ],
+      challengesCaption: '整班批改里最难啃的几个工程问题，逐一给出解法。',
+      challenges: [
+        {
+          problem: '手写潦草难辨认',
+          solution:
+            'crop_zoom.py 裁剪并放大模糊区域后再用视觉 Read 重读，读准学号、姓名与作答',
+        },
+        {
+          problem: '背面/续页没有学号',
+          solution:
+            'pair_papers.py 按拍摄顺序与正面做位置配对，把学号带过来；正背面数量不等直接报错、拒绝盲配',
+        },
+        {
+          problem: '并行批改文件互相覆盖',
+          solution:
+            '文件名一律带唯一图号 IMG<图号>_<学号>，天然防撞，也便于老师按拍摄顺序逐张登分',
+        },
+        {
+          problem: '大班批改慢、进度难控',
+          solution:
+            '每名学生一个 general-purpose 子代理、每批约 5 个并行，一批回传后再发下一批，逐批可汇报',
+        },
+        {
+          problem: '判分口径不一致',
+          solution:
+            '先把参考答案读成唯一的 ref_rubric.md 作为判分准绳，每份卷都照它判，保证同一标准',
+        },
+        {
+          problem: '分数誊抄易出错',
+          solution:
+            '成绩表从生成的 docx 得分表里回读分数，绝不手工誊抄，避免转录错误',
+        },
+      ],
+      pipelineSteps: [
+        { name: '建判分准绳', type: 'both', desc: '读参考答案（docx/pdf/文本/图片）生成结构化 ref_rubric.md：答案 key、每题分值、等价规则、主观题细则，核对满分对得上' },
+        { name: '清点照片·定身份', type: 'both', desc: '列目录理清一图一人 / 单页或跨页 / 正背面拆分；卷面读学号姓名，背面无号用 pair_papers.py 与正面位置配对' },
+        { name: '分批派发子代理', type: 'llm', desc: '主 Agent 算好每张的图号 + 学号 + file_suffix，按图号升序每批约 5 个 general-purpose 子代理并行' },
+        { name: '看图判分生成', type: 'both', desc: '子代理视觉识别作答（模糊处 crop_zoom 放大），填 DATA 跑 grade_docx.py，生成带红笔纠错与分板块得分表的 Word' },
+        { name: '自检回传', type: 'script', desc: '脚本回读生成的 docx，校验 SAVED、红色 run 数 > 0、总分，子代理回传一行成绩摘要' },
+        { name: '合并成绩表', type: 'script', desc: 'build_gradebook.py 扫描全部批改 docx、回读分数，合并为含平均 / 最高 / 最低、缺分高亮的 Excel 总表' },
+        { name: '验收复核', type: 'both', desc: '核对份数 = 学生数、文件名无重名覆盖，列出低置信清单（学号难辨 / 判分临界 / 涂改）交老师复核' },
+      ],
+      singleColumnScreenshots: true,
+      screenshots: [
+        {
+          src: '/images/exam-grader/grading-result.webp',
+          caption:
+            '批改结果（正面）：选择题逐题 ✓/✗、错题红字标注正确答案，填空题给出学生答案与订正，并按板块统计得分',
+        },
+        {
+          src: '/images/exam-grader/2.webp',
+          caption:
+            '批量产出：每张试卷照片（IMG_43xx.JPG）批改成一份 Word，文件名带唯一图号 IMG<图号>_<学号> 防重名，便于按拍摄顺序逐张登分',
+        },
+      ],
+    },
+  },
   {
     id: 'evo',
     title: 'EvoLearn',

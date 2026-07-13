@@ -733,7 +733,8 @@ export default function ProjectDetail() {
                 marginBottom: '24px',
               }}
             >
-              视频制作各环节最难啃的工程问题，逐一给出解法。
+              {detail.challengesCaption ||
+                '视频制作各环节最难啃的工程问题，逐一给出解法。'}
             </p>
             <div
               style={{
