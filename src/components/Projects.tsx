@@ -596,7 +596,50 @@ function ProjectScrollRow({
   )
 }
 
-/** 三层递进的「AI Agent 课程目录」，每节课可点击展开说明 */
+/** 课程「设计理念」引子：一段克制的短文案，点出这门课教的是判断框架而非会过时的技巧 */
+function CourseRationale() {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-60px' }}
+      transition={{ duration: 0.5 }}
+      style={{
+        marginTop: '24px',
+        padding: '18px 20px',
+        borderRadius: '12px',
+        background: 'var(--bg-secondary)',
+        border: '1px solid var(--border)',
+      }}
+    >
+      <p
+        style={{
+          fontFamily: 'var(--font-mono)',
+          fontSize: '11px',
+          color: 'var(--text-muted)',
+          letterSpacing: '1px',
+          textTransform: 'uppercase',
+          marginBottom: '10px',
+        }}
+      >
+        设计理念 · Why This Course
+      </p>
+      <p
+        style={{
+          fontSize: '14px',
+          lineHeight: 1.8,
+          color: 'var(--text-secondary)',
+        }}
+      >
+        这门课不教那些过几个月就会过时的操作技巧，而是教一套{' '}
+        <strong style={{ color: 'var(--text-primary)', fontWeight: 600 }}>从机制生长、不随工具过时的思维框架</strong>
+        ：从看懂 Agent 的运作机制与边界起步，延伸到在真实任务中如何指挥它、何处该由你把关、如何把一件件事做成，最终长成「与智能体共事」的判断力。学生带走的不是几个用法，而是面对任何新 AI，都能先追问它的机制与边界、再驾驭它协作的能力。
+      </p>
+    </motion.div>
+  )
+}
+
+/** 四单元进阶的「AI Agent 课程目录」，每节课可点击展开说明 */
 function CourseSyllabus() {
   const [openKey, setOpenKey] = useState<string | null>(null)
 
@@ -681,15 +724,32 @@ function CourseSyllabus() {
                     </span>
                     <span
                       style={{
-                        fontSize: '14px',
-                        fontWeight: 500,
-                        color: 'var(--text-secondary)',
-                        lineHeight: 1.4,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '2px',
                         flex: 1,
                         minWidth: 0,
                       }}
                     >
-                      {lesson.title}
+                      <span
+                        style={{
+                          fontSize: '14px',
+                          fontWeight: 500,
+                          color: 'var(--text-secondary)',
+                          lineHeight: 1.4,
+                        }}
+                      >
+                        {lesson.title}
+                      </span>
+                      <span
+                        style={{
+                          fontSize: '12px',
+                          color: 'var(--text-muted)',
+                          lineHeight: 1.4,
+                        }}
+                      >
+                        {lesson.subtitle}
+                      </span>
                     </span>
                     <ChevronDown
                       size={15}
@@ -811,11 +871,13 @@ export default function Projects() {
             marginTop: '-8px',
           }}
         >
-          面向大一学生的 AI 创新实践课。三层递进：<strong style={{ color: 'var(--text-primary)', fontWeight: 600 }}>底层</strong>讲清 Agent
-          的运作逻辑，<strong style={{ color: 'var(--text-primary)', fontWeight: 600 }}>工具层</strong>上手 Claude
-          Code，<strong style={{ color: 'var(--text-primary)', fontWeight: 600 }}>项目层</strong>带着做出 AI
-          自动化与应用项目——让学生从「看懂 Agent」一路走到「亲手造出作品」。
+          面向高中 / 大一学生的 AI 创新实践课（零基础可上手）。四单元进阶：<strong style={{ color: 'var(--text-primary)', fontWeight: 600 }}>心智模型</strong> →{' '}
+          <strong style={{ color: 'var(--text-primary)', fontWeight: 600 }}>单任务循环</strong> →{' '}
+          <strong style={{ color: 'var(--text-primary)', fontWeight: 600 }}>多步多会话</strong> →{' '}
+          <strong style={{ color: 'var(--text-primary)', fontWeight: 600 }}>扩展与品味</strong>，学生的角色随之逐级晋升——从当模型、当考官，到当项目经理、当创造者。
         </motion.p>
+
+        <CourseRationale />
 
         <CourseSyllabus />
 
