@@ -134,14 +134,14 @@ export const projects: Project[] = [
     id: 'exam-grader',
     title: '试卷批改 Agent',
     description:
-      '把整班手写试卷拍照后批量自动批改的 Claude Code 技能：视觉识别每份作答、对照参考答案判分、错题旁用红笔写出正确答案，生成每人一份带 ✓/✗ 与得分表的 Word，并合并为全班 Excel 成绩表。规划中：按知识板块输出每个学生的掌握与薄弱点分析。',
+      '把整班手写试卷拍照后批量自动批改的 Claude Code 技能：视觉识别每份作答、对照参考答案判分、错题旁用红笔写出正确答案，生成每人一份带 ✓/✗ 与得分表的 Word，并合并为全班 Excel 成绩表。即将上线：按知识板块聚合每个学生的错题，输出掌握点 / 薄弱点诊断，并汇总全班共性薄弱板块。',
     tags: ['Claude Code', 'Subagents', 'Vision OCR', 'python-docx', 'openpyxl'],
     href: '/project/exam-grader',
     category: 'pedagogy',
     featured: true,
     detail: {
       detailDescription:
-        '试卷批改 Agent 是一个项目内置的 Claude Code 技能（exam-grader），把一整班的手写试卷照片（一张照片 = 一名学生，可正背面分文件夹、可跨页两页）连同一份参考答案，批量批改成每人一份的 Word。它先把参考答案读成一份结构化的判分准绳 ref_rubric.md（答案 key / 每题分值 / 等价规则 / 主观题细则）作为唯一标准；再由主编排 Agent 为每名学生开一个 general-purpose 子代理、每批约 5 个并行推进：子代理用视觉 Read 看图识别学号姓名与逐题作答（潦草处先 crop_zoom 裁剪放大再读），填入 DATA 跑 grade_docx.py，自动判客观题、按细则给主观题分，在错题旁用红字写出正确答案，并生成分板块得分与总分表。全部批完后 build_gradebook.py 从各份 docx 里回读分数，合并成含平均 / 最高 / 最低的 Excel 成绩表。学科与语言无关（数学、物理、数据结构、语文皆可，输出语言跟随试卷）。此为教师本人批改自己班级试卷的合法工作流。',
+        '试卷批改 Agent 是一个项目内置的 Claude Code 技能（exam-grader），把一整班的手写试卷照片（一张照片 = 一名学生，可正背面分文件夹、可跨页两页）连同一份参考答案，批量批改成每人一份的 Word。它先把参考答案读成一份结构化的判分准绳 ref_rubric.md（答案 key / 每题分值 / 等价规则 / 主观题细则）作为唯一标准；再由主编排 Agent 为每名学生开一个 general-purpose 子代理、每批约 5 个并行推进：子代理用视觉 Read 看图识别学号姓名与逐题作答（潦草处先 crop_zoom 裁剪放大再读），填入 DATA 跑 grade_docx.py，自动判客观题、按细则给主观题分，在错题旁用红字写出正确答案，并生成分板块得分与总分表。全部批完后 build_gradebook.py 从各份 docx 里回读分数，合并成含平均 / 最高 / 最低的 Excel 成绩表。学科与语言无关（数学、物理、数据结构、语文皆可，输出语言跟随试卷）。此为教师本人批改自己班级试卷的合法工作流。（即将上线）在判分准绳 ref_rubric.md 里为每题打上知识板块标签，批改时记录每题的「板块 · 对错 · 得失分」，再由一个汇总步骤按板块聚合，产出每生的掌握 / 薄弱点诊断与错题清单，并在成绩表中加一张「全班各知识板块得分率」，定位共性薄弱板块。',
       highlights: [
         '一图一人批量批改：客观题按归一化比较自动判分，主观题按细则给分（支持半分）',
         '红笔纠错成卷：错题旁用红字写出正确答案，生成每人一份带 ✓/✗ 与分板块得分表的 Word',
@@ -149,7 +149,7 @@ export const projects: Project[] = [
         '带图号防重名：文件名一律 IMG<图号>_<学号>，并行批改互不覆盖，也便于按拍摄顺序登分',
         '一键成绩表：从批改 docx 回读分数，合并为含平均 / 最高 / 最低的全班 Excel 成绩表',
         '学科与语言无关：数学 / 物理 / 数据结构等皆可，输出语言跟随试卷',
-        '（规划中）知识板块分析：按板块输出每个学生的掌握点与薄弱点诊断',
+        '（即将上线）知识点诊断：按板块给出每生掌握 / 薄弱点 + 错题清单，并汇总全班共性薄弱板块',
       ],
       agentsTitle: '多 Agent 编排：分批并行批改',
       agentsCaption:
@@ -200,6 +200,11 @@ export const projects: Project[] = [
           solution:
             '成绩表从生成的 docx 得分表里回读分数，绝不手工誊抄，避免转录错误',
         },
+        {
+          problem: '错题散落、看不出知识短板',
+          solution:
+            '（即将上线）rubric 为每题标知识板块，批改后按板块聚合每生错题，输出掌握 / 薄弱诊断与全班共性薄弱板块',
+        },
       ],
       pipelineSteps: [
         { name: '建判分准绳', type: 'both', desc: '读参考答案（docx/pdf/文本/图片）生成结构化 ref_rubric.md：答案 key、每题分值、等价规则、主观题细则，核对满分对得上' },
@@ -208,6 +213,7 @@ export const projects: Project[] = [
         { name: '看图判分生成', type: 'both', desc: '子代理视觉识别作答（模糊处 crop_zoom 放大），填 DATA 跑 grade_docx.py，生成带红笔纠错与分板块得分表的 Word' },
         { name: '自检回传', type: 'script', desc: '脚本回读生成的 docx，校验 SAVED、红色 run 数 > 0、总分，子代理回传一行成绩摘要' },
         { name: '合并成绩表', type: 'script', desc: 'build_gradebook.py 扫描全部批改 docx、回读分数，合并为含平均 / 最高 / 最低、缺分高亮的 Excel 总表' },
+        { name: '知识点诊断 · 即将上线', type: 'both', desc: '按 rubric 的知识板块标签聚合每生错题，输出每人掌握 / 薄弱点诊断与错题清单，并在成绩表加一张全班各板块得分率表' },
         { name: '验收复核', type: 'both', desc: '核对份数 = 学生数、文件名无重名覆盖，列出低置信清单（学号难辨 / 判分临界 / 涂改）交老师复核' },
       ],
       singleColumnScreenshots: true,
@@ -221,6 +227,11 @@ export const projects: Project[] = [
           src: '/images/exam-grader/2.webp',
           caption:
             '批量产出：每张试卷照片（IMG_43xx.JPG）批改成一份 Word，文件名带唯一图号 IMG<图号>_<学号> 防重名，便于按拍摄顺序逐张登分',
+        },
+        {
+          src: '/images/exam-grader/knowledge-analysis.svg',
+          caption:
+            '（即将上线）知识点诊断示意：按板块给出每生得分率与掌握 / 薄弱点、错题清单，并汇总全班共性薄弱板块（示意图，数据为虚构样例）',
         },
       ],
     },
@@ -319,6 +330,82 @@ export const projects: Project[] = [
         label: '查看 SKILL.md',
         url: 'https://github.com/jaybeat/concept-map-builder/tree/master/.claude/skills/concept-map-builder',
       },
+    },
+  },
+  {
+    id: 'graduation-archive-organizer',
+    title: '毕业论文归档 Agent',
+    description:
+      '把单个学生杂乱命名的毕业过程材料一键整理成学校标准 00–08 归档格式的 Claude Code 技能：关键词识别重命名、每个 docx 批量转同名 PDF、自动从检测报告 zip 解压「简洁报告」作 07、去掉「几辩」等文件名噪声，可重复运行并自带验收校验。',
+    tags: ['Claude Code', 'Python', 'LibreOffice', 'Word COM', 'docx→PDF'],
+    href: '/project/graduation-archive-organizer',
+    category: 'pedagogy',
+    featured: true,
+    detail: {
+      detailDescription:
+        '毕业论文归档 Agent 是一个 Claude Code 技能，把单个学生杂乱命名的毕业过程材料就地整理成学校要求的标准归档格式。输入是一个学生文件夹（若干 docx + 一个检测报告 zip），它先按 DOC_RULES 里的关键词把每份文档匹配到 00–08 的标准编号，并重命名为固定的标准标题——文件名里的「_1辩」「几辩」等答辩轮次噪声随之被整体覆盖；再把每个 docx 用 LibreOffice（首选，soffice --headless --convert-to pdf）或 Microsoft Word COM（pywin32 回退，SaveAs FileFormat=17）另存为同名 PDF；并从检测报告 zip 里按关键词解压出「简洁报告」PDF 作为 07（无匹配则取最小的 PDF），原 zip 归档进 _原始压缩包\\ 保留而非删除。最终得到 9 套 docx+pdf 共 18 个、加上 07 一个 PDF，合计 19 个归档文件。全流程就地重命名、可重复运行（已带 NN- 前缀的文件与已存在的 PDF 自动跳过），并在结尾做一次验收：核对 19 个产物齐全非空、警告任何残留的「辩」字。学号姓名从文件夹名（如 2411662徐瑜辰）或既有文件名自动推断，支持 --sid / --name 覆盖，--dry-run 可先安全预览。',
+      highlights: [
+        '关键词识别 → 标准编号重命名：杂乱命名（缺号、「中期检查表」等变体）按 DOC_RULES 匹配到 00–08 并套用固定标准标题，「几辩」噪声自然被覆盖',
+        '批量 docx → 同名 PDF：LibreOffice 首选、Microsoft Word COM 回退，双引擎优雅降级',
+        '自动解压检测报告：从检测报告 zip 里按关键词提取「简洁报告」作 07，无匹配则取最小 PDF，兼容 UTF-8 压缩包文件名',
+        '兼容老版 Word（Office 2007）：COM 导出后断连自动重启 Word 并重试一次，规避 ExportAsFixedFormat 崩溃',
+        '幂等可重复运行：已带 NN- 前缀的文件与已存在的 PDF 自动跳过，原 zip 归档进 _原始压缩包\\ 而非删除',
+        '自动推断学号姓名：从文件夹名（如 2411662徐瑜辰）或既有文件名推断，支持 --sid / --name 覆盖',
+        '--dry-run 安全预览 + 结尾验收：核对 19 个产物齐全非空、警告残留「辩」字',
+      ],
+      challengesCaption: '把一份真实的学生归档规范落成可靠自动化，逐一给出解法。',
+      challenges: [
+        {
+          problem: '文档命名五花八门、还带答辩轮次噪声',
+          solution:
+            '按 DOC_RULES 关键词把每份匹配到 00–08，重命名时套用固定标准标题，「_1辩 / 几辩」被整体覆盖',
+        },
+        {
+          problem: '检测报告藏在 zip 里、文件名可能乱码',
+          solution:
+            'extract_report 兼容 UTF-8 压缩包名，按「简洁报告」关键词取 07，无匹配则回退到最小 PDF',
+        },
+        {
+          problem: '批量 docx→PDF 环境不一定装了 Word',
+          solution:
+            '首选 LibreOffice 无头转换，未装则回退 Microsoft Word COM 单会话，双引擎降级',
+        },
+        {
+          problem: '老版 Word COM 导出后频繁断连崩溃',
+          solution:
+            '导出后检测断连即自动重启 Word 并重试一次，并刻意避开 ExportAsFixedFormat',
+        },
+        {
+          problem: '误操作 / 重复运行怕覆盖原件',
+          solution:
+            '就地重命名幂等：已带 NN- 前缀与已存在 PDF 自动跳过；原 zip 归档进 _原始压缩包\\ 而非删除；--dry-run 可先预览',
+        },
+        {
+          problem: '整理完不知道有没有漏',
+          solution:
+            '结尾验收扫描：核对 19 个产物齐全且非空、任何残留「辩」字都会告警',
+        },
+      ],
+      pipelineSteps: [
+        { name: '识别·重命名', type: 'both', desc: '推断学号姓名，按 DOC_RULES 关键词把每份 docx 匹配到 00–08 并套用标准标题，去掉「几辩」等噪声' },
+        { name: '解压检测报告', type: 'script', desc: '从检测报告 zip 里按关键词解压「简洁报告」PDF 作为 07（无匹配取最小 PDF），兼容 UTF-8 文件名' },
+        { name: '批量转 PDF', type: 'script', desc: '每个 docx 用 LibreOffice 首选 / Word COM 回退另存同名 PDF，老版 Word 断连自动重启重试' },
+        { name: '归档原始 zip', type: 'script', desc: '把原检测报告 zip 移入 _原始压缩包\\ 保留，不删除' },
+        { name: '验收校验', type: 'both', desc: '核对 9 套 docx+pdf + 07 共 19 个产物齐全非空，警告任何残留「辩」字' },
+      ],
+      singleColumnScreenshots: true,
+      screenshots: [
+        {
+          src: '/images/graduation-archive-organizer/before.webp',
+          caption:
+            '整理前：学生文件夹里 docx 命名杂乱、含「_1辩」等答辩轮次噪声，检测报告还压在 zip 里',
+        },
+        {
+          src: '/images/graduation-archive-organizer/after.webp',
+          caption:
+            '整理后：统一为 00–08 标准编号、每个 docx 配同名 PDF，07 为解压出的检测报告，共 19 个归档文件',
+        },
+      ],
     },
   },
   {

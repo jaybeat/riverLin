@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 580" font-family="'Noto Sans SC','PingFang SC','Microsoft YaHei',system-ui,sans-serif">
+  <!-- 卡片底 -->
+  <rect x="8" y="8" width="844" height="564" rx="20" fill="#fcfbf9" stroke="#e0ded9" stroke-width="1.5"/>
+
+  <!-- 顶部标题 -->
+  <text x="40" y="52" font-size="24" font-weight="700" fill="#1a1a1a">知识点诊断</text>
+  <text x="40" y="80" font-size="14.5" fill="#666666">数据结构A卷 · 学生：张三（20250001）</text>
+
+  <!-- 即将上线 徽标 -->
+  <rect x="700" y="32" width="120" height="30" rx="15" fill="#f3f1ed" stroke="#e0ded9" stroke-width="1"/>
+  <circle cx="722" cy="47" r="4" fill="#C68A2E"/>
+  <text x="734" y="52" font-size="13" font-weight="600" fill="#8a7a52">即将上线</text>
+
+  <!-- 图例 -->
+  <text x="40" y="116" font-size="12.5" fill="#999999" font-family="'Geist Mono',ui-monospace,monospace">
+    各知识板块得分率　·　≥80% 掌握　·　&lt;60% 薄弱
+  </text>
+
+  <!-- 主体：横向得分率条 -->
+  <!-- 轨道 x=150 宽=300；标签右对齐 x=138；% 文本 x=460 -->
+
+  <!-- 线性表 90 绿 -->
+  <text x="138" y="165" font-size="14" fill="#1a1a1a" text-anchor="end">线性表</text>
+  <rect x="150" y="151" width="300" height="20" rx="6" fill="#eae8e3"/>
+  <rect x="150" y="151" width="270" height="20" rx="6" fill="#2e7d52"/>
+  <text x="462" y="166" font-size="13.5" font-weight="600" fill="#2e7d52" font-family="'Geist Mono',ui-monospace,monospace">90%</text>
+
+  <!-- 栈与队列 100 绿 -->
+  <text x="138" y="217" font-size="14" fill="#1a1a1a" text-anchor="end">栈与队列</text>
+  <rect x="150" y="203" width="300" height="20" rx="6" fill="#eae8e3"/>
+  <rect x="150" y="203" width="300" height="20" rx="6" fill="#2e7d52"/>
+  <text x="462" y="218" font-size="13.5" font-weight="600" fill="#2e7d52" font-family="'Geist Mono',ui-monospace,monospace">100%</text>
+
+  <!-- 树与二叉树 55 红 -->
+  <text x="138" y="269" font-size="14" fill="#1a1a1a" text-anchor="end">树与二叉树</text>
+  <rect x="150" y="255" width="300" height="20" rx="6" fill="#eae8e3"/>
+  <rect x="150" y="255" width="165" height="20" rx="6" fill="#c0272d"/>
+  <text x="462" y="270" font-size="13.5" font-weight="600" fill="#c0272d" font-family="'Geist Mono',ui-monospace,monospace">55%</text>
+
+  <!-- 图 40 红 -->
+  <text x="138" y="321" font-size="14" fill="#1a1a1a" text-anchor="end">图</text>
+  <rect x="150" y="307" width="300" height="20" rx="6" fill="#eae8e3"/>
+  <rect x="150" y="307" width="120" height="20" rx="6" fill="#c0272d"/>
+  <text x="462" y="322" font-size="13.5" font-weight="600" fill="#c0272d" font-family="'Geist Mono',ui-monospace,monospace">40%</text>
+
+  <!-- 查找 80 绿 -->
+  <text x="138" y="373" font-size="14" fill="#1a1a1a" text-anchor="end">查找</text>
+  <rect x="150" y="359" width="300" height="20" rx="6" fill="#eae8e3"/>
+  <rect x="150" y="359" width="240" height="20" rx="6" fill="#2e7d52"/>
+  <text x="462" y="374" font-size="13.5" font-weight="600" fill="#2e7d52" font-family="'Geist Mono',ui-monospace,monospace">80%</text>
+
+  <!-- 排序 70 琥珀 -->
+  <text x="138" y="425" font-size="14" fill="#1a1a1a" text-anchor="end">排序</text>
+  <rect x="150" y="411" width="300" height="20" rx="6" fill="#eae8e3"/>
+  <rect x="150" y="411" width="210" height="20" rx="6" fill="#C68A2E"/>
+  <text x="462" y="426" font-size="13.5" font-weight="600" fill="#a8742a" font-family="'Geist Mono',ui-monospace,monospace">70%</text>
+
+  <!-- 右侧：薄弱板块卡 -->
+  <rect x="524" y="151" width="296" height="150" rx="14" fill="#f3f1ed" stroke="#e0ded9" stroke-width="1"/>
+  <circle cx="548" cy="180" r="4" fill="#c0272d"/>
+  <text x="562" y="185" font-size="14.5" font-weight="700" fill="#c0272d">薄弱板块</text>
+  <text x="548" y="214" font-size="14" fill="#1a1a1a">图（40%）、树与二叉树（55%）</text>
+  <text x="548" y="248" font-size="12.5" fill="#999999" font-family="'Geist Mono',ui-monospace,monospace">对应错题</text>
+  <text x="548" y="270" font-size="14" fill="#666666">第 3、7、9 题</text>
+
+  <!-- 右侧：掌握板块卡 -->
+  <rect x="524" y="317" width="296" height="114" rx="14" fill="#f3f1ed" stroke="#e0ded9" stroke-width="1"/>
+  <circle cx="548" cy="346" r="4" fill="#2e7d52"/>
+  <text x="562" y="351" font-size="14.5" font-weight="700" fill="#2e7d52">掌握板块</text>
+  <text x="548" y="382" font-size="14" fill="#1a1a1a">栈与队列（100%）、线性表（90%）</text>
+  <text x="548" y="410" font-size="12.5" fill="#999999">得分率领先，基础扎实</text>
+
+  <!-- 分隔线 -->
+  <line x1="40" y1="470" x2="820" y2="470" stroke="#e0ded9" stroke-width="1"/>
+
+  <!-- 底部：全班共性薄弱 -->
+  <text x="40" y="512" font-size="13.5" font-weight="600" fill="#666666">全班共性薄弱</text>
+  <text x="150" y="512" font-size="14" fill="#1a1a1a">图</text>
+  <rect x="180" y="500" width="300" height="16" rx="5" fill="#eae8e3"/>
+  <rect x="180" y="500" width="144" height="16" rx="5" fill="#c0272d"/>
+  <text x="492" y="513" font-size="13" font-weight="600" fill="#c0272d" font-family="'Geist Mono',ui-monospace,monospace">班级平均 48%</text>
+  <text x="40" y="546" font-size="12.5" fill="#999999">建议下一讲优先复盘「图」的遍历与最短路径（示意图，数据为虚构样例）</text>
+</svg>
