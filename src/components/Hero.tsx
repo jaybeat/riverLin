@@ -1,4 +1,6 @@
 import { motion } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
+import { ArrowRight } from 'lucide-react'
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -29,6 +31,7 @@ const links = [
 ]
 
 export default function Hero() {
+  const navigate = useNavigate()
   return (
     <section
       id="hero"
@@ -131,6 +134,33 @@ export default function Hero() {
             flexWrap: 'wrap',
           }}
         >
+          <button
+            onClick={() => navigate('/about')}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              fontFamily: 'var(--font-mono)',
+              fontSize: '13px',
+              color: 'var(--bg-secondary)',
+              background: 'var(--text-primary)',
+              border: '1px solid var(--text-primary)',
+              padding: '9px 18px',
+              borderRadius: '40px',
+              cursor: 'pointer',
+              transition: 'opacity 0.25s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.opacity = '0.85'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.opacity = '1'
+            }}
+          >
+            我的经历
+            <ArrowRight size={15} strokeWidth={1.5} />
+          </button>
+
           {links.map(({ label, href }) => (
             <a
               key={label}

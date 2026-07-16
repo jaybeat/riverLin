@@ -11,6 +11,7 @@ import SideToc from './components/SideToc'
 // 详情页按路由懒加载：把 react-markdown 等重依赖移出首页初始包
 const ProjectDetail = lazy(() => import('./components/ProjectDetail'))
 const ArticleDetail = lazy(() => import('./components/ArticleDetail'))
+const About = lazy(() => import('./components/About'))
 
 function HomePage() {
   return (
@@ -38,6 +39,7 @@ function AnimatedRoutes() {
       <Suspense fallback={null}>
         <Routes location={location} key={location.pathname}>
           <Route path="/" element={<HomePage />} />
+          <Route path="/about" element={<About />} />
           <Route path="/project/:id" element={<ProjectDetail />} />
           <Route path="/article/:id" element={<ArticleDetail />} />
         </Routes>
