@@ -895,6 +895,43 @@ export const projects: Project[] = [
     },
   },
   {
+    id: 'mandarin',
+    title: 'Mandarin · AI 桌宠',
+    description:
+      'Windows 桌面 AI 桌宠：Galgame 风格立绘角色常驻桌面，用自然语言对话，集成 LLM 流式对话、离线语音唤醒与识别、VITS 语音合成、屏幕识别与本地应用调用。基于 Qt 6.6.3 / C++17。',
+    tags: ['C++17', 'Qt 6', 'sherpa-onnx', 'VITS', 'ElaWidgetTools'],
+    href: 'https://github.com/Mandarin715/Mandarin',
+    category: 'practice',
+    student: true,
+    cover: '/images/mandarin/pet.webp',
+    detail: {
+      detailDescription:
+        'Mandarin 是一款面向二次元爱好者的 Windows 桌面 AI 桌宠，用 Galgame 风格的透明立绘角色与用户自然语言对话。系统基于 Qt 6.6.3 / C++17，采用分层模块化架构，由三个独立顶层窗口——角色立绘（Tachie，无边框透明、PNG Alpha 渲染、多表情多动作动画）、聊天气泡（Dialog，ElaWidgetTools Fluent 风格、Markdown 打字机式增量渲染）、设置面板（MainWindow，八个子页面）——通过 Qt 信号与槽松耦合联动。对话经自研封装库统一接入 DeepSeek / OpenAI 兼容接口，用 HTTP SSE 流式传输实现首字秒级响应；语音链路全离线：sherpa-onnx KeywordSpotter 做自定义中文唤醒词检测，QAudioSource 直录 16kHz PCM + RMS 静音检测配合 SenseVoice 引擎识别，VITS（vits-simple-api）按句末标点分句流式合成、预取管道让首句 1–2 秒即可播放。此外还有 AI 自动提取用户信息写入长期记忆（memory.json）、含特定关键词时截屏交视觉 LLM 分析的屏幕识别、关键词触发的本地应用调用、一键导入角色包、DLL 插件式粒子与动画、以及由 AI 分类器判断意图后调用百度千帆的联网搜索。全部配置与记忆采用本地文件存储、不依赖数据库，以便携包形式一键启动。',
+      highlights: [
+        '立绘演出系统：无边框透明立绘，随对话切换多表情多动作，播放完自动切回默认',
+        'LLM 流式对话：SSE 流式传输 + 打字机效果，接入 DeepSeek / OpenAI 兼容接口',
+        '全离线语音链路：sherpa-onnx 自定义唤醒词 + SenseVoice 识别，无需联网',
+        'VITS 分句流式合成：按句末标点分句、预取管道，首句 1–2 秒即可播放',
+        '长期记忆 + 屏幕识别 + 本地应用调用：越聊越懂、看屏答疑、关键词启动应用',
+        '角色包一键导入 + DLL 插件扩展 + 百度千帆联网搜索',
+      ],
+      githubUrl: 'https://github.com/Mandarin715/Mandarin',
+      singleColumnScreenshots: true,
+      screenshots: [
+        {
+          src: '/images/mandarin/screen-recognition.webp',
+          caption:
+            '桌面实时陪伴：角色立绘常驻桌面，「看看屏幕」截屏后由视觉 LLM 分析并用角色口吻描述当前画面',
+        },
+        {
+          src: '/images/mandarin/chat-ui.webp',
+          caption:
+            '立绘 + 聊天气泡叠加层：按住说话 / 直接发送，打字机式流式回复，播放完自动切回默认立绘',
+        },
+      ],
+    },
+  },
+  {
     id: 'game-translation',
     title: '游戏汉化工具',
     description:
