@@ -38,7 +38,7 @@ const itemVariants = {
 }
 
 /** mono 大写小标题，沿用站点风格 */
-function SectionLabel({ zh, en }: { zh: string; en: string }) {
+function SectionLabel({ zh, en, sub }: { zh: string; en: string; sub?: string }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
@@ -71,6 +71,20 @@ function SectionLabel({ zh, en }: { zh: string; en: string }) {
       >
         {zh}
       </h2>
+      {sub && (
+        <p
+          style={{
+            fontFamily: 'var(--font-heading)',
+            fontSize: '15px',
+            fontStyle: 'italic',
+            color: 'var(--text-muted)',
+            letterSpacing: '0.3px',
+            marginTop: '6px',
+          }}
+        >
+          {sub}
+        </p>
+      )}
     </motion.div>
   )
 }
@@ -858,7 +872,7 @@ export default function Projects() {
       )}
 
       <div id="course" style={{ marginTop: spotlights.length > 0 ? '72px' : 0, scrollMarginTop: '72px' }}>
-        <SectionLabel zh="AI Agent 课程设计" en="AI Agent Course Design" />
+        <SectionLabel zh="AI Agent 课程《与智能体共事》" en="AI Agent Course Design" sub="Working with Agents" />
         <motion.p
           initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
