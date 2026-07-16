@@ -340,7 +340,7 @@ function EducationContent() {
             style={{
               borderRadius: '14px',
               border: '1px solid var(--border)',
-              background: 'var(--bg-primary)',
+              background: 'var(--surface-card)',
               boxShadow: 'var(--shadow)',
               padding: '20px 22px',
             }}
@@ -414,7 +414,8 @@ function SkillsContent() {
             style={{
               borderRadius: '14px',
               border: '1px solid var(--border)',
-              background: 'var(--bg-secondary)',
+              background: 'var(--surface-card)',
+              boxShadow: 'var(--shadow)',
               padding: '18px 20px',
             }}
           >
@@ -423,7 +424,7 @@ function SkillsContent() {
                 fontFamily: 'var(--font-heading)',
                 fontSize: '15px',
                 fontWeight: 600,
-                color: 'var(--text-primary)',
+                color: 'var(--accent-text)',
                 paddingBottom: '12px',
                 marginBottom: '12px',
                 borderBottom: '1px solid var(--border)',
@@ -504,8 +505,8 @@ function HighlightCard({ exp }: { exp: Experience }) {
       style={{
         height: '100%',
         borderRadius: '14px',
-        background: 'var(--text-primary)',
-        color: 'var(--bg-primary)',
+        background: 'var(--accent)',
+        color: 'var(--accent-on)',
         padding: '22px 22px 24px',
         display: 'flex',
         flexDirection: 'column',
@@ -562,14 +563,15 @@ function HighlightCard({ exp }: { exp: Experience }) {
                 <p
                   style={{
                     fontFamily: 'var(--font-mono)',
-                    fontSize: '14px',
+                    fontSize: '17px',
                     fontWeight: 600,
-                    marginBottom: '2px',
+                    letterSpacing: '-0.3px',
+                    marginBottom: '3px',
                   }}
                 >
                   {m.label}
                 </p>
-                <p style={{ fontSize: '13px', lineHeight: 1.6, opacity: 0.8 }}>{m.desc}</p>
+                <p style={{ fontSize: '13px', lineHeight: 1.6, opacity: 0.78 }}>{m.desc}</p>
               </div>
             ))}
           </div>
@@ -587,7 +589,7 @@ function DetailCard({ exp }: { exp: Experience }) {
         height: '100%',
         borderRadius: '14px',
         border: '1px solid var(--border)',
-        background: 'var(--bg-primary)',
+        background: 'var(--surface-card)',
         boxShadow: 'var(--shadow)',
         padding: '22px 24px 24px',
         display: 'flex',
@@ -646,9 +648,9 @@ function ExperienceContent({ exp }: { exp: Experience }) {
           fontFamily: 'var(--font-mono)',
           fontSize: '11px',
           letterSpacing: '0.5px',
-          color: 'var(--text-secondary)',
-          background: 'var(--bg-secondary)',
-          border: '1px solid var(--border)',
+          color: 'var(--accent-text)',
+          background: 'var(--accent-soft)',
+          border: '1px solid var(--accent-border)',
           borderRadius: '20px',
           padding: '4px 12px',
           marginBottom: '12px',
@@ -811,6 +813,7 @@ function Presentation({ onExit }: { onExit: () => void }) {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.25 }}
+      className="present-scope"
       style={{
         position: 'fixed',
         inset: 0,
@@ -964,14 +967,42 @@ export default function About() {
       animate="visible"
       exit="exit"
       onScroll={handleScroll}
+      className="about-scope"
       style={{
         minHeight: '100vh',
         overflowY: 'auto',
         position: 'relative',
       }}
     >
-      {/* 响应式：双栏经历卡等高对齐，窄屏堆叠；教育/技能网格同理 */}
+      {/* About 局部配色：暖纸底 + 浮起的白卡 + 墨绿强调（不影响全站其它页面） */}
       <style>{`
+        .about-scope {
+          --surface-card: #fdfcfa;
+          --border: #e6e2da;
+          --text-secondary: #5a5854;
+          --text-muted: #9a968e;
+          --accent: #2f5d4a;
+          --accent-on: #eef3ef;
+          --accent-text: #2f5d4a;
+          --accent-soft: #e8efe9;
+          --accent-border: #d3e2d8;
+        }
+        /* 放映模式走深色 deck：同一墨绿家族，提亮以适应深底 */
+        .present-scope {
+          --bg-primary: #14161a;
+          --bg-secondary: #1d2026;
+          --surface-card: #1b1e23;
+          --text-primary: #f2f3f5;
+          --text-secondary: #a7adb5;
+          --text-muted: #6c727a;
+          --border: #2b2f36;
+          --accent: #2f8062;
+          --accent-on: #eaf6f0;
+          --accent-text: #7fc3a3;
+          --accent-soft: #17251f;
+          --accent-border: #2a4638;
+          --shadow: none;
+        }
         .exp-grid {
           display: grid;
           grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr);
@@ -1051,9 +1082,9 @@ export default function About() {
                 gap: '7px',
                 fontFamily: 'var(--font-mono)',
                 fontSize: '13px',
-                color: 'var(--bg-secondary)',
-                background: 'var(--text-primary)',
-                border: '1px solid var(--text-primary)',
+                color: 'var(--accent-on)',
+                background: 'var(--accent)',
+                border: '1px solid var(--accent)',
                 borderRadius: '20px',
                 padding: '7px 16px',
                 cursor: 'pointer',
