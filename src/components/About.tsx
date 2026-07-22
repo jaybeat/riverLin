@@ -14,6 +14,7 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
+  Cpu,
 } from 'lucide-react'
 
 const pageVariants = {
@@ -99,17 +100,29 @@ interface WorkItem {
   desc: string
 }
 
+interface LinkItem {
+  label: string
+  href: string
+}
+
+interface TechGroup {
+  label: string
+  items: string[]
+}
+
 interface Experience {
   company: string
   role: string
   period: string
   capability: string
+  techStack?: TechGroup[]
   outputTitle: string
   outputs: string[]
   metrics?: Metric[]
   background?: string
   product?: string
   work?: WorkItem[]
+  links?: LinkItem[]
 }
 
 const experiences: Experience[] = [
@@ -236,6 +249,112 @@ const experiences: Experience[] = [
   },
 ]
 
+/* ── 教育版数据（面向 AI 老师岗：懂技术 / 会应用 / 能教学带赛） ──────── */
+
+const teacherIntro = `我是林川杰（RiverLin）。本科与硕士就读于中国人民大学信息学院，主攻数据挖掘与机器学习，为「懂 AI」打下了扎实底子。我的 AI 技术之路从微软亚洲研究院起步，随后在支付宝（蚂蚁金服）做到高级工程师，用机器学习、NLP、推荐与量化建模解决真实业务问题；此后转向应用创新，先后主导钉钉服务群、智能云客服、大数据分析平台等企业级 AI 产品，绩效 375「优秀」。近几年我把重心放到「AI × 学习」——以「理解型学习」的理念，在上海建桥学院开设《编程算法》与《AI 智能体》课程，从机制出发设计课程、培养学生的 AI 思维与作品，并指导学生在蓝桥杯、ICPC 等竞赛中获奖。我希望做的，正是一名 AI 老师需要的那种人：既深入理解 AI 技术，又有把 AI 落地成产品的应用创新能力，还能把这些变成学生长得出来的理解、作品与奖项。`
+
+const teacherSkillGroups: SkillGroup[] = [
+  {
+    title: '深入理解 AI 技术',
+    items: ['机器学习 / 深度学习 / NLP', 'LLM · Prompt · Agent · MCP', '推荐与量化建模'],
+  },
+  {
+    title: 'AI 应用创新能力',
+    items: ['从需求到产品定义', '把 AI 融入真实业务', '企业级问答 / 知识库 / 数据平台落地'],
+  },
+  {
+    title: '教学与比赛能力',
+    items: ['理解型学习理念', '从机制出发的课程设计', '培养学生 AI 思维、作品与竞赛获奖'],
+  },
+]
+
+const teacherExperiences: Experience[] = [
+  {
+    company: '深入理解 AI 技术',
+    role: '微软亚研 → 支付宝高级工程师',
+    period: '2016 – 2021',
+    capability: '深入理解 AI 技术',
+    techStack: [
+      {
+        label: '机器学习 / 建模',
+        items: ['机器学习', '深度学习', '神经网络', 'NLP', '推荐系统', '量化建模'],
+      },
+      {
+        label: 'LLM · Agent 工程',
+        items: ['Agent', 'Skill', 'MCP', 'RAG', 'Multi-Agent', 'Prompt / Workflow'],
+      },
+    ],
+    outputTitle: '代表项目',
+    outputs: ['风险预测模型', '内容标签体系'],
+    metrics: [
+      { label: '风险预测', desc: '随机森林模型显著降低保险出险预测误差' },
+      { label: '点击率 +60%', desc: '内容标签体系提升内容分发点击率' },
+    ],
+    background:
+      '在微软亚研起步、于支付宝深耕算法：金融风险预测精度不足直接影响业务止损，社区内容理解维度单一制约分发效率，都需要用机器学习从数据里「长出」判断。',
+    product: '风险预测模型服务 · 社区内容标签系统 · 量化因子选股工具',
+    work: [
+      { label: '模型优化', desc: '清洗海量特征数据，训练与调优随机森林等机器学习模型。' },
+      { label: '标签体系', desc: '设计并落地内容标签挖掘算法，构建多维度内容画像。' },
+      { label: '量化回测', desc: '从 0 搭建基于新闻与基本面的因子选股回测框架。' },
+    ],
+  },
+  {
+    company: 'AI 应用创新能力',
+    role: '支付宝 AI 产品专家',
+    period: '2019 – 2023',
+    capability: 'AI 应用创新能力',
+    outputTitle: '产品',
+    outputs: ['智能云客服（知识库 + 推荐气泡）', '钉钉一站式 B2B 社群服务平台', '客户数据分析平台'],
+    metrics: [
+      { label: '绩效 375 · 优秀', desc: '企业级 AI 产品交付获「优秀」绩效评级' },
+      { label: '10,000+ 商家', desc: '智能云客服支撑上万小程序商家，人工求助率下降约 25%' },
+      { label: '30+ 业务场景', desc: '钉钉服务群覆盖阿里云、淘宝商家运营等内部核心业务' },
+    ],
+    background:
+      '把 AI 从「模型」做成「产品」：商家知识库覆盖低、传统检索问答弱；B2B 服务链路长、难沉淀；企业客户数据「采建管用」割裂——都需要产品化的 AI 应用创新。',
+    product:
+      '智能云客服平台、钉钉一站式 B2B 社群服务平台、客户数据分析平台（企业岗更详细的分项经历见「企业版」）',
+    work: [
+      { label: '智能客服', desc: '设计半自动知识抽取 + 语义推荐气泡，在用户提问前预判需求并闭环反馈。' },
+      { label: '钉钉服务群', desc: '以「人-客-群-内容」四层逻辑定义 B2B 社群服务标准，打通开放平台。' },
+      { label: '数据平台', desc: '搭建 OneID 打通、标签加工与画像分析，实现数据接入到洞察的闭环。' },
+    ],
+  },
+  {
+    company: '教学与比赛能力',
+    role: '上海建桥学院',
+    period: '2023 – 至今',
+    capability: '教学与比赛能力',
+    outputTitle: '成果',
+    outputs: [
+      '北京师范大学「理解型学习」专业教师',
+      '《编程算法》课程',
+      '《AI 智能体》四单元进阶课',
+      '学生 AI 作品',
+      '竞赛获奖指导',
+    ],
+    metrics: [
+      { label: '蓝桥杯银奖', desc: '指导学生在蓝桥杯程序设计竞赛中获得银奖' },
+      { label: 'ICPC 铜奖', desc: '指导学生在 ICPC 国际大学生程序设计竞赛中获得铜奖' },
+      { label: '学生作品', desc: '带出多项学生 AI 实践作品（桌宠、地图、拍照学单词等）' },
+    ],
+    background:
+      'AI 让答案随手可得，教学重点从「记知识」转向「长出 AI 替代不了的理解与判断」。我以「理解型学习」为理念，从机制出发设计课程，让学生既能打编程算法的硬底子，又能用 AI 做出自己的作品。',
+    product:
+      '《编程算法》+《AI 智能体》课程体系：从机制出发的四单元进阶课，配套学生 AI 作品与竞赛指导。',
+    work: [
+      { label: '理解型学习', desc: '不教「工具怎么点」，而教「机制为什么」，培养可迁移的 AI 思维。' },
+      { label: '课程设计', desc: '从机制出发设计四单元进阶课程，学生角色随之逐级晋升。' },
+      { label: '作品与竞赛', desc: '指导学生产出 AI 作品并在蓝桥杯、ICPC 等竞赛中获奖。' },
+    ],
+    links: [
+      { label: '查看课程设计', href: '/#course' },
+      { label: '学生作品', href: '/#course' },
+    ],
+  },
+]
+
 /* ── 共享内容组件（滚动视图与放映视图复用） ─────────────────────── */
 
 /** section 标题：mono 英文小标 + 中文大标（可选图标） */
@@ -282,7 +401,7 @@ function SectionHeading({
   )
 }
 
-function CoverContent() {
+function CoverContent({ intro, subtitle }: { intro: string; subtitle?: string }) {
   return (
     <div>
       <p
@@ -305,21 +424,23 @@ function CoverContent() {
           letterSpacing: '-1.5px',
           lineHeight: 1.1,
           color: 'var(--text-primary)',
-          marginBottom: '10px',
+          marginBottom: subtitle ? '10px' : '28px',
         }}
       >
         林川杰 <span style={{ color: 'var(--text-muted)' }}>/ RiverLin</span>
       </h1>
-      <p
-        style={{
-          fontSize: '17px',
-          fontWeight: 500,
-          color: 'var(--text-secondary)',
-          marginBottom: '28px',
-        }}
-      >
-        AI 产品经理 · Agent 工程师
-      </p>
+      {subtitle && (
+        <p
+          style={{
+            fontSize: '17px',
+            fontWeight: 500,
+            color: 'var(--text-secondary)',
+            marginBottom: '28px',
+          }}
+        >
+          {subtitle}
+        </p>
+      )}
       <p style={{ fontSize: '15px', lineHeight: 1.9, color: 'var(--text-secondary)' }}>{intro}</p>
     </div>
   )
@@ -399,16 +520,16 @@ function EducationContent() {
   )
 }
 
-function SkillsContent() {
+function SkillsContent({ groups }: { groups: SkillGroup[] }) {
   return (
     <div>
       <SectionHeading
         en="Core Skills"
-        zh="核心技能"
+        zh="核心能力"
         icon={<Zap size={22} strokeWidth={1.6} style={{ color: 'var(--text-muted)' }} />}
       />
       <div className="skill-grid">
-        {skillGroups.map((group) => (
+        {groups.map((group) => (
           <div
             key={group.title}
             style={{
@@ -513,6 +634,51 @@ function HighlightCard({ exp }: { exp: Experience }) {
         gap: '20px',
       }}
     >
+      {exp.techStack && (
+        <div>
+          <p
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '7px',
+              fontFamily: 'var(--font-mono)',
+              fontSize: '11px',
+              letterSpacing: '1px',
+              textTransform: 'uppercase',
+              opacity: 0.6,
+              marginBottom: '12px',
+            }}
+          >
+            <Cpu size={13} strokeWidth={1.6} />
+            精通技术
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {exp.techStack.map((g) => (
+              <div key={g.label}>
+                <p style={{ fontSize: '12px', opacity: 0.6, marginBottom: '7px' }}>{g.label}</p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                  {g.items.map((it) => (
+                    <span
+                      key={it}
+                      style={{
+                        fontSize: '12.5px',
+                        fontWeight: 500,
+                        lineHeight: 1.4,
+                        background: 'rgba(255, 255, 255, 0.13)',
+                        borderRadius: '8px',
+                        padding: '3px 9px',
+                      }}
+                    >
+                      {it}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div>
         <p
           style={{
@@ -633,6 +799,39 @@ function DetailCard({ exp }: { exp: Experience }) {
           </ul>
         </SubBlock>
       )}
+
+      {exp.links && (
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginTop: '2px' }}>
+          {exp.links.map((lnk) => (
+            <a
+              key={lnk.label}
+              href={lnk.href}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                fontFamily: 'var(--font-mono)',
+                fontSize: '13px',
+                color: 'var(--accent-text)',
+                background: 'var(--accent-soft)',
+                border: '1px solid var(--accent-border)',
+                borderRadius: '20px',
+                padding: '6px 14px',
+                textDecoration: 'none',
+                transition: 'opacity 0.2s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.opacity = '0.8'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.opacity = '1'
+              }}
+            >
+              {lnk.label} →
+            </a>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
@@ -736,26 +935,33 @@ interface Slide {
   node: React.ReactNode
 }
 
-const slides: Slide[] = [
-  { key: 'cover', node: <CoverContent /> },
-  {
-    key: 'edu-skills',
-    node: (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '48px' }}>
-        <EducationContent />
-        <SkillsContent />
-      </div>
-    ),
-  },
-  ...experiences.map((exp) => ({
-    key: `${exp.company}-${exp.period}`,
-    node: <ExperienceContent exp={exp} />,
-  })),
-  { key: 'contact', node: <ContactContent /> },
-]
+function buildSlides(
+  intro: string,
+  subtitle: string | undefined,
+  groups: SkillGroup[],
+  exps: Experience[],
+): Slide[] {
+  return [
+    { key: 'cover', node: <CoverContent intro={intro} subtitle={subtitle} /> },
+    {
+      key: 'edu-skills',
+      node: (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '48px' }}>
+          <EducationContent />
+          <SkillsContent groups={groups} />
+        </div>
+      ),
+    },
+    ...exps.map((exp) => ({
+      key: `${exp.company}-${exp.role}-${exp.period}`,
+      node: <ExperienceContent exp={exp} />,
+    })),
+    { key: 'contact', node: <ContactContent /> },
+  ]
+}
 
 /** 放映模式覆盖层：一次一页，键盘 ←/→ 翻页、Esc 退出 */
-function Presentation({ onExit }: { onExit: () => void }) {
+function Presentation({ slides, onExit }: { slides: Slide[]; onExit: () => void }) {
   const [current, setCurrent] = useState(0)
   const [zoom, setZoom] = useState(1)
   const last = slides.length - 1
@@ -932,6 +1138,14 @@ export default function About() {
   const [scrolled, setScrolled] = useState(false)
   const [presenting, setPresenting] = useState(false)
   const [canPresent, setCanPresent] = useState(false)
+  const [variant, setVariant] = useState<'enterprise' | 'teacher'>('enterprise')
+
+  // 按 variant 选数据：企业版（编年 5 段）/ 教育版（三核心能力 3 段）
+  const activeIntro = variant === 'teacher' ? teacherIntro : intro
+  const activeSubtitle = variant === 'teacher' ? undefined : 'AI 产品经理 · Agent 工程师'
+  const activeSkillGroups = variant === 'teacher' ? teacherSkillGroups : skillGroups
+  const activeExperiences = variant === 'teacher' ? teacherExperiences : experiences
+  const slides = buildSlides(activeIntro, activeSubtitle, activeSkillGroups, activeExperiences)
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     setScrolled(e.currentTarget.scrollTop > 20)
@@ -1073,6 +1287,42 @@ export default function About() {
         </button>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          {/* 版本切换：企业版 / 教育版 */}
+          <div
+            style={{
+              display: 'inline-flex',
+              padding: '3px',
+              borderRadius: '20px',
+              border: '1px solid var(--border)',
+              background: 'var(--surface-card)',
+            }}
+          >
+            {([
+              ['enterprise', '企业版'],
+              ['teacher', '教育版'],
+            ] as const).map(([key, label]) => {
+              const active = variant === key
+              return (
+                <button
+                  key={key}
+                  onClick={() => setVariant(key)}
+                  style={{
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '12px',
+                    padding: '5px 12px',
+                    borderRadius: '16px',
+                    border: 'none',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    background: active ? 'var(--accent)' : 'transparent',
+                    color: active ? 'var(--accent-on)' : 'var(--text-secondary)',
+                  }}
+                >
+                  {label}
+                </button>
+              )
+            })}
+          </div>
           {canPresent && (
             <button
               onClick={enterPresent}
@@ -1128,7 +1378,7 @@ export default function About() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: [0.2, 0.8, 0.2, 1] as const }}
         >
-          <CoverContent />
+          <CoverContent intro={activeIntro} subtitle={activeSubtitle} />
         </motion.div>
       </section>
 
@@ -1148,7 +1398,7 @@ export default function About() {
         </motion.section>
 
         <motion.section variants={sectionVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-80px' }}>
-          <SkillsContent />
+          <SkillsContent groups={activeSkillGroups} />
         </motion.section>
 
         {/* 主要经历 */}
@@ -1166,9 +1416,9 @@ export default function About() {
             以下每段经历，都是对上面某项核心能力的印证。
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '56px' }}>
-            {experiences.map((exp) => (
+            {activeExperiences.map((exp) => (
               <motion.div
-                key={`${exp.company}-${exp.period}`}
+                key={`${exp.company}-${exp.role}-${exp.period}`}
                 variants={sectionVariants}
                 initial="hidden"
                 whileInView="visible"
@@ -1186,7 +1436,7 @@ export default function About() {
       </div>
 
       <AnimatePresence>
-        {presenting && <Presentation key="present" onExit={exitPresent} />}
+        {presenting && <Presentation key="present" slides={slides} onExit={exitPresent} />}
       </AnimatePresence>
     </motion.div>
   )
