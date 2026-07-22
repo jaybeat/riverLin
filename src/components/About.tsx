@@ -1142,7 +1142,8 @@ export default function About() {
 
   // 按 variant 选数据：企业版（编年 5 段）/ 教育版（三核心能力 3 段）
   const activeIntro = variant === 'teacher' ? teacherIntro : intro
-  const activeSubtitle = variant === 'teacher' ? undefined : 'AI 产品经理 · Agent 工程师'
+  const activeSubtitle =
+    variant === 'teacher' ? '互联网大厂 AI 工程师 → 教育' : 'AI 产品经理 · Agent 工程师'
   const activeSkillGroups = variant === 'teacher' ? teacherSkillGroups : skillGroups
   const activeExperiences = variant === 'teacher' ? teacherExperiences : experiences
   const slides = buildSlides(activeIntro, activeSubtitle, activeSkillGroups, activeExperiences)
